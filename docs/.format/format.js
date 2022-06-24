@@ -36,7 +36,7 @@ const loopNav = (nav, lang) =>
             };
         } else {
             return {
-                path: path.resolve(__dirname, '..', `${e.link.replace(/^\//, '')}.md`),
+                path: path.resolve(__dirname, '..', `${e.link}.md`),
                 type: file.NAV_TYPE,
                 lang,
             };

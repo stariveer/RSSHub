@@ -8,33 +8,19 @@ pageClass: routes
 
 ### Changes
 
-<RouteEn author="nczitzk" example="/anki/changes" path="/anki/changes"/>
+<Route author="nczitzk" example="/anki/changes" path="/anki/changes"/>
 
 ## AnyTXT
 
 ### Release Notes
 
-<RouteEn author="nczitzk" example="/anytxt/release-notes" path="/anytxt/release-notes"/>
+<Route author="nczitzk" example="/anytxt/release-notes" path="/anytxt/release-notes"/>
 
 ## Apkpure
 
 ### Versions
 
 <RouteEn author="maple3142" example="/apkpure/versions/jp/jp.co.craftegg.band" path="/apkpure/versions/:region/:pkg" :paramsDesc="['Region code', 'package name']"/>
-
-## App Center
-
-### Release
-
-<RouteEn author="Rongronggg9" example="/app-center/release/cloudflare/1.1.1.1-windows/beta" path="/app-center/release/:user/:app/:distribution_group" :paramsDesc="['User', 'App name', 'Distribution group']" radar="1" rssbud="1">
-
-::: tip
-
-The parameters can be extracted from the Release page URL: `https://install.appcenter.ms/users/:user/apps/:app/distribution_groups/:distribution_group`
-
-:::
-
-</RouteEn>
 
 ## App Store/Mac App Store
 
@@ -70,8 +56,6 @@ Software id
 
 Language
 
-| Language | key |
-| -------- | --- |
 | English | en |
 | 中文 (简体) | cn |
 | 中文 (繁體) | tw |
@@ -128,27 +112,13 @@ For example: `https://www.curseforge.com/sc2/assets/taylor-mouses-stuff/files` t
 
 ### Image New Build
 
-<RouteEn author="HenryQW" example="/dockerhub/build/wangqiru/ttrss" path="/dockerhub/build/:owner/:image/:tag?" :paramsDesc="['Image owner', 'Image name', 'Image tag，default to latest']">
+<RouteEn author="HenryQW" example="/dockerhub/build/wangqiru/ttrss" path="/dockerhub/build/:owner/:image/:tag?" :paramsDesc="['Image owner', 'Image name', 'Image tag，default to latest']"/>
 
 ::: warning
 
-The owner of the official image fills in the library, for example: <https://rsshub.app/dockerhub/build/library/mysql>
+The owner of the official image fills in the library, for example: https://rsshub.app/dockerhub/build/library/mysql
 
 :::
-
-</RouteEn>
-
-### Image New Tag
-
-<RouteEn author="outloudvi" example="/dockerhub/tag/library/mariadb" path="/dockerhub/tag/:owner/:image/:limits?" :paramsDesc="['Image owner', 'Image name', 'Tag count, 10 by default']">
-
-::: warning
-
-Use `library` as the `owner` for official images, such as <https://rsshub.app/dockerhub/tag/library/mysql>
-
-:::
-
-</RouteEn>
 
 ## Eagle
 
@@ -161,7 +131,7 @@ Language
 | Simplified Chinese | Traditional Chinese | English |
 | ------ | -------- | -------- |
 |  cn  |  tw  |  en  |
-
+    
 </RouteEn>
 
 ## Everything
@@ -202,7 +172,7 @@ Language
 
 ### Release News
 
-<RouteEn author="maokwen" example="/hugo/releases" path="/hugo/releases"/>
+<Route author="maokwen" example="/hugo/releases" path="/hugo/releases"/>
 
 ## IPSW.me
 
@@ -220,7 +190,7 @@ Language
 
 ### APP Update
 
-<RouteEn author="HXHL" example="/macked/app/cleanmymac-x" path="/macked/app/:name" :paramsDesc="['app name, can be find in URL']"/>
+<Route author="HXHL" example="/macked/app/cleanmymac-x" path="/macked/app/:name" :paramsDesc="['app name, can be find in URL']"/>
 
 ## ManicTime
 
@@ -236,7 +206,7 @@ Language
 
 ### Updates
 
-<RouteEn author="hellodword" example="/microsoft-store/updates/9WZDNCRFHVN5/CN" path="/microsoft-store/updates/:productid/:market?" :paramsDesc="['`Share` - `Copy Link` in the Store', '`CN` as default']" />
+<Route author="hellodword" example="/microsoft-store/updates/9WZDNCRFHVN5/CN" path="/microsoft-store/updates/:productid/:market?" :paramsDesc="['`Share` - `Copy Link` in the Store', '`CN` as default']" />
 
 ## Minecraft
 
@@ -271,12 +241,6 @@ Refer to [#minecraft](/en/game.html#minecraft)
 
 见 [#nintendo](/game.html#nintendo)
 
-## NPM
-
-### Package
-
-<RouteEn author="Fatpandac" example="/npm/package/rsshub" path="/npm/package/:name" :paramsDesc="['Package name']"/>
-
 ## Nvidia Web Driver
 
 ### Changelog
@@ -288,12 +252,6 @@ Refer to [#minecraft](/en/game.html#minecraft)
 ### Announcements
 
 <RouteEn author="nczitzk" example="/obsidian/announcements" path="/obsidian/announcements"/>
-
-## OpenWrt
-
-### Releases
-
-<RouteEn author="DIYgod" example="/openwrt/releases/xiaomi/xiaomi_redmi_router_ac2100" path="/releases/:brand/:model" :paramsDesc="['Device Model, can be found in url of `Table of Hardware` -> `Device Page`', 'Same as above']"/>
 
 ## PlayStation
 
@@ -312,12 +270,6 @@ Refer to [#minecraft](/en/game.html#minecraft)
 | ko     | zh_CN       | zh_TW       | en      | uk         | ru      | pl     |
 
 </RouteEn>
-
-## qBittorrent
-
-### News
-
-<RouteEn author="TonyRL" example="/qbittorrent/news" path="/qbittorrent/news" radar="1" rssbud="1"/>
 
 ## QNAP
 
@@ -353,7 +305,7 @@ Refer to [#minecraft](/en/game.html#minecraft)
 
 ### New routes
 
-<RouteEn author="DIYgod" path="/rsshub/routes/:lang?" example="/rsshub/routes/en" :paramsDesc="['Language, `en` means English routes, other values or null means Chinese routes']"/>
+<RouteEn path="/rsshub/routes" example="/rsshub/routes" />
 
 ### New sponsors
 
@@ -411,8 +363,3 @@ Refer to [#minecraft](/en/game.html#minecraft)
 
 <RouteEn author="nczitzk" example="/xyplorer/whatsnew" path="/xyplorer/whatsnew"/>
 
-## Zotero
-
-### Version History
-
-<RouteEn author="jasongzy" example="/zotero/versions" path="/zotero/versions"/>

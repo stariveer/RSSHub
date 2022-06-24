@@ -14,12 +14,14 @@ tmp
 *.iml
 coverage
 .env
+yarn.lock
 app-minimal/
-dump.rdb
-Session.vim
 
 .now
 .vercel
 
 assets/build/
-package-lock.json
+
+.user.ini
+
+.well-known/

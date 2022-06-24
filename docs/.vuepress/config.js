@@ -1,4 +1,4 @@
-const { pinyin, PINYIN_STYLE } = require('@napi-rs/pinyin');
+const { pinyin } = require('@napi-rs/pinyin');
 const { slugify: _slugify } = require('@vuepress/shared-utils');
 
 module.exports = {
@@ -39,10 +39,10 @@ module.exports = {
         },
         extendMarkdown: (md) => {
             md.use(require('../.format/md/hierarchySlug'), {
-                slugify(s) {
+                slugify: function (s) {
                     return _slugify(
                         pinyin(s, {
-                            style: PINYIN_STYLE.Plain,
+                            style: pinyin.STYLE_NORMAL,
                             heteronym: true,
                             segment: true,
                         })
@@ -67,7 +67,6 @@ module.exports = {
         ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
         ['link', { rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#ff8549' }],
     ],
-    theme: 'vuepress-theme-rsshub',
     themeConfig: {
         repo: 'DIYgod/RSSHub',
         editLinks: true,

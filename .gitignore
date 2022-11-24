@@ -24,3 +24,4 @@ Session.vim
 assets/build/
 package-lock.json
 yarn.lock
+.well-known/

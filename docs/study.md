@@ -234,6 +234,12 @@ path="/ctfhub/upcoming/:limit?"
 
 </Route>
 
+## ResearchGate
+
+### Publications
+
+<Route author="nczitzk" example="/researchgate/publications/Somsak-Panha" path="/researchgate/publications/:username" :paramsDesc="['用户名，可在用户页地址栏中找到']" puppeteer="1" anticrawler="1"/>
+
 ## X-MOL 平台
 
 ### 新闻
@@ -644,6 +650,12 @@ path="/ctfhub/upcoming/:limit?"
 ### 通知公告
 
 <Route author="nczitzk" example="/cpta/notice" path="/cpta/notice" />
+
+## 中国研究生招生信息网
+
+### 考研动态
+
+<Route author="SunBK201" example="/chsi/kydt" path="/chsi/kydt" radar="1" />
 
 ## 中国智库网
 

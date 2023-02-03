@@ -94,6 +94,7 @@
     "@sentry/node": "7.31.0",
     "aes-js": "3.1.2",
     "art-template": "4.13.2",
+    "atob": "^2.1.2",
     "bbcodejs": "0.0.4",
     "cheerio": "1.0.0-rc.12",
     "chrono-node": "2.5.0",

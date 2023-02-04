@@ -3235,6 +3235,15 @@ bl@^4.0.3:
     inherits "^2.0.4"
     readable-stream "^3.4.0"
 
+bl@~4.0.0:
+  version "4.0.4"
+  resolved "https://registry.npmmirror.com/bl/-/bl-4.0.4.tgz#f4fda39f81a811d0df6368c1ed91dae499d1c900"
+  integrity sha512-7tdr4EpSd7jJ6tuQ21vu2ke8w7pNEstzj1O8wwq6sNNzO3UDi5MA8Gny/gquCj7r2C6fHudg8tKRGyjRgmvNxQ==
+  dependencies:
+    buffer "^5.5.0"
+    inherits "^2.0.4"
+    readable-stream "^3.4.0"
+
 blob-to-buffer@^1.2.9:
   version "1.2.9"
   resolved "https://registry.yarnpkg.com/blob-to-buffer/-/blob-to-buffer-1.2.9.tgz#a17fd6c1c564011408f8971e451544245daaa84a"
@@ -3810,6 +3819,11 @@ cheerio@^0.22.0, cheerio@~0.22.0:
     lodash.reduce "^4.4.0"
     lodash.reject "^4.4.0"
     lodash.some "^4.4.0"
+
+child_process@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/child_process/-/child_process-1.0.2.tgz#b1f7e7fc73d25e7fd1d455adc94e143830182b5a"
+  integrity sha512-Wmza/JzL0SiWz7kl6MhIKT5ceIlnFPJX+lwUGj7Clhy5MMldsSoJR0+uvRzOS5Kv45Mq7t1PoE8TsOA9bzvb6g==
 
 chokidar@^2.0.3, chokidar@^2.1.8:
   version "2.1.8"
@@ -6601,6 +6615,13 @@ git-rev-sync@3.0.2:
     graceful-fs "4.1.15"
     shelljs "0.8.5"
 
+github-webhook-handler@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmmirror.com/github-webhook-handler/-/github-webhook-handler-1.0.0.tgz#96abb851b3b79c530d1674247c30bcbc6b6895fc"
+  integrity sha512-1OXGPYT2AF6gpINFoTMEn82AaeCX85bpG7hYxud5FwJR0U3PzMVRGjDP1UcV8Z++5ObcSlDDFHOEdl4p0tLkWQ==
+  dependencies:
+    bl "~4.0.0"
+
 glob-parent@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
@@ -7299,6 +7320,11 @@ http2-wrapper@^1.0.0-beta.5.2:
   dependencies:
     quick-lru "^5.1.1"
     resolve-alpn "^1.0.0"
+
+http@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://registry.npmmirror.com/http/-/http-0.0.1-security.tgz#3aac09129d12dc2747bbce4157afde20ad1f7995"
+  integrity sha512-RnDvP10Ty9FxqOtPZuxtebw1j4L/WiqNMDtuc1YMH1XQm5TgDRaR1G9u8upL6KD1bXHSp9eSXo/ED+8Q7FAr+g==
 
 https-browserify@^1.0.0:
   version "1.0.0"

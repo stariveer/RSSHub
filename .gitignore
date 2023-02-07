@@ -2,6 +2,7 @@ node_modules
 npm-debug.log
 error.log
 combined.log
+.log
 .vscode
 .idea
 .DS_Store
@@ -25,7 +26,5 @@ assets/build/
 package-lock.json
 yarn.lock
 .well-known/
-yarn.lock
-
 rsshub-webhookHandler.js
 deploy.sh

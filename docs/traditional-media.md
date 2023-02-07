@@ -494,6 +494,10 @@ Solidot 提供的 feed:
 
 <Route author="xyqfer" example="/economist/gre-vocabulary" path="/economist/gre-vocabulary" radar="1" rssbud="1"/>
 
+### 商论
+
+<Route author="prnake" example="/economist/global-business-review/cn-en" path="/economist/global-business-review/:language?" :paramsDesc="['语言，支持简体 cn、繁体 tw、英文 en ，可选择多个语言，默认为 cn-en']"  radar="1" rssbud="1"/>
+
 ### 下载
 
 <Route author="nczitzk" example="/economist/download" path="/economist/download" >
@@ -526,7 +530,7 @@ Solidot 提供的 feed:
 
 ### 新聞
 
-<Route author="KeiLongW" example="/yahoo-news/hk/world" path="/yahoo-news/:region/:category?" :paramsDesc="['地区','类别']">
+<Route author="KeiLongW" example="/yahoo/news/hk/world" path="/yahoo/news/:region/:category?" :paramsDesc="['地区','类别']" radar="1">
 
 `地区`
 
@@ -582,7 +586,7 @@ Provides all of the articles by the specified Yahoo! author.
 
 ### 新闻分类
 
-<Route author="idealclover" example="/caixin/finance/regulation" path="/caixin/:column/:category" :paramsDesc="['栏目名', '栏目下的子分类名']">
+<Route author="idealclover" example="/caixin/finance/regulation" path="/caixin/:column/:category" :paramsDesc="['栏目名', '栏目下的子分类名']" supportPodcast="1">
 
 Column 列表：
 
@@ -606,11 +610,11 @@ Category 列表：
 
 ### 首页新闻
 
-<Route author="EsuRt"  example="/caixin/article" path="/caixin/article"/>
+<Route author="EsuRt"  example="/caixin/article" path="/caixin/article" radar="1" supportPodcast="1"/>
 
 ### 最新文章
 
-<Route author="tpnonthealps" example="/caixin/latest" path="/caixin/latest">
+<Route author="tpnonthealps" example="/caixin/latest" path="/caixin/latest" radar="1">
 
 说明：此 RSS feed 会自动抓取财新网的最新文章，但不包含 FM 及视频内容。
 
@@ -618,11 +622,11 @@ Category 列表：
 
 ### 财新数据通
 
-<Route author="nczitzk" example="/caixin/database" path="/caixin/database"/>
+<Route author="nczitzk" example="/caixin/database" path="/caixin/database" radar="1"/>
 
 ### 财新一线
 
-<Route author="boypt"  example="/caixin/yxnews" path="/caixin/yxnews"/>
+<Route author="boypt"  example="/caixin/k" path="/caixin/k" radar="1" supportPodcast="1"/>
 
 ## 参考消息
 
@@ -2418,6 +2422,20 @@ category 对应的关键词有
 ### 最新
 
 <Route author="yuxinliu-alex" example="/chinanews" path="/chinanews" radar="1" rssbud="1" />
+
+## 中国新闻周刊
+
+### 栏目
+
+提取文章全文。
+
+<Route author="changren-wcr" example="/inewsweek/survey" path="/inewsweek/:channel" :paramsDesc="['栏目']">
+
+| 封面    | 时政       | 社会      | 经济      | 国际    | 调查     | 人物     |
+| ----- | -------- | ------- | ------- | ----- | ------ | ------ |
+| cover | politics | society | finance | world | survey | people |
+
+</Route>
 
 ## 中山网
 

@@ -26,3 +26,6 @@ package-lock.json
 yarn.lock
 .well-known/
 yarn.lock
+
+rsshub-webhookHandler.js
+deploy.sh

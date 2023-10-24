@@ -3,4 +3,4 @@ coverage
 docker-compose.yml
 !/.github
 !/docs/.vuepress
-website
+rsshub-webhookHandler.js

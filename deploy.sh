@@ -13,11 +13,9 @@ SITE_PATH='/www/wwwroot/rsshub.trainspott.in'
 
 cd $SITE_PATH
 echo "hehe1"
+git fetch
 git reset --hard origin/master
-git clean -f
-git pull
-git checkout master
 pm2 restart rsshub
 
 sh pwd
-echo "hehe"
+echo "done"

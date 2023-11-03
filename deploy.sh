@@ -12,7 +12,7 @@
 SITE_PATH='/www/wwwroot/rsshub.trainspott.in'
 
 cd $SITE_PATH
-echo "hehe1"
+echo "start"
 git fetch
 git reset --hard origin/master
 pm2 restart rsshub

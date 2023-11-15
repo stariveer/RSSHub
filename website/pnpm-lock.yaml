@@ -30,8 +30,8 @@ dependencies:
     specifier: ^13.0.2
     version: 13.0.2
   meilisearch-docsearch:
-    specifier: ^0.5.0
-    version: 0.5.0
+    specifier: ^0.6.0
+    version: 0.6.0
   pinyin-pro:
     specifier: 3.17.0
     version: 3.17.0
@@ -6408,11 +6408,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /meilisearch-docsearch@0.5.0:
-    resolution: {integrity: sha512-r0dg5FSoTt5DUJwAdE5Wwun5pyvrPyGe4SWhL7bzsA3GoWDT2SXNiX14kVaRXC2HnLTU/fBYWC0wSDzQz2A7vQ==}
+  /meilisearch-docsearch@0.6.0:
+    resolution: {integrity: sha512-Pq61rCNIrwxMZ2vGc7ZkPUJSv92hPz1xPqy/jbDXmmA5GLSje6n98dotiUC9TKGzeRrG7DYCNbCjjdrlyoi8Bg==}
     dependencies:
       meilisearch: 0.35.0
-      solid-js: 1.8.1
+      solid-js: 1.8.5
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -8113,8 +8113,8 @@ packages:
     dependencies:
       randombytes: 2.1.0
 
-  /seroval@0.10.4:
-    resolution: {integrity: sha512-TdaE9JkoATjKu+vjwllieX8zWyBTUVxbgWDnOsDJFfmKbM7vLSukuCXuD3pO3kkCtX4daywOW8ps2VCdPhS8/w==}
+  /seroval@0.12.4:
+    resolution: {integrity: sha512-JIsZHp98o+okpYN8HEPyI9Blr0gxAUPIGvg3waXrEMFjPz9obiLYMz0uFiUGezKiCK8loosYbn8WsqO8WtAJUA==}
     engines: {node: '>=10'}
     dev: false
 
@@ -8268,11 +8268,11 @@ packages:
       websocket-driver: 0.7.4
     dev: false
 
-  /solid-js@1.8.1:
-    resolution: {integrity: sha512-HU4tB/vWY5/0P9GzbvePjK1aucNqUcF1XlAirZBjKkrkWG8XNIN9HSjscTC/nbl3A6JWjrW+OLcPEvWxsMhdng==}
+  /solid-js@1.8.5:
+    resolution: {integrity: sha512-xvtJvzJzWbsn35oKFhW9kNwaxG1Z/YLMsDp4tLVcYZTMPzvzQ8vEZuyDQ6nt7xDArVgZJ7TUFrJUwrui/oq53A==}
     dependencies:
       csstype: 3.1.2
-      seroval: 0.10.4
+      seroval: 0.12.4
     dev: false
 
   /sort-css-media-queries@2.1.0:

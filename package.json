@@ -108,7 +108,7 @@
     "fanfou-sdk": "4.2.0",
     "git-rev-sync": "3.0.2",
     "github-webhook-handler": "^1.0.0",
-    "googleapis": "110.0.0",
+    "googleapis": "129.0.0",
     "got": "11.8.6",
     "http": "^0.0.1-security",
     "https-proxy-agent": "5.0.1",

@@ -810,45 +810,44 @@
     domhandler "^5.0.3"
     selderee "^0.11.0"
 
-"@sentry-internal/tracing@7.85.0":
-  version "7.85.0"
-  resolved "https://registry.npmmirror.com/@sentry-internal/tracing/-/tracing-7.85.0.tgz"
-  integrity sha512-p3YMUwkPCy2su9cm/3+7QYR4RiMI0+07DU1BZtht9NLTzY2O87/yvUbn1v2yHR3vJQTy/+7N0ud9/mPBFznRQQ==
+"@sentry-internal/tracing@7.102.0":
+  version "7.102.0"
+  resolved "https://registry.yarnpkg.com/@sentry-internal/tracing/-/tracing-7.102.0.tgz#24cf662e1eb5623f6d5197e78c66d7b257560eb8"
+  integrity sha512-BlE33HWL1IzkGa0W+pwTiyu01MUIfYf+WnO9UC8qkDW3jxVvg2zhoSjXSxikT+KPCOgoZpQHspaTzwjnI1LCvw==
   dependencies:
-    "@sentry/core" "7.85.0"
-    "@sentry/types" "7.85.0"
-    "@sentry/utils" "7.85.0"
+    "@sentry/core" "7.102.0"
+    "@sentry/types" "7.102.0"
+    "@sentry/utils" "7.102.0"
 
-"@sentry/core@7.85.0":
-  version "7.85.0"
-  resolved "https://registry.npmmirror.com/@sentry/core/-/core-7.85.0.tgz"
-  integrity sha512-DFDAc4tWmHN5IWhr7XbHCiyF1Xgb95jz8Uj/JTX9atlgodId1UIbER77qpEmH3eQGid/QBdqrlR98zCixgSbwg==
+"@sentry/core@7.102.0":
+  version "7.102.0"
+  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-7.102.0.tgz#da5e04a5fe97ed91464944dac40b813e6f8aa453"
+  integrity sha512-GO9eLOSBK1waW4AD0wDXAreaNqXFQ1MPQZrkKcN+GJYEFhJK1+u+MSV7vO5Fs/rIfaTZIZ2jtEkxSSAOucE8EQ==
   dependencies:
-    "@sentry/types" "7.85.0"
-    "@sentry/utils" "7.85.0"
+    "@sentry/types" "7.102.0"
+    "@sentry/utils" "7.102.0"
 
-"@sentry/node@7.85.0":
-  version "7.85.0"
-  resolved "https://registry.npmmirror.com/@sentry/node/-/node-7.85.0.tgz"
-  integrity sha512-uiBtRW9G017NHoCXBlK3ttkTwHXLFyI8ndHpaObtyajKTv3ptGIThVEn7DuK7Pwor//RjwjSEEOa7WDK+FdMVQ==
+"@sentry/node@7.102.0":
+  version "7.102.0"
+  resolved "https://registry.yarnpkg.com/@sentry/node/-/node-7.102.0.tgz#f2853bad8650b1f94a57ae3bafad3440740f98ab"
+  integrity sha512-ZS1s2uO/+K4rHkmWjyqm5Jtl6dT7klbZSMvn4tfIpkfWuqrs7pP0jaATyvmF+96z3lpq6fRAJliV5tRqPy7w5Q==
   dependencies:
-    "@sentry-internal/tracing" "7.85.0"
-    "@sentry/core" "7.85.0"
-    "@sentry/types" "7.85.0"
-    "@sentry/utils" "7.85.0"
-    https-proxy-agent "^5.0.0"
+    "@sentry-internal/tracing" "7.102.0"
+    "@sentry/core" "7.102.0"
+    "@sentry/types" "7.102.0"
+    "@sentry/utils" "7.102.0"
 
-"@sentry/types@7.85.0":
-  version "7.85.0"
-  resolved "https://registry.npmmirror.com/@sentry/types/-/types-7.85.0.tgz"
-  integrity sha512-R5jR4XkK5tBU2jDiPdSVqzkmjYRr666bcGaFGUHB/xDQCjPsjk+pEmCCL+vpuWoaZmQJUE1hVU7rgnVX81w8zg==
+"@sentry/types@7.102.0":
+  version "7.102.0"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.102.0.tgz#b31e9faa54036053ab82c09c3c855035a4889c59"
+  integrity sha512-FPfFBP0x3LkPARw1/6cWySLq1djIo8ao3Qo2KNBeE9CHdq8bsS1a8zzjJLuWG4Ww+wieLP8/lY3WTgrCz4jowg==
 
-"@sentry/utils@7.85.0":
-  version "7.85.0"
-  resolved "https://registry.npmmirror.com/@sentry/utils/-/utils-7.85.0.tgz"
-  integrity sha512-JZ7seNOLvhjAQ8GeB3GYknPQJkuhF88xAYOaESZP3xPOWBMFUN+IO4RqjMqMLFDniOwsVQS7GB/MfP+hxufieg==
+"@sentry/utils@7.102.0":
+  version "7.102.0"
+  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-7.102.0.tgz#66325f2567986cc3fd12fbdb980fb8ada170342b"
+  integrity sha512-cp5KCRe0slOVMwG4iP2Z4UajQkjryRTiFskZ5H7Q3X9R5voM8+DAhiDcIW88GL9NxqyUrAJOjmKdeLK2vM+bdA==
   dependencies:
-    "@sentry/types" "7.85.0"
+    "@sentry/types" "7.102.0"
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"

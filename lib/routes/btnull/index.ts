@@ -1,0 +1,199 @@
+import { Route } from '@/types';
+import got from '@/utils/got';
+import vm from 'node:vm';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
+interface CatesMap {
+    [key: string]: { text: string; key: string };
+}
+
+const catesMap: CatesMap = {
+    all: { text: '全部', key: '' },
+    cn: { text: '大陆', key: '大陆' },
+    hk: { text: '香港', key: '香港' },
+    tw: { text: '台湾', key: '台湾' },
+    us: { text: '美国', key: '美国' },
+    jp: { text: '日本', key: '日本' },
+    kr: { text: '韩国', key: '韩国' },
+};
+
+const tagPool: string[] = [
+    '美国',
+    '大陆',
+    '日本',
+    '剧情',
+    '科幻',
+    '动作',
+    '喜剧',
+    '爱情',
+    '冒险',
+    '犯罪',
+    '悬疑',
+    '儿童',
+    '歌舞',
+    '音乐',
+    '奇幻',
+    '动画',
+    '恐怖',
+    '惊悚',
+    '丧尸',
+    '战争',
+    '传记',
+    '纪录',
+    '西部',
+    '灾难',
+    '古装',
+    '武侠',
+    '家庭',
+    '短片',
+    '校园',
+    '文艺',
+    '运动',
+    '青春',
+    '同性',
+    '励志',
+    '人性',
+    '美食',
+    '女性',
+    '治愈',
+    '历史',
+    '真人秀',
+    '脱口秀',
+    '萌系',
+    '日常',
+    '热血',
+    '机战',
+    '游戏',
+    '情色',
+    '搞笑',
+    '恋爱',
+    '后宫',
+    '百合',
+    '基腐',
+    '致郁',
+    '异世界',
+    '泡面',
+    '战斗',
+    '加拿大',
+    '香港',
+    '台湾',
+    '韩国',
+    '印度',
+    '德国',
+    '法国',
+    '英国',
+    '意大利',
+];
+
+const imgPre = `https://s.tutu.pm/img/mv`;
+
+const envs = process.env;
+const btnullDomain = envs.BTNULL_DOMAIN || '教父.com';
+
+async function handler(ctx: any) {
+    const { req } = ctx;
+    const params = req.param();
+    const cate = params.cate || '';
+    const score = params.score || 7;
+    const year = params.year || '';
+
+    // const url = `https://www.${btnullDomain}/mv/-${year}-${catesMap[cate].key}--${score},10`;
+    const url = `https://www.${btnullDomain}/mv?year=${year}&region=${catesMap[cate].key}&sort=addtime&rrange=${score}_10`;
+    // console.log('##url', url);
+
+    // console.log('##envs.BTNULL_AUTH_COOKIE', envs.BTNULL_AUTH_COOKIE);
+
+    const gotOptions: Parameters<typeof got>[0] = {
+        method: 'get',
+        url,
+        headers: {
+            Cookie: envs.BTNULL_AUTH_COOKIE,
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25',
+        },
+    };
+
+    const proxyUrl = envs.PROXY_URL;
+    if (proxyUrl && url.startsWith('https://')) {
+        gotOptions.agent = {
+            https: new HttpsProxyAgent(proxyUrl),
+        };
+    }
+    // Example for HTTP proxy if needed in the future:
+    // else if (proxyUrl && url.startsWith('http://')) {
+    // import { HttpProxyAgent } from 'http-proxy-agent'; // Would need to be at the top
+    //     gotOptions.agent = {
+    //         http: new HttpProxyAgent(proxyUrl),
+    //     };
+    // }
+
+    const response = await got(gotOptions);
+    // console.log('##response', response);
+
+    // 检查是否被重定向到验证页面
+    if (response.data.includes('正在确认你是不是机器人') || response.data.includes("_BT.M.HTML('login')")) {
+        throw new Error('Access denied: Robot verification or login required. Please check if BTNULL_AUTH_COOKIE is properly set and valid.');
+    }
+
+    const regexp = /_obj\.inlist\s*=\s*({[\S\s]*?})\s*;/;
+    const match = response.data.match(regexp);
+    if (!match) {
+        // 截取响应数据的前1000个字符用于调试
+        const preview = response.data.substring(0, 1000);
+        throw new Error(`Failed to parse response data: no match found. Response preview: ${preview}`);
+    }
+
+    const sandbox = { _obj: { inlist: {} } };
+    vm.createContext(sandbox);
+    vm.runInContext(`_obj.inlist = ${match[1]};`, sandbox);
+    const obj = sandbox._obj.inlist as any;
+
+    const {
+        t, // 标题
+        a, // tags
+        d, // 豆瓣评分
+        i, // 短链
+    } = obj;
+
+    let out = [
+        {
+            title: 'empty for now',
+            link: `https://${btnullDomain}/`,
+            description: `empty for now`,
+        },
+    ];
+    if (obj.t && obj.t.length) {
+        out = t.map((title: string, index: number) => {
+            const point = d[index];
+            const year = a[index][0];
+            const tags = a[index]
+                .slice(1)
+                .map((tagIndex: number) => tagPool[tagIndex])
+                .join(' ');
+            const item = {
+                title: `[${point}][${year} ${tags}]${title}`,
+                link: `https://${btnullDomain}/mv/${i[index]}`,
+                description: `<img src="${imgPre}/${i[index]}/384.avif">`,
+            };
+            return item;
+        });
+    }
+
+    // year 参数支持两种格式：
+    // - 具体年份（如 2024），判断依据：数值 >= 1000
+    // - 近N年（如 3 表示近3年），判断依据：数值 < 1000
+    const yearLabel = year ? (Number(year) >= 1000 ? `${year}年` : `近${year}年`) : '';
+
+    return {
+        title: `btnull-${yearLabel}${catesMap[cate].text}[${score}]分以上的电影`,
+        link: url,
+        item: out,
+    };
+}
+
+export const route: Route = {
+    path: '/:cate/:score/:year',
+    name: 'Btnull',
+    example: '/btnull/hk/7/3',
+    maintainers: [],
+    handler,
+};

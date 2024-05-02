@@ -5,12 +5,21 @@ import { load } from 'cheerio';
 import { config } from '@/config';
 import logger from '@/utils/logger';
 import puppeteer from '@/utils/puppeteer';
+import { getAllCookies } from './yaml-config';
+import yamlConfigModule from './yaml-config';
+const { readYamlConfig } = yamlConfigModule;
+
 
 let disableConfigCookie = false;
 const getCookie = () => {
-    if (!disableConfigCookie && Object.keys(config.bilibili.cookies).length > 0) {
-        return config.bilibili.cookies[Object.keys(config.bilibili.cookies)[Math.floor(Math.random() * Object.keys(config.bilibili.cookies).length)]];
+    // 优先从YAML配置获取cookie
+    const cookies = getAllCookies();
+    logger.debug(`Debug getAllCookies result: ${Object.keys(cookies).length > 0 ? '有cookie' : '无cookie'}`);
+    if (!disableConfigCookie && Object.keys(cookies).length > 0) {
+        const cookieKeys = Object.keys(cookies);
+        return cookies[cookieKeys[Math.floor(Math.random() * cookieKeys.length)]];
     }
+
     const key = 'bili-cookie';
     return cache.tryGet(key, async () => {
         const browser = await puppeteer();
@@ -98,6 +107,17 @@ const getUsernameFromUID = (uid) => {
     });
 };
 
+const invalidateYamlCookieCache = () => {
+    // 强制 yaml-config 下次重新从文件读取（重置内部 lastReadTime）
+    readYamlConfig(true);
+    // 重置 disableConfigCookie，确保扫码成功后下次请求走 YAML 路径读取新 cookie
+    // 注意：不能设为 true，否则会走 puppeteer 路径（本地未安装 Chrome 会报错）
+    disableConfigCookie = false;
+    // 清除 WBI 缓存，避免用旧 cookie 获取的 wbi key 继续被复用
+    cache.set('bili-wbi-verify-string');
+    logger.warn('已检测到 bilibili cookie 失效，请扫码重新登录');
+};
+
 const getUsernameAndFaceFromUID = async (uid) => {
     const nameKey = 'bili-username-from-uid-' + uid;
     const faceKey = 'bili-userface-from-uid-' + uid;
@@ -106,12 +126,6 @@ const getUsernameAndFaceFromUID = async (uid) => {
     if (!name || !face) {
         const cookie = await getCookie();
         const wbiVerifyString = await getWbiVerifyString();
-        // await got(`https://space.bilibili.com/${uid}/`, {
-        //     headers: {
-        //         Referer: `https://www.bilibili.com/`,
-        //         Cookie: cookie,
-        //     },
-        // });
         const params = utils.addWbiVerifyInfo(`mid=${uid}&token=&platform=web&web_location=1550101`, wbiVerifyString);
         const { data: nameResponse } = await got(`https://api.bilibili.com/x/space/wbi/acc/info?${params}`, {
             headers: {
@@ -119,7 +133,14 @@ const getUsernameAndFaceFromUID = async (uid) => {
                 Cookie: cookie,
             },
         });
-        if (nameResponse.data.name) {
+        if (nameResponse.code === -352) {
+            // Cookie 过期，清除缓存（含 name/face 缓存）并引导重新扫码
+            invalidateYamlCookieCache();
+            cache.set(nameKey);
+            cache.set(faceKey);
+            throw new Error('Bilibili Cookie 已过期（-352 风控），请扫码重新登录：访问 /bilibili/qrcode/generate');
+        }
+        if (nameResponse.data && nameResponse.data.name) {
             name = nameResponse.data.name;
             face = nameResponse.data.face;
         } else {
@@ -251,6 +272,7 @@ const getArticleDataFromCvid = async (cvid, uid) => {
 export default {
     getCookie,
     clearCookie,
+    invalidateYamlCookieCache,
     getWbiVerifyString,
     getUsernameFromUID,
     getUsernameAndFaceFromUID,

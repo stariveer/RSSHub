@@ -20,6 +20,7 @@ export type Config = {
     ua: string;
     trueUA: string;
     allowOrigin?: string;
+    routeWhiteList?: string;
     cache: {
         type: string;
         requestTimeout: number;
@@ -332,20 +333,20 @@ const calculateValue = () => {
 
     for (const name in envs) {
         if (name.startsWith('BILIBILI_COOKIE_')) {
-            const uid = name.slice(16);
-            bilibili_cookies[uid] = envs[name];
+            const key = name.slice(16);
+            bilibili_cookies[key] = envs[name];
         } else if (name.startsWith('EMAIL_CONFIG_')) {
-            const id = name.slice(13);
-            email_config[id] = envs[name];
+            const key = name.slice(13);
+            email_config[key] = envs[name];
         } else if (name.startsWith('DISCUZ_COOKIE_')) {
-            const cid = name.slice(14);
-            discuz_cookies[cid] = envs[name];
+            const key = name.slice(14);
+            discuz_cookies[key] = envs[name];
         } else if (name.startsWith('MEDIUM_COOKIE_')) {
-            const username = name.slice(14).toLowerCase();
-            medium_cookies[username] = envs[name];
+            const key = name.slice(14);
+            medium_cookies[key] = envs[name];
         } else if (name.startsWith('DISCOURSE_CONFIG_')) {
-            const id = name.slice('DISCOURSE_CONFIG_'.length);
-            discourse_config[id] = JSON.parse(envs[name] || '{}');
+            const key = name.slice(17);
+            discourse_config[key] = envs[name];
         }
     }
 
@@ -368,6 +369,7 @@ const calculateValue = () => {
         trueUA: TRUE_UA,
         // cors request
         allowOrigin: envs.ALLOW_ORIGIN,
+        routeWhiteList: envs.ROUTE_WHITE_LIST,
         // cache
         cache: {
             type: envs.CACHE_TYPE || (envs.CACHE_TYPE === '' ? '' : 'memory'), // 缓存类型，支持 'memory' 和 'redis'，设为空可以禁止缓存

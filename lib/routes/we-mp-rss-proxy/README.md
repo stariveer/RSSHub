@@ -1,0 +1,208 @@
+# 微信公众号RSS代理路由
+
+这是一个功能强大的微信公众号RSS代理服务，支持内容过滤、产品信息解析和文件生成。
+
+## 功能特性
+
+-   🔄 **RSS代理**: 代理微信公众号RSS源，提供稳定的访问方式
+-   🎯 **内容过滤**: 支持包含/排除关键词过滤，灵活的内容筛选
+-   📊 **产品解析**: 智能解析Apple产品信息，生成表格化展示
+-   📄 **文件生成**: 自动生成JSON格式的产品数据文件，并维护索引
+-   ⚡ **性能优化**: 内置缓存机制，1小时缓存有效期
+-   🌐 **响应式设计**: 生成的HTML支持移动端适配
+
+## 路由结构
+
+```
+/we-mp-rss-proxy/:mp-id/:category/:include?
+```
+
+### 参数说明
+
+-   `mp-id`: 微信公众号ID，例如 `MP_WXS_3941413004`
+-   `category`: 分类标签，例如 `travel`、`default`、`lande`
+-   `include`: 可选的过滤条件，支持以下格式：
+    -   `+旅游,攻略`: 包含"旅游"或"攻略"的内容
+    -   `-广告,推广`: 排除包含"广告"或"推广"的内容
+    -   `+旅游,-广告`: 包含"旅游"但排除"广告"的内容
+
+## 使用示例
+
+```bash
+# 获取所有内容
+/we-mp-rss-proxy/MP_WXS_3941413004/default
+
+# 标记为旅游分类
+/we-mp-rss-proxy/MP_WXS_3941413004/travel
+
+# 只包含"旅游"或"攻略"的内容
+/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,攻略
+
+# 排除包含"广告"或"推广"的内容
+/we-mp-rss-proxy/MP_WXS_3941413004/default/-广告,推广
+
+# 组合过滤：包含"旅游"但排除"广告"
+/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,-广告
+
+# 特殊分类：只保留标题包含"零售参考报价"的文章
+/we-mp-rss-proxy/MP_WXS_2397228061/lande
+```
+
+## 特殊功能
+
+### Lande分类处理
+
+当 `category` 设置为 `lande` 时，会：
+
+1. **自动过滤**: 只保留标题包含"零售参考报价"的文章
+2. **产品解析**: 智能解析Apple产品信息，包括：
+    - 产品名称和型号
+    - 存储容量和颜色
+    - 价格信息
+    - 版本和地区信息
+3. **表格生成**: 生成美观的产品价格表格
+4. **文件导出**: 自动生成JSON文件并更新索引，供前端查看器使用
+
+### 产品信息解析
+
+支持解析的Apple产品类别：
+
+-   iPhone系列（包含Pro、Pro Max、Plus、mini等型号）
+-   iPad系列（包含Pro、Air、mini等型号）
+-   Mac系列（MacBook、iMac、Mac Pro等）
+-   Apple Watch系列
+-   AirPods系列
+
+### 排序规则
+
+产品按以下优先级排序：
+
+1. **产品系列**: iPhone > iPad > Mac > Apple Watch > AirPods
+2. **iPhone型号**: 新型号优先（17 > 16 > 15...）
+3. **产品等级**: Pro Max > Pro > Plus > 标准 > mini
+4. **存储容量**: 容量大的优先
+5. **版本地区**: 国行 > 港行 > 台版 > 美版 > 欧版
+
+## 模块架构
+
+```
+lib/routes/we-mp-rss-proxy/
+├── index.ts              # 主路由文件
+├── html/                  # HTML文件输出目录
+│   └── *.html            # 生成的HTML文件
+├── data/                  # JSON文件输出目录
+│   └── *.json            # 生成的JSON数据文件
+├── utils/                # 工具模块
+│   ├── html-processor.ts # HTML内容处理
+│   ├── product-parser.ts # 产品信息解析
+│   ├── price-processor.ts # 价格处理和排序
+│   ├── file-generator.ts  # 文件生成
+│   └── content-filter.ts  # 内容过滤
+└── README.md             # 本文档
+```
+
+### 模块说明
+
+#### html-processor.ts
+
+-   `extractText()`: 提取HTML纯文本
+-   `isGifImage()`: 判断图片是否为GIF格式
+-   `cleanHtmlContent()`: 清理HTML内容，支持关键词重排
+
+#### product-parser.ts
+
+-   `ProductInfo`: 产品信息接口定义
+-   `detectBrand()`: 品牌检测（仅支持Apple产品）
+-   `formatProductName()`: 产品名称格式化
+-   `parseLandeContent()`: 解析产品信息文本
+
+#### price-processor.ts
+
+-   `parsePrices()`: 解析价格信息
+-   `extractPricesFromText()`: 从文本提取价格
+-   `compareiPhoneProducts()`: iPhone产品专用排序
+-   `getProductSortWeight()`: 产品排序权重计算
+
+#### file-generator.ts
+
+-   `generateProductTable()`: 生成产品表格HTML (用于RSS描述)
+-   `generateLandeJson()`: 生成JSON文件并更新索引
+
+#### content-filter.ts
+
+-   `parseFilterParams()`: 解析过滤参数
+-   `applyContentFilter()`: 应用内容过滤器
+
+## 环境变量
+
+-   `ENABLE_LANDE_JSON`: 控制JSON文件生成（默认: `true`）
+
+## 文件输出
+
+当启用文件生成功能时，会在以下位置生成文件：
+
+lib/routes/we-mp-rss-proxy/
+├── viewer/ # React 前端查看器
+├── data/ # JSON文件目录
+│ ├── index.json # 数据索引文件
+│ └── \*.json # 生成的JSON数据文件 (格式: yyyy-mm-dd-price.json)
+├── index.ts # 主路由文件
+└── utils/ # 工具模块
+├── html-processor.ts
+├── product-parser.ts
+├── price-processor.ts
+├── file-generator.ts
+└── content-filter.ts
+
+````
+
+### 前端查看器 (Viewer)
+
+位于 `lib/routes/we-mp-rss-proxy/viewer`，是一个基于 Vite + React 的前端应用，用于动态展示生成的 JSON 数据。
+
+**启动方式:**
+```bash
+cd lib/routes/we-mp-rss-proxy/viewer
+pnpm install
+pnpm dev
+````
+
+访问 `http://localhost:5173` 即可查看历史报价。
+
+### 文件命名规则
+
+-   **JSON文件**: `yyyy-mm-dd-price.json`
+    -   `yyyy-mm-dd`: 从文章标题提取的日期
+    -   `price`: 第一个产品的价格，如 `price-9570` 或 `no-price`
+-   **索引文件**: `index.json`
+    -   包含所有可用数据文件的列表，按日期倒序排列
+
+## 缓存机制
+
+-   **缓存时间**: 1小时
+-   **缓存键**: 基于mp-id、category和filter参数生成
+-   **缓存策略**: 不同参数组合有独立缓存
+
+## 注意事项
+
+1. **数据源**: 依赖于 `https://we-mp-rss.trainspott.in` 的RSS数据
+2. **产品限制**: 当前产品解析仅支持Apple产品，其他品牌会被过滤
+3. **文件覆盖**: 生成的文件不会覆盖已存在的同名文件
+4. **错误处理**: 包含完善的错误处理机制，确保服务稳定性
+
+## 维护信息
+
+-   **维护者**: your-username
+-   **分类**: new-media, social-media
+-   **依赖项目**: RSSHub
+-   **技术栈**: TypeScript, Hono, Cheerio
+
+## 更新日志
+
+### v2.0.0 - 模块化重构
+
+-   ✨ 完全重构代码架构，实现模块化设计
+-   📦 将1300+行代码拆分为5个专门模块
+-   🚀 提升代码可维护性和可测试性
+-   🎯 保持所有原有功能不变
+-   📚 完善的文档和类型定义

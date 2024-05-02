@@ -57,7 +57,20 @@ async function handler(ctx) {
 
     await api.init();
     const userInfo = await api.getUser(id);
-    let data = await (exclude_replies ? api.getUserTweets(id, params) : api.getUserTweetsAndReplies(id, params));
+    let data;
+    if (exclude_replies) {
+        data = await api.getUserTweets(id, params);
+    } else {
+        try {
+            data = await api.getUserTweetsAndReplies(id, params);
+        } catch (error: any) {
+            if (error.response?.statusCode === 404 || error.status === 404) {
+                data = await api.getUserTweets(id, params);
+            } else {
+                throw error;
+            }
+        }
+    }
     if (!include_rts) {
         data = utils.excludeRetweet(data);
     }

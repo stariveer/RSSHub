@@ -32,7 +32,7 @@ switch (process.env.NODE_ENV) {
     default:
         modules = directoryImport({
             targetDirectoryPath: path.join(__dirname, './routes'),
-            importPattern: /\.ts$/,
+            importPattern: /^(?!.*\/viewer\/).*\.ts$/,
         }) as typeof modules;
 }
 

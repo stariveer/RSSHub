@@ -1,7 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import cache from './cache';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
 import utils from './utils';
 import JSONbig from 'json-bigint';
 import { fallback, queryToBoolean } from '@/utils/readable-social';
@@ -47,7 +47,7 @@ async function handler(ctx) {
     const displayArticle = fallback(undefined, queryToBoolean(routeParams.displayArticle), false);
 
     const name = await cache.getUsernameFromUID(uid);
-    const cookie = config.bilibili.cookies[uid];
+    const cookie = getUserCookie(uid);
     if (cookie === undefined) {
         throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
     }
@@ -160,6 +160,12 @@ async function handler(ctx) {
                 data_content = (await cache.getArticleDataFromCvid(data.id, uid)).description;
             }
 
+            // 添加"稍后听（听）"、"默认收藏夹（看）"和"打开客户端"按钮
+            let actionButtonsHtml = '';
+            if (data.aid) {
+                actionButtonsHtml = utils.getActionButtons(data.aid);
+            }
+
             return {
                 title: getTitle(data),
                 author,
@@ -169,7 +175,7 @@ async function handler(ctx) {
                     const imgHTMLSource = imgHTML ? `<br>${imgHTML}` : '';
                     const videoHTMLSource = videoHTML ? `<br>${videoHTML}` : '';
 
-                    return `${description}${originName}${getIframe(data)}${getIframe(origin)}${imgHTMLSource}${videoHTMLSource}`;
+                    return `${description}${originName}${getIframe(data)}${getIframe(origin)}${actionButtonsHtml}${imgHTMLSource}${videoHTMLSource}`;
                 })(),
                 pubDate: new Date(item.desc?.timestamp * 1000).toUTCString(),
                 link,

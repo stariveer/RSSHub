@@ -2,7 +2,8 @@ import { Route } from '@/types';
 import got from '@/utils/got';
 import cache from './cache';
 import utils from './utils';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 export const route: Route = {
     path: '/user/fav/:uid/:disableEmbed?',
@@ -33,12 +34,17 @@ async function handler(ctx) {
     const disableEmbed = ctx.req.param('disableEmbed');
     const name = await cache.getUsernameFromUID(uid);
 
+    const cookie = getUserCookie(uid);
+    if (cookie === undefined) {
+        throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
+    }
+
     const response = await got({
         method: 'get',
         url: `https://api.bilibili.com/x/v2/fav/video?vmid=${uid}&ps=30&tid=0&keyword=&pn=1&order=fav_time`,
         headers: {
             Referer: `https://space.bilibili.com/${uid}/#/favlist`,
-            Cookie: config.bilibili.cookies[uid],
+            Cookie: cookie,
         },
     });
     const data = response.data;

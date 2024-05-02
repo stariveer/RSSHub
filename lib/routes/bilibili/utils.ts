@@ -113,6 +113,23 @@ function addDmVerifyInfo(params, dmImgList) {
 
 const bvidTime = 1_589_990_400;
 
+function getActionButtons(aid) {
+    // 使用固定的 uid 2951298
+    const fixedUid = '2951298';
+
+    // 使用固定的 domain
+    const isDev = process.env.NODE_ENV === 'dev';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
+
+    const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
+    const onclickLater = `fetch('${domain}/bilibili/add-later/${fixedUid}/${aid}')`;
+
+    const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${fixedUid}/${aid}')`;
+    const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${fixedUid}/${aid}')`;
+
+    return `<div style="display:flex; flex-direction: column;"><div style="display:flex;"><button style="${style}" onclick="${onclickLater}">听</button><button style="${style}" onclick="${onclickDefault}">看</button><button style="${style}" onclick="${onclickShare}">投</button></div><div style="display:flex;"><a style="${style}" href="bilibili://video/${aid}">打开客户端</a></div></div>`;
+}
+
 export default {
     iframe,
     lsid,
@@ -122,4 +139,5 @@ export default {
     getDmImgList,
     addDmVerifyInfo,
     bvidTime,
+    getActionButtons,
 };

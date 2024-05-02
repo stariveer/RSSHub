@@ -15,6 +15,7 @@ export const twitterGot = async (url, params) => {
             .map((c) => Cookie.parse(c)?.toJSON())
             .map((c) => [c?.key, c?.value])
     );
+
     if (!jsonCookie || !jsonCookie.auth_token || !jsonCookie.ct0) {
         throw new ConfigNotFoundError('Twitter cookie is not valid');
     }
@@ -37,6 +38,7 @@ export const twitterGot = async (url, params) => {
             'x-twitter-active-user': 'yes',
             'x-twitter-auth-type': 'OAuth2Session',
             'x-twitter-client-language': 'en',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
     };
 

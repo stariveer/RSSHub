@@ -157,6 +157,7 @@ const getUrl = (item?: Item2, useAvid = false) => {
     }
     let url = '';
     let text = '';
+    let aid: string = '';
     const major = data.module_dynamic?.major;
     if (!major) {
         return null;
@@ -172,7 +173,8 @@ const getUrl = (item?: Item2, useAvid = false) => {
             break;
         case 'MAJOR_TYPE_ARCHIVE': {
             const archive = major?.archive;
-            const id = useAvid ? `av${archive?.aid}` : archive?.bvid;
+            aid = String(archive?.aid || '');
+            const id = useAvid ? `av${aid}` : archive?.bvid;
             url = `https://www.bilibili.com/video/${id}`;
             text = `视频地址：<a href=${url}>${url}</a>`;
             break;
@@ -220,6 +222,7 @@ const getUrl = (item?: Item2, useAvid = false) => {
     return {
         url,
         text,
+        aid,
     };
 };
 
@@ -332,6 +335,12 @@ async function handler(ctx) {
                 link = urlResult.url;
             }
 
+            // 获取视频aid用于"稍后听(听)"和"默认收藏夹（看）"功能
+            let actionButtonsHtml = '';
+            if (urlResult?.aid) {
+                actionButtonsHtml = utils.getActionButtons(urlResult.aid);
+            }
+
             const originUrlResult = getUrl(item?.orig, useAvid);
             const originUrlText = originUrlResult?.text;
             if (originUrlResult && directLink) {
@@ -356,7 +365,7 @@ async function handler(ctx) {
             description = description.replaceAll('\r\n', '<br>').replaceAll('\n', '<br>');
             originDescription = originDescription.replaceAll('\r\n', '<br>').replaceAll('\n', '<br>');
 
-            const descriptions = [description, originDescription, urlText, originUrlText, getIframe(data, disableEmbed), getIframe(origin, disableEmbed), getImgs(data), getImgs(origin)]
+            const descriptions = [description, originDescription, urlText, originUrlText, getIframe(data, disableEmbed), getIframe(origin, disableEmbed), actionButtonsHtml, getImgs(data), getImgs(origin)]
                 .filter(Boolean)
                 .map((e) => e?.trim())
                 .join('<br>');

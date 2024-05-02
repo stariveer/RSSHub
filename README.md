@@ -92,3 +92,10 @@ Open source is a very expensive thing. RSSHub would not be possible without the 
 Authored and maintained by DIYgod with help from contributors ([list](https://github.com/DIYgod/RSSHub/contributors)).
 
 > Blog [@DIYgod](https://diygod.cc) · GitHub [@DIYgod](https://github.com/DIYgod) · Twitter [@DIYgod](https://x.com/DIYgod) · Telegram Channel [@awesomeDIYgod](https://t.me/awesomeDIYgod)
+
+
+我要把本地的/Users/xinghe/code/RSSHub/.env 通过ssh传到服务器上，服务器ip 119.28.71.136，远程路径/www/wwroot/rsshub.trainspott.in/.env ，ssh 公钥私钥已经配置好，请帮我写一个脚本，把本地的.env 传到服务器上，并覆盖服务器上的.env
+
+```bash
+scp -i ~/.ssh/id_rsa -r .env root@119.28.71.136:/www/wwwroot/rsshub.trainspott.in/.env
+```

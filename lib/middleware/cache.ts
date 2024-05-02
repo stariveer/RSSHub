@@ -16,6 +16,13 @@ const middleware: MiddlewareHandler = async (ctx, next) => {
         return;
     }
 
+    // 如果URL中包含nocache参数，则跳过缓存
+    const url = new URL(ctx.req.url);
+    if (url.searchParams.has('nocache')) {
+        await next();
+        return;
+    }
+
     const { h64ToString } = await xxhash();
     const key = 'rsshub:koa-redis-cache:' + h64ToString(ctx.req.path);
     const controlKey = 'rsshub:path-requested:' + h64ToString(ctx.req.path);

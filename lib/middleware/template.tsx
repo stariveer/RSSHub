@@ -14,6 +14,13 @@ const middleware: MiddlewareHandler = async (ctx, next) => {
     const ttl = (cacheModule.status.available && Math.trunc(config.cache.routeExpire / 60)) || 1;
     await next();
 
+    // 如果路由直接设置了 HTML 响应（如扫码登录页），直接返回，跳过 RSS 渲染
+    const htmlResponse: Response | undefined = ctx.get('html-response');
+    if (htmlResponse) {
+        ctx.res = htmlResponse;
+        return;
+    }
+
     const data: Data = ctx.get('data');
     const outputType = ctx.req.query('format') || 'rss';
 

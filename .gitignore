@@ -30,3 +30,9 @@ package-lock.json
 # pnpm-lock.yaml
 yarn.lock
 yarn-error.log
+
+scripts/twitter-token/accounts.*
+.user.ini
+bilibili-cookies.yml
+.htaccess
+CLAUDE.md

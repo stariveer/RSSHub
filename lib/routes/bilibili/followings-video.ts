@@ -61,9 +61,13 @@ async function handler(ctx) {
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);
 
+        const style = `margin:10px auto;padding: 15px; width:100%; border: 1px solid #ccc; border-radius: 5px; `;
+        const onclick = `fetch('https://rsshub.trainspott.in/bilibili/add-later/${uid}/${card_data.aid}').then(response => response.text()).then(result => alert(result))`;
+        const buttonText = `<button style="${style}" onclick="${onclick}">添加到稍后阅读</button>`;
+
         return {
             title: card_data.title,
-            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br><img src="${card_data.pic}">`,
+            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br>${buttonText}<br><img src="${card_data.pic}">`,
             pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
             link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
             author: card.desc.user_profile.info.uname,

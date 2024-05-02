@@ -8,7 +8,7 @@ import ConfigNotFoundError from '@/errors/types/config-not-found';
 export const route: Route = {
     path: '/followings/video/:uid/:disableEmbed?',
     categories: ['social-media'],
-    example: '/bilibili/followings/video/2267573',
+    example: '/bilibili/followings/video/2951298',
     parameters: { uid: '用户 id', disableEmbed: '默认为开启内嵌视频, 任意值为关闭' },
     features: {
         requireConfig: [
@@ -61,9 +61,16 @@ async function handler(ctx) {
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);
 
+        const style = `font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; width:100%; border: 1px solid #ccc; border-radius: 5px; `;
+        const onclickLater = `fetch('https://rsshub.trainspott.in/bilibili/add-later/${uid}/${card_data.aid}')`;
+        const onclickFav = `fetch('https://rsshub.trainspott.in/bilibili/add-fav/${uid}/${card_data.aid}')`;
+        // .then(response => response.text()).then(result => alert(result))
+        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">稍后再看</button>`;
+        const buttonTextFav = `<button style="${style}" onclick="${onclickFav}">默认收藏</button>`;
+
         return {
             title: card_data.title,
-            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br><img src="${card_data.pic}">`,
+            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br>${buttonTextLater}<br>${buttonTextFav}<br><img src="${card_data.pic}">`,
             pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
             link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
             author: card.desc.user_profile.info.uname,

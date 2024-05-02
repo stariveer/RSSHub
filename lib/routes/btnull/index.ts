@@ -148,7 +148,7 @@ async function handler(ctx: any) {
 
 export const route: Route = {
     path: '/:cate/:score/:year',
-    name: 'Unknown',
+    name: 'Btnull',
     example: '/btnull/hk/7/2020',
     maintainers: [],
     handler,

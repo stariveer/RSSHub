@@ -80,10 +80,20 @@ async function handler(ctx) {
                         const size = sizes[0];
 
                         const author = $item.find('b').first().text();
-                        const description = $item.find('.commenttext').html() || '';
-                        // console.log('##description', description);
-                        const firstImgTag = description.match(/<img[^>]*>/)?.[0] || '';
-                        const firstPTag = `<p>${firstImgTag}</p>`;
+                        let description = $item.find('.commenttext').html() || '';
+
+                        // 过滤掉所有非 proxyPrefix 开头的图片
+                        const $description = cheerio.load(description);
+                        $description('img').each((i, img) => {
+                            const src = $description(img).attr('src');
+                            if (src && !src.startsWith(proxyPrefix)) {
+                                $description(img).remove();
+                            } else {
+                                $description(img).after('<br>');
+                            }
+                        });
+                        description = $description.html();
+
                         const date = parseDate($item.find('.time').text());
 
                         const oo = +$item.find('.comment-like').next('span').text();
@@ -96,7 +106,7 @@ async function handler(ctx) {
                         const isAuthorOk = !authorBlackList.includes(author);
                         return {
                             author,
-                            description: firstPTag,
+                            description,
                             title: `${author}: ${$item.find('.commenttext').text()}`,
                             pubDate,
                             link: `${rootUrl}/t/${$item.attr('id').split('-').pop()}`,

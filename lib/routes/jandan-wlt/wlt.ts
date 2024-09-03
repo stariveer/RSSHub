@@ -88,8 +88,13 @@ async function handler(ctx) {
                             const src = $description(img).attr('src');
                             if (src && !src.startsWith(proxyPrefix)) {
                                 $description(img).remove();
-                            } else {
-                                $description(img).after('<br>');
+                            }
+                        });
+                        // 把连续的<br>替换为一个<br>
+                        $description('br').each((i, br) => {
+                            const $next = $description(br).next();
+                            if ($next.is('br')) {
+                                $next.remove();
                             }
                         });
                         description = $description.html();

@@ -13,5 +13,6 @@ module.exports = [
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=卷纸 200g&brand_id=2521&custom_params=eyJ6aGlQYXJhbSI6MjAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=卷纸 200g&brand_id=3405&custom_params=eyJ6aGlQYXJhbSI6MjAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=戴森吸尘器&max_price=2400&custom_params=eyJ6aGlQYXJhbSI6MTAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
-    'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=咖啡豆 中烘&cate_id=95&custom_params=eyJ6aGlQYXJhbSI6MTAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
+    'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=咖啡豆 中烘&cate_id=95&custom_params=eyJ6aGlQYXJhbSI6NSwicmF0ZVBhcmFtIjowLjYsImRheXMiOjV9',
+    'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=德运&custom_params=eyJ6aGlQYXJhbSI6MTAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
 ];

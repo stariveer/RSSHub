@@ -94,17 +94,16 @@ async function handler(ctx: any) {
     const score = params.score || 7;
     const year = params.year || '';
 
-    const url = `https://www.btnull.org/mv/-${year}-${catesMap[cate].key}--${score},10`;
+    const url = `https://www.gying.in/mv/-${year}-${catesMap[cate].key}--${score},10`;
     const response = await got({
         method: 'get',
         url,
         headers: {
-            Host: 'www.btnull.org',
+            Host: 'www.gying.in',
             Cookie: envs.BTNULL_AUTH_COOKIE,
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25',
         },
     });
-
     const regexp = /_obj\.inlist\s*=\s*({.*?});/;
     const obj = JSON.parse(response.data.match(regexp)[1]);
 
@@ -118,7 +117,7 @@ async function handler(ctx: any) {
     let out = [
         {
             title: 'empty for now',
-            link: `https://btnull.org/`,
+            link: `https://gying.in/`,
             description: `empty for now`,
         },
     ];
@@ -132,7 +131,7 @@ async function handler(ctx: any) {
                 .join(' ');
             const item = {
                 title: `[${point}][${year} ${tags}]${title}`,
-                link: `https://btnull.org/mv/${i[index]}.html`,
+                link: `https://gying.in/mv/${i[index]}.html`,
                 description: `<img src="${imgPre}/${i[index]}.webp">`,
             };
             return item;

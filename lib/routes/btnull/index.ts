@@ -83,7 +83,7 @@ const tagPool: string[] = [
     '意大利',
 ];
 
-const imgPre = `https://s.tutu.pm/img/mv/`;
+const imgPre = `https://s.tutu.pm/img/mv`;
 
 const envs = process.env;
 

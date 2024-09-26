@@ -83,7 +83,7 @@ const tagPool: string[] = [
     '意大利',
 ];
 
-const imgPre = `https://tutu.pm/img/mv`;
+const imgPre = `https://s.tutu.pm/img/mv/`;
 
 const envs = process.env;
 
@@ -132,7 +132,7 @@ async function handler(ctx: any) {
             const item = {
                 title: `[${point}][${year} ${tags}]${title}`,
                 link: `https://gying.in/mv/${i[index]}.html`,
-                description: `<img src="${imgPre}/${i[index]}.webp">`,
+                description: `<img src="${imgPre}/${i[index]}.avif">`,
             };
             return item;
         });

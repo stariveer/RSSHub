@@ -37,6 +37,8 @@ export const route: Route = {
 YouTube provides official RSS feeds for channels, for instance [https://www.youtube.com/feeds/videos.xml?channel\_id=UCDwDMPOZfxVV0x\_dz0eQ8KQ](https://www.youtube.com/feeds/videos.xml?channel_id=UCDwDMPOZfxVV0x_dz0eQ8KQ).
 :::`,
 };
+const style = `text-align:center;display:block;font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
+
 
 async function handler(ctx) {
     if (!config.youtube || !config.youtube.key) {
@@ -62,10 +64,11 @@ async function handler(ctx) {
             .map((item) => {
                 const snippet = item.snippet;
                 const videoId = snippet.resourceId.videoId;
+                const buttonTextLater = `<br/><a style="${style}" href="vnd.youtube://m.youtube.com/watch?v=${videoId}">看</a>`;
                 const img = utils.getThumbnail(snippet.thumbnails);
                 return {
                     title: snippet.title,
-                    description: utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description)),
+                    description: `${utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description))}${buttonTextLater}`,
                     pubDate: parseDate(snippet.publishedAt),
                     link: `https://www.youtube.com/watch?v=${videoId}`,
                     author: snippet.videoOwnerChannelTitle,

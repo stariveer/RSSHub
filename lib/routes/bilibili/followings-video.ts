@@ -35,6 +35,7 @@ export const route: Route = {
   :::`,
 };
 
+const style = `text-align:center;display:block;font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
 
 async function handler(ctx) {
     const uid = String(ctx.req.param('uid'));
@@ -72,12 +73,11 @@ async function handler(ctx) {
         const card_data = JSON.parse(card.card);
 
 
-        const style = `font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
         const onclickLater = `fetch('${domain}/bilibili/add-later/${uid}/${card_data.aid}')`;
         // const onclickFav = `fetch('${domain}/bilibili/add-fav/fav/${uid}/${card_data.aid}')`;
         // const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${uid}/${card_data.aid}')`;
         // .then(response => response.text()).then(result => alert(result))
-        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">听</button>`;
+        const buttonTextLater = `<a style="${style}" onclick="${onclickLater}">听</a>`;
         // const buttonTextFav = `<button style="${style}" onclick="${onclickFav}">看</button>`;
         // const buttonTextShare = `<button style="${style}" onclick="${onclickShare}">享</button>`;
 

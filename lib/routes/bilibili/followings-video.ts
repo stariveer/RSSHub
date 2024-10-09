@@ -35,8 +35,6 @@ export const route: Route = {
   :::`,
 };
 
-const style = `text-align:center;display:block;font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
-
 async function handler(ctx) {
     const uid = String(ctx.req.param('uid'));
     const disableEmbed = ctx.req.param('disableEmbed');
@@ -44,7 +42,7 @@ async function handler(ctx) {
 
     const isDev = process.env.NODE_ENV === 'dev';
 
-    const domain =  isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
     // console.log('##domain', domain);
     const cookie = config.bilibili.cookies[uid];
     // console.log('##cookie', cookie);
@@ -72,12 +70,12 @@ async function handler(ctx) {
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);
 
-
+        const style = `font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
         const onclickLater = `fetch('${domain}/bilibili/add-later/${uid}/${card_data.aid}')`;
         // const onclickFav = `fetch('${domain}/bilibili/add-fav/fav/${uid}/${card_data.aid}')`;
         // const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${uid}/${card_data.aid}')`;
         // .then(response => response.text()).then(result => alert(result))
-        const buttonTextLater = `<a style="${style}" onclick="${onclickLater}">听</a>`;
+        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">听</button>`;
         // const buttonTextFav = `<button style="${style}" onclick="${onclickFav}">看</button>`;
         // const buttonTextShare = `<button style="${style}" onclick="${onclickShare}">享</button>`;
 

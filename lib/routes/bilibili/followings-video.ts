@@ -67,7 +67,7 @@ async function handler(ctx) {
     // console.log('##response', response);
     const cards = response.data.data.cards;
 
-    const style = `font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
+    const style = `font-size:60px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
 
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);

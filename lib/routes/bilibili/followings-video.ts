@@ -76,7 +76,7 @@ async function handler(ctx) {
         // const onclickFav = `fetch('${domain}/bilibili/add-fav/fav/${uid}/${card_data.aid}')`;
         // const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${uid}/${card_data.aid}')`;
         // .then(response => response.text()).then(result => alert(result))
-        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">听</button><a style="${style}" href="bilibili://video/${card_data.aid}">看</a>`;
+        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">有空听</button><a style="${style}" href="bilibili://video/${card_data.aid}">立马看</a>`;
         // const buttonTextFav = `<button style="${style}" onclick="${onclickFav}">看</button>`;
         // const buttonTextShare = `<button style="${style}" onclick="${onclickShare}">享</button>`;
 

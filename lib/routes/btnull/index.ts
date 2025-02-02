@@ -134,7 +134,7 @@ async function handler(ctx: any) {
                 .join(' ');
             const item = {
                 title: `[${point}][${year} ${tags}]${title}`,
-                link: `https://gying.in/mv/${i[index]}.html`,
+                link: `https://gying.in/mv/${i[index]}`,
                 description: `<img src="${imgPre}/${i[index]}.avif">`,
             };
             return item;

@@ -94,7 +94,10 @@ async function handler(ctx: any) {
     const score = params.score || 7;
     const year = params.year || '';
 
-    const url = `https://www.gying.in/mv/-${year}-${catesMap[cate].key}--${score},10`;
+    // const url = `https://www.gying.in/mv/-${year}-${catesMap[cate].key}--${score},10`;
+    const url = `https://www.gying.in/mv?year=${year}&region=${catesMap[cate].key}&sort=addtime&rrange=${score}_10`;
+    // console.log('##url', url);
+
     const response = await got({
         method: 'get',
         url,

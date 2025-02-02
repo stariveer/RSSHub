@@ -135,7 +135,7 @@ async function handler(ctx: any) {
             const item = {
                 title: `[${point}][${year} ${tags}]${title}`,
                 link: `https://gying.in/mv/${i[index]}`,
-                description: `<img src="${imgPre}/${i[index]}.avif">`,
+                description: `<img src="${imgPre}/${i[index]}/320.avif">`,
             };
             return item;
         });

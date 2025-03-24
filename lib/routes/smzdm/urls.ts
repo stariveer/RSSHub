@@ -13,6 +13,5 @@ export default [
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=卷纸 200g&brand_id=3405&custom_params=eyJ6aGlQYXJhbSI6MjAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=咖啡豆 中烘&cate_id=95&custom_params=eyJ6aGlQYXJhbSI6NSwicmF0ZVBhcmFtIjowLjYsImRheXMiOjV9',
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=德运&custom_params=eyJ6aGlQYXJhbSI6MTAsInJhdGVQYXJhbSI6MC42LCJkYXlzIjo1fQ==',
-    'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=洗衣机 滚筒&custom_params=eyJ6aGlQYXJhbSI6NSwicmF0ZVBhcmFtIjowLjYsImRheXMiOjV9',
     'https://search.smzdm.com?c=faxian&v=a&mx_v=a&f_c=zhi&order=time&s=牛排&cate_id=95&custom_params=eyJ6aGlQYXJhbSI6NSwicmF0ZVBhcmFtIjowLjYsImRheXMiOjV9',
 ];

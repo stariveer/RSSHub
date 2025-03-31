@@ -1,7 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import { config } from '@/config';
-import { sleep } from 'telegram/Helpers';
+// import { sleep } from 'telegram/Helpers';
 
 export const route: Route = {
     path: '/add-fav/:folder/:uid/:aid',
@@ -28,20 +28,6 @@ function getRam() {
 
 // eab_x = 1 111
 // eab_x = 2
-const FORM_PARAMS = {
-    // rid: 1004606622,
-    type: 2,
-    // add_media_ids: '64708498', // 默认
-    // add_media_ids: '3234771898', // fav
-    del_media_ids: '',
-    platform: 'web',
-    eab_x: 1, // 1 OR 2, 不知道干嘛的
-    // eab_x: 2, // 1
-    ramval: 32,
-    ga: 1,
-    gaia_source: 'web_normal',
-    // csrf: 0d55a8544346d32805bf9aeb34352ebd
-};
 
 const folderNameIdMap = {
     default: '64708498',
@@ -55,51 +41,123 @@ async function handler(ctx) {
     const folder = String(ctx.req.param('folder'));
     const folderId = folderNameIdMap[folder] || folderNameIdMap.default;
     const cookie = config.bilibili.cookies[uid];
-    const headers = { Cookie: cookie };
     const csrf = getBiliJct(cookie);
-    const form = new URLSearchParams();
-    for (const key of Object.keys(FORM_PARAMS)) {
-        form.append(key, String(FORM_PARAMS[key]));
-    }
-    form.append('add_media_ids', folderId);
-    form.append('rid', aid);
-    form.append('csrf', csrf);
-    form.append('ramval', getRam());
-    // console.log('##form', form);
-    // console.log('##', `https://www.bilibili.com/video/av${aid}`);
+
+    // console.log('请求参数：', { uid, aid, folder, folderId, csrf });
+
+    const formData = new FormData();
+    formData.append('rid', aid);
+    formData.append('type', '2');
+    formData.append('add_media_ids', folderId);
+    formData.append('del_media_ids', '');
+    formData.append('platform', 'web');
+    formData.append('eab_x', '2');
+    formData.append('ramval', getRam());
+    formData.append('ga', '1');
+    formData.append('gaia_source', 'web_normal');
+    formData.append('from_spmid', '333.337.search-card.all.click');
+    formData.append('spmid', '333.788.0.0');
+    formData.append('statistics', JSON.stringify({ appId: 100, platform: 5 }));
+    formData.append('csrf', csrf);
+
+    // 打印请求体内容
+    // console.log('FormData 内容检查:');
+    // for (const pair of formData.entries()) {
+    //     console.log(`${pair[0]}: ${pair[1]}`);
+    // }
+
+    const headers = {
+        Cookie: cookie,
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+        Referer: 'https://space.bilibili.com/' + uid + '/',
+        'sec-ch-ua': '"Chromium";v="134", "Not:-Brand";v="24", "Google Chrome";v="134"',
+        'sec-fetch-site': 'same-site',
+    };
+
+    // console.log('请求头:', headers);
+
     const url = `https://www.bilibili.com/video/av${aid}`;
-    let response = await got({
-        method: 'post',
-        url: `https://api.bilibili.com/x/v3/fav/resource/deal`,
-        headers,
-        body: form,
-    });
-    // console.log('##response1', form, response?.data?.code === 0);
-    await sleep(777);
-    if (response?.data?.code !== 0) {
-        // form 的 eab_x 改为 2
-        form.set('eab_x', '2');
-        form.set('ramval', getRam());
-        // console.log('##response2', form, response);
-        response = await got({
+    try {
+        // console.log('发送请求到:', `https://api.bilibili.com/x/v3/fav/resource/deal`);
+        const response = await got({
             method: 'post',
             url: `https://api.bilibili.com/x/v3/fav/resource/deal`,
             headers,
-            body: form,
+            body: formData,
         });
-    }
 
-    return {
-        title: `Bilibili - Add Fav`,
-        link: url,
-        description: 'Bilibili - Add Fav',
-        item: [
-            {
-                title: 'Add Fav',
-                link: ``,
-                pubDate: new Date(),
-                description: JSON.stringify(response?.data?.code),
-            },
-        ],
-    };
+        // console.log('响应状态码:', response.statusCode);
+        // console.log('响应数据:', JSON.stringify(response.data));
+
+        return {
+            title: `Bilibili - Add Fav`,
+            link: url,
+            description: 'Bilibili - Add Fav',
+            item: [
+                {
+                    title: 'Add Fav',
+                    link: ``,
+                    pubDate: new Date(),
+                    description: JSON.stringify(response?.data),
+                },
+            ],
+        };
+    } catch {
+        // (error)
+        // console.error('请求失败:', error.message);
+        // if (error.response) {
+        //     console.error('错误状态码:', error.response.statusCode);
+        //     console.error('错误响应:', error.response.body);
+        // }
+
+        // 尝试使用 URLSearchParams 作为备选方案
+        // console.log('尝试使用 URLSearchParams 发送请求...');
+        const form = new URLSearchParams();
+        form.append('rid', aid);
+        form.append('type', '2');
+        form.append('add_media_ids', folderId);
+        form.append('del_media_ids', '');
+        form.append('platform', 'web');
+        form.append('eab_x', '2');
+        form.append('ramval', getRam());
+        form.append('ga', '1');
+        form.append('gaia_source', 'web_normal');
+        form.append('from_spmid', '333.337.search-card.all.click');
+        form.append('spmid', '333.788.0.0');
+        form.append('statistics', JSON.stringify({ appId: 100, platform: 5 }));
+        form.append('csrf', csrf);
+
+        try {
+            headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            const response2 = await got({
+                method: 'post',
+                url: `https://api.bilibili.com/x/v3/fav/resource/deal`,
+                headers,
+                body: form,
+            });
+
+            // console.log('URLSearchParams 响应状态码:', response2.statusCode);
+            // console.log('URLSearchParams 响应数据:', JSON.stringify(response2.data));
+
+            return {
+                title: `Bilibili - Add Fav`,
+                link: url,
+                description: 'Bilibili - Add Fav (备选方案)',
+                item: [
+                    {
+                        title: 'Add Fav',
+                        link: ``,
+                        pubDate: new Date(),
+                        description: JSON.stringify(response2?.data),
+                    },
+                ],
+            };
+        } catch {
+            return {
+                title: `Bilibili - Add Fav 失败`,
+                link: url,
+                description: '添加收藏失败',
+            };
+        }
+    }
 }

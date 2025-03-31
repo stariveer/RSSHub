@@ -67,17 +67,16 @@ async function handler(ctx) {
     // console.log('##response', response);
     const cards = response.data.data.cards;
 
-    const style = `font-size:60px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
+    const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
 
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);
 
         const onclickLater = `fetch('${domain}/bilibili/add-later/${uid}/${card_data.aid}')`;
-        // const onclickFav = `fetch('${domain}/bilibili/add-fav/fav/${uid}/${card_data.aid}')`;
+        const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${uid}/${card_data.aid}')`;
         // const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${uid}/${card_data.aid}')`;
         // .then(response => response.text()).then(result => alert(result))
-        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">有空听</button><a style="${style}" href="bilibili://video/${card_data.aid}">立马看</a>`;
-        // const buttonTextFav = `<button style="${style}" onclick="${onclickFav}">看</button>`;
+        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏夹</button><br/><a style="${style}" href="bilibili://video/${card_data.aid}">打开客户端</a>`;
         // const buttonTextShare = `<button style="${style}" onclick="${onclickShare}">享</button>`;
 
         return {

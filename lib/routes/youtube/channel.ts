@@ -39,7 +39,6 @@ YouTube provides official RSS feeds for channels, for instance [https://www.yout
 };
 const style = `text-align:center;display:block;font-size:60px; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; `;
 
-
 async function handler(ctx) {
     if (!config.youtube || !config.youtube.key) {
         throw new ConfigNotFoundError('YouTube RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>');
@@ -64,11 +63,11 @@ async function handler(ctx) {
             .map((item) => {
                 const snippet = item.snippet;
                 const videoId = snippet.resourceId.videoId;
-                const buttonTextLater = `<br/><a style="${style}" href="vnd.youtube://m.youtube.com/watch?v=${videoId}">看</a>`;
+                const buttonTextLater = `<a style="${style}" href="vnd.youtube://m.youtube.com/watch?v=${videoId}">看</a><br/>`;
                 const img = utils.getThumbnail(snippet.thumbnails);
                 return {
                     title: snippet.title,
-                    description: `${utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description))}${buttonTextLater}`,
+                    description: `${buttonTextLater}${utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description))}`,
                     pubDate: parseDate(snippet.publishedAt),
                     link: `https://www.youtube.com/watch?v=${videoId}`,
                     author: snippet.videoOwnerChannelTitle,

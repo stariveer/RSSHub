@@ -157,6 +157,7 @@ const getUrl = (item?: Item2, useAvid = false) => {
     }
     let url = '';
     let text = '';
+    let aid: string = '';
     const major = data.module_dynamic?.major;
     if (!major) {
         return null;
@@ -172,7 +173,8 @@ const getUrl = (item?: Item2, useAvid = false) => {
             break;
         case 'MAJOR_TYPE_ARCHIVE': {
             const archive = major?.archive;
-            const id = useAvid ? `av${archive?.aid}` : archive?.bvid;
+            aid = String(archive?.aid || '');
+            const id = useAvid ? `av${aid}` : archive?.bvid;
             url = `https://www.bilibili.com/video/${id}`;
             text = `视频地址：<a href=${url}>${url}</a>`;
             break;
@@ -220,6 +222,7 @@ const getUrl = (item?: Item2, useAvid = false) => {
     return {
         url,
         text,
+        aid,
     };
 };
 
@@ -259,6 +262,9 @@ async function handler(ctx) {
     const face = usernameAndFace[1] ?? items[0]?.modules?.module_author?.face;
     cache.set(`bili-username-from-uid-${uid}`, author);
     cache.set(`bili-userface-from-uid-${uid}`, face);
+
+    const isDev = process.env.NODE_ENV === 'dev';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.app';
 
     const rssItems = await Promise.all(
         items.map(async (item) => {
@@ -332,6 +338,12 @@ async function handler(ctx) {
                 link = urlResult.url;
             }
 
+            // 获取视频aid用于"稍后听"和"默认收藏夹"功能
+            let actionButtonsHtml = '';
+            if (urlResult?.aid) {
+                actionButtonsHtml = `<div style="display:flex">${utils.getActionButtons(uid, urlResult.aid, domain)}</div>`;
+            }
+
             const originUrlResult = getUrl(item?.orig, useAvid);
             const originUrlText = originUrlResult?.text;
             if (originUrlResult && directLink) {
@@ -356,7 +368,7 @@ async function handler(ctx) {
             description = description.replaceAll('\r\n', '<br>').replaceAll('\n', '<br>');
             originDescription = originDescription.replaceAll('\r\n', '<br>').replaceAll('\n', '<br>');
 
-            const descriptions = [description, originDescription, urlText, originUrlText, getIframe(data, disableEmbed), getIframe(origin, disableEmbed), getImgs(data), getImgs(origin)]
+            const descriptions = [description, originDescription, urlText, originUrlText, getIframe(data, disableEmbed), getIframe(origin, disableEmbed), actionButtonsHtml, getImgs(data), getImgs(origin)]
                 .filter(Boolean)
                 .map((e) => e?.trim())
                 .join('<br>');

@@ -32,7 +32,7 @@ function getRam() {
 const folderNameIdMap = {
     default: '64708498',
     fav: '3234771898',
-    share: '3207800398',
+    share: '3540013998',
 };
 
 async function handler(ctx) {

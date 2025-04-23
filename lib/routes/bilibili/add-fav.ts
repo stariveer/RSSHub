@@ -45,6 +45,7 @@ async function handler(ctx) {
 
     // console.log('请求参数：', { uid, aid, folder, folderId, csrf });
 
+    // eslint-disable-next-line n/no-unsupported-features/node-builtins
     const formData = new FormData();
     formData.append('rid', aid);
     formData.append('type', '2');

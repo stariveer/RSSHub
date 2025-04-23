@@ -113,14 +113,13 @@ function addDmVerifyInfo(params, dmImgList) {
 
 const bvidTime = 1_589_990_400;
 
-function getActionButtons(uid, aid, domain = '') {
-    // 无论传入什么 uid，都使用固定的 uid 2951298
+function getActionButtons(aid) {
+    // 使用固定的 uid 2951298
     const fixedUid = '2951298';
 
-    if (!domain) {
-        const isDev = process.env.NODE_ENV === 'dev';
-        domain = isDev ? 'http://localhost:1200' : 'https://rsshub.app';
-    }
+    // 使用固定的 domain
+    const isDev = process.env.NODE_ENV === 'dev';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
 
     const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
     const onclickLater = `fetch('${domain}/bilibili/add-later/${fixedUid}/${aid}')`;

@@ -40,10 +40,6 @@ async function handler(ctx) {
     const disableEmbed = ctx.req.param('disableEmbed');
     const name = await cache.getUsernameFromUID(uid);
 
-    const isDev = process.env.NODE_ENV === 'dev';
-
-    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
-    // console.log('##domain', domain);
     const cookie = config.bilibili.cookies[uid];
     // console.log('##cookie', cookie);
     if (cookie === undefined) {
@@ -71,7 +67,7 @@ async function handler(ctx) {
         const card_data = JSON.parse(card.card);
 
         // 使用工具函数生成按钮
-        const actionButtons = utils.getActionButtons(uid, card_data.aid, domain);
+        const actionButtons = utils.getActionButtons(card_data.aid);
 
         return {
             title: card_data.title,

@@ -163,7 +163,7 @@ async function handler(ctx) {
             // 添加"稍后听"、"默认收藏夹"和"打开客户端"按钮
             let actionButtonsHtml = '';
             if (data.aid) {
-                actionButtonsHtml = `<div style="display:flex">${utils.getActionButtons(data.aid)}</div>`;
+                actionButtonsHtml = utils.getActionButtons(data.aid);
             }
 
             return {

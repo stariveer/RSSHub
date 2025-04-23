@@ -123,9 +123,11 @@ function getActionButtons(aid) {
 
     const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
     const onclickLater = `fetch('${domain}/bilibili/add-later/${fixedUid}/${aid}')`;
-    const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${fixedUid}/${aid}')`;
 
-    return `<button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏夹</button><br/><a style="${style}" href="bilibili://video/${aid}">打开客户端</a>`;
+    const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${fixedUid}/${aid}')`;
+    const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${fixedUid}/${aid}')`;
+
+    return `<div style="display:flex; flex-direction: column;"><div style="display:flex;"><button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏</button><button style="${style}" onclick="${onclickShare}">投屏看</button></div><div style="display:flex;"><a style="${style}" href="bilibili://video/${aid}">打开客户端</a></div></div>`;
 }
 
 export default {

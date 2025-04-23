@@ -338,7 +338,7 @@ async function handler(ctx) {
             // 获取视频aid用于"稍后听"和"默认收藏夹"功能
             let actionButtonsHtml = '';
             if (urlResult?.aid) {
-                actionButtonsHtml = `<div style="display:flex">${utils.getActionButtons(urlResult.aid)}</div>`;
+                actionButtonsHtml = utils.getActionButtons(urlResult.aid);
             }
 
             const originUrlResult = getUrl(item?.orig, useAvid);

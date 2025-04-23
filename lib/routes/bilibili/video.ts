@@ -73,7 +73,7 @@ async function handler(ctx) {
 
                 return {
                     title: item.title,
-                    description: `${item.description}${disableEmbed ? '' : `<br><br>${utils.iframe(item.aid)}`}<br><div style="display:flex">${actionButtons}</div><br><img src="${item.pic}">`,
+                    description: `${item.description}${disableEmbed ? '' : `<br><br>${utils.iframe(item.aid)}`}<br>${actionButtons}<br><img src="${item.pic}">`,
                     pubDate: new Date(item.created * 1000).toUTCString(),
                     link: item.created > utils.bvidTime && item.bvid ? `https://www.bilibili.com/video/${item.bvid}` : `https://www.bilibili.com/video/av${item.aid}`,
                     author: name,

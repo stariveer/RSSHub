@@ -71,7 +71,7 @@ async function handler(ctx) {
 
         return {
             title: card_data.title,
-            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br><div style="display:flex">${actionButtons}<br></div><img src="${card_data.pic}">`,
+            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br>${actionButtons}<br><img src="${card_data.pic}">`,
             pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
             link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
             author: card.desc.user_profile.info.uname,

@@ -53,7 +53,7 @@ async function handler(ctx) {
     }
 
     const isDev = process.env.NODE_ENV === 'dev';
-    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.app';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
 
     const response = await got({
         method: 'get',

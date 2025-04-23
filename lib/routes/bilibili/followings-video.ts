@@ -67,21 +67,15 @@ async function handler(ctx) {
     // console.log('##response', response);
     const cards = response.data.data.cards;
 
-    const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
-
     const out = cards.map((card) => {
         const card_data = JSON.parse(card.card);
 
-        const onclickLater = `fetch('${domain}/bilibili/add-later/${uid}/${card_data.aid}')`;
-        const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${uid}/${card_data.aid}')`;
-        // const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${uid}/${card_data.aid}')`;
-        // .then(response => response.text()).then(result => alert(result))
-        const buttonTextLater = `<button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏夹</button><br/><a style="${style}" href="bilibili://video/${card_data.aid}">打开客户端</a>`;
-        // const buttonTextShare = `<button style="${style}" onclick="${onclickShare}">享</button>`;
+        // 使用工具函数生成按钮
+        const actionButtons = utils.getActionButtons(uid, card_data.aid, domain);
 
         return {
             title: card_data.title,
-            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br><div style="display:flex">${buttonTextLater}<br></div><img src="${card_data.pic}">`,
+            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br><div style="display:flex">${actionButtons}<br></div><img src="${card_data.pic}">`,
             pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
             link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
             author: card.desc.user_profile.info.uname,

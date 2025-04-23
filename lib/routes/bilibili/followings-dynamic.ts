@@ -52,6 +52,9 @@ async function handler(ctx) {
         throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
     }
 
+    const isDev = process.env.NODE_ENV === 'dev';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.app';
+
     const response = await got({
         method: 'get',
         url: `https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/dynamic_new?uid=${uid}&type_list=268435455`,
@@ -160,6 +163,12 @@ async function handler(ctx) {
                 data_content = (await cache.getArticleDataFromCvid(data.id, uid)).description;
             }
 
+            // 添加"稍后听"、"默认收藏夹"和"打开客户端"按钮
+            let actionButtonsHtml = '';
+            if (data.aid) {
+                actionButtonsHtml = `<div style="display:flex">${utils.getActionButtons(uid, data.aid, domain)}</div>`;
+            }
+
             return {
                 title: getTitle(data),
                 author,
@@ -169,7 +178,7 @@ async function handler(ctx) {
                     const imgHTMLSource = imgHTML ? `<br>${imgHTML}` : '';
                     const videoHTMLSource = videoHTML ? `<br>${videoHTML}` : '';
 
-                    return `${description}${originName}${getIframe(data)}${getIframe(origin)}${imgHTMLSource}${videoHTMLSource}`;
+                    return `${description}${originName}${getIframe(data)}${getIframe(origin)}${actionButtonsHtml}${imgHTMLSource}${videoHTMLSource}`;
                 })(),
                 pubDate: new Date(item.desc?.timestamp * 1000).toUTCString(),
                 link,

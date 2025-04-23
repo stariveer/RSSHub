@@ -114,14 +114,17 @@ function addDmVerifyInfo(params, dmImgList) {
 const bvidTime = 1_589_990_400;
 
 function getActionButtons(uid, aid, domain = '') {
+    // 无论传入什么 uid，都使用固定的 uid 2951298
+    const fixedUid = '2951298';
+
     if (!domain) {
         const isDev = process.env.NODE_ENV === 'dev';
         domain = isDev ? 'http://localhost:1200' : 'https://rsshub.app';
     }
 
     const style = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
-    const onclickLater = `fetch('${domain}/bilibili/add-later/${uid}/${aid}')`;
-    const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${uid}/${aid}')`;
+    const onclickLater = `fetch('${domain}/bilibili/add-later/${fixedUid}/${aid}')`;
+    const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${fixedUid}/${aid}')`;
 
     return `<button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏夹</button><br/><a style="${style}" href="bilibili://video/${aid}">打开客户端</a>`;
 }

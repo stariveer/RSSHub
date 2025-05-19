@@ -5,16 +5,23 @@ npm run start
 
 # TEST
 
--   http://localhost:1200/jandan-wlt-v2/wlt
--   http://localhost:1200/btnull/cn/7/2024
--   http://localhost:1200/smzdm/all-in-one
--   http://localhost:1200/bilibili/followings/video/2951298
+-   http://127.0.0.1:1200/jandan-wlt-v2/wlt
+-   http://127.0.0.1:1200/btnull/cn/7/2024
+-   http://127.0.0.1:1200/smzdm/all-in-one
+-   http://127.0.0.1:1200/bilibili/followings/video/2951298
 
--   http://localhost:1200/bilibili/add-later/2951298/1203613609
--   http://localhost:1200/bilibili/add-fav/2951298/1203613609
+-   http://127.0.0.1:1200/bilibili/add-later/2951298/1203613609
+-   http://127.0.0.1:1200/bilibili/add-fav/2951298/1203613609
 
 ## online
-- https://rsshub.trainspott.in/btnull/cn/7/2024
+
+-   https://rsshub.trainspott.in/jandan-wlt-v2/wlt
+-   https://rsshub.trainspott.in/btnull/cn/7/2024
+-   https://rsshub.trainspott.in/smzdm/all-in-one
+-   https://rsshub.trainspott.in/bilibili/followings/video/2951298
+
+-   https://rsshub.trainspott.in/bilibili/add-later/2951298/1203613609
+-   https://rsshub.trainspott.in/bilibili/add-fav/2951298/1203613609
 
 ## 部署
 
@@ -27,4 +34,3 @@ npm run start
 -   打开控制台，切换到 Network 面板，刷新
 -   点击 dynamic_new 请求，找到 Cookie
 -   视频和专栏，UP 主粉丝及关注只要求 SESSDATA 字段，动态需复制整段 Cookie
-

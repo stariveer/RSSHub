@@ -155,36 +155,60 @@ const getOne = async (fullLink: string, zhiParam: string, rateParam: string, day
 };
 
 async function handler() {
-    let res: Item[] = [];
+    const allItemsCollected: Item[] = [];
+    const REQUEST_DELAY_MS = 1000; // 1秒延时，可调整。
 
-    await Promise.all(
-        urls.map(async (url, index) => {
-            // url 是包含 custom_params 的完整 URL
-            const custom_params_part = url.split('&custom_params=')[1];
-            const custom_params_obj = JSON.parse(atob(custom_params_part));
+    for (const [index, urlString] of urls.entries()) {
+        try {
+            const urlObj = new URL(urlString); // Ensures urlString is a valid URL at the start
+            const customParamsEncoded = urlObj.searchParams.get('custom_params');
+
+            if (!customParamsEncoded) {
+                // 如果项目中有统一的 logger，建议替换 console.warn
+                console.warn(`[SMZDM All-In-One] Skipping URL: missing 'custom_params'. URL: ${urlString}`);
+                continue;
+            }
+
+            let custom_params_obj;
+            try {
+                custom_params_obj = JSON.parse(atob(customParamsEncoded));
+            } catch (parseError) {
+                 // 如果项目中有统一的 logger，建议替换 console.error
+                console.error(`[SMZDM All-In-One] Failed to parse 'custom_params' for URL ${urlString}. Error: ${parseError instanceof Error ? parseError.message : String(parseError)}. Encoded params: ${customParamsEncoded}`);
+                continue;
+            }
+
             const { zhiParam, rateParam, days, exclude } = custom_params_obj;
-            await sleep(30 * index);
-            // 直接将完整的 url 传递给 getOne
-            const a = await getOne(url, zhiParam, rateParam, days, exclude);
-            return a;
-        })
-    ).then((all) => {
-        for (const i of all) {
-            res = [...res, ...i];
+
+            // 第一个请求不延时，后续请求前延时
+            if (index > 0) {
+                await sleep(REQUEST_DELAY_MS);
+            }
+
+            // 可选: 打印处理进度日志
+            // console.log(`[SMZDM All-In-One] Processing URL ${index + 1}/${urls.length}: ${urlString}`);
+
+            const itemsFromUrl = await getOne(urlString, zhiParam, rateParam, days, exclude);
+            allItemsCollected.push(...itemsFromUrl);
+        } catch (fetchError) {
+            // 如果项目中有统一的 logger，建议替换 console.error
+            console.error(`[SMZDM All-In-One] Error processing URL ${urlString}. Error: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+            // 当前策略是记录错误并继续处理下一个URL
         }
-    });
+    }
 
     return {
-        title: `smzdm.com all in one [${version}]`,
-        link: 'https://smzdm.com',
-        item: res.length
-            ? res
-            : [
+        title: `smzdm.com all in one [${version}]`, // version 是在此文件顶部定义的全局变量
+        link: 'https://www.smzdm.com', // Feed 的主链接
+        item: allItemsCollected.length
+            ? allItemsCollected
+            : [ // 如果没有抓取到任何项目，则提供默认条目
                   {
-                      title: 'hello world',
-                      description: 'hello world',
-                      pubDate: new Date('2023-01-01T00:00:00.000Z'),
-                      link: 'https://trainspott.in',
+                      title: 'No items found or all requests failed',
+                      description: 'No items were fetched for the configured SMZDM URLs. Please check your URLs and server logs for more details.',
+                      pubDate: new Date(), // 使用当前时间作为占位符
+                      link: 'https://www.smzdm.com/explore/', // SMZDM 上的一个相关链接
+                      author: 'RSSHub SMZDM All-In-One', // 指明来源
                   },
               ],
     };

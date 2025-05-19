@@ -1,5 +1,6 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 interface CatesMap {
     [key: string]: { text: string; key: string };
@@ -98,7 +99,7 @@ async function handler(ctx: any) {
     const url = `https://www.gying.in/mv?year=${year}&region=${catesMap[cate].key}&sort=addtime&rrange=${score}_10`;
     // console.log('##url', url);
 
-    const response = await got({
+    const gotOptions: Parameters<typeof got>[0] = {
         method: 'get',
         url,
         headers: {
@@ -106,7 +107,23 @@ async function handler(ctx: any) {
             Cookie: envs.BTNULL_AUTH_COOKIE,
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25',
         },
-    });
+    };
+
+    const proxyUrl = envs.PROXY_URL;
+    if (proxyUrl && url.startsWith('https://')) {
+        gotOptions.agent = {
+            https: new HttpsProxyAgent(proxyUrl),
+        };
+    }
+    // Example for HTTP proxy if needed in the future:
+    // else if (proxyUrl && url.startsWith('http://')) {
+    // import { HttpProxyAgent } from 'http-proxy-agent'; // Would need to be at the top
+    //     gotOptions.agent = {
+    //         http: new HttpProxyAgent(proxyUrl),
+    //     };
+    // }
+
+    const response = await got(gotOptions);
     const regexp = /_obj\.inlist\s*=\s*({.*?});/;
     const obj = JSON.parse(response.data.match(regexp)[1]);
 

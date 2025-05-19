@@ -51,10 +51,10 @@ async function getImageSize(url: string): Promise<number> {
     }
 }
 
-async function handler(ctx) {
-    const { query } = ctx.req;
+async function handler(/* ctx */) {
+    // const { query } = ctx.req;
     // eslint-disable-next-line no-console
-    console.log('##query', query);
+    // console.log('##query', query);
     const final: Item[] = [];
     const seenIds = new Set(); // 用于去重
 

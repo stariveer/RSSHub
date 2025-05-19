@@ -11,6 +11,7 @@ npm run start
 -   http://127.0.0.1:1200/btnull/cn/7/2024
 -   http://127.0.0.1:1200/dapenti/tugua
 -   http://127.0.0.1:1200/douban/recommended/movie
+-   http://127.0.0.1:1200/edumails
 
 -   http://127.0.0.1:1200/bilibili/add-later/2951298/1203613609
 -   http://127.0.0.1:1200/bilibili/add-fav/2951298/1203613609
@@ -23,6 +24,7 @@ npm run start
 -   https://rsshub.trainspott.in/btnull/cn/7/2024
 -   https://rsshub.trainspott.in/dapenti/tugua
 -   https://rsshub.trainspott.in/douban/recommended/movie
+-   https://rsshub.trainspott.in/edumails
 
 -   https://rsshub.trainspott.in/bilibili/add-later/2951298/1203613609
 -   https://rsshub.trainspott.in/bilibili/add-fav/2951298/1203613609

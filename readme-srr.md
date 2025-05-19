@@ -13,6 +13,9 @@ npm run start
 -   http://localhost:1200/bilibili/add-later/2951298/1203613609
 -   http://localhost:1200/bilibili/add-fav/2951298/1203613609
 
+## online
+- https://rsshub.trainspott.in/btnull/cn/7/2024
+
 ## 部署
 
 ### bilibili

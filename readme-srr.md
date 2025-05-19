@@ -5,7 +5,7 @@ npm run start
 
 # TEST
 
--   http://localhost:1200/jandan-wlt/wlt
+-   http://localhost:1200/jandan-wlt-v2/wlt
 -   http://localhost:1200/btnull/cn/7/2024
 -   http://localhost:1200/smzdm/all-in-one
 -   http://localhost:1200/bilibili/followings/video/2951298
@@ -28,8 +28,3 @@ npm run start
 -   点击 dynamic_new 请求，找到 Cookie
 -   视频和专栏，UP 主粉丝及关注只要求 SESSDATA 字段，动态需复制整段 Cookie
 
-## 白名单
-
-```env
-ROUTE_WHITE_LIST="smzdm,bilibili,btnull,dapenti,douban,jandan-wlt,toodaylab,v2ex,wechat,weibo,werss,youtube"
-```

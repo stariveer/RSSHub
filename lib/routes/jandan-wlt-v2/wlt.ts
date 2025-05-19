@@ -130,6 +130,6 @@ export const route: Route = {
     path: '/wlt',
     name: '煎蛋无聊图',
     maintainers: [],
-    example: '/jandan-wlt/wlt',
+    example: '/jandan-wlt-v2/wlt',
     handler,
 };

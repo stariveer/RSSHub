@@ -21,9 +21,16 @@ interface Item {
     datetime: any;
 }
 
-// 使用从 curl 命令中获取的完整 cookie
-const staticCookie =
-    '__ckguid=xKf6auarRA4iWq32QnkL5UJ6; device_id=21307064331741669064484391b32a2090361b21cceb48fa04c7a46d34; homepage_sug=a; r_sort_type=score; Hm_lvt_9b7ac3d38f30fe89ff0b8a0546904e58=1747634342; HMACCOUNT=F57ECB25060C55D5; ss_ab=ss84; ssmx_ab=mxss38; s_his=%E5%BF%83%E7%9B%B8%E5%8D%B0%2C180g%20%E5%8D%B7%E7%BA%B8%2C%E9%A4%90%E5%B7%BE%E7%BA%B8; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%222845538431%22%2C%22first_id%22%3A%221958390e47f1f62-072afb93476d5a8-1c525636-1930176-1958390e4802f1c%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_landing_page%22%3A%22https%3A%2F%2Fsearch.smzdm.com%2F%3Fc%3Dhome%26s%3Ddolce%2Bgusto%2B%E8%83%B6%E5%9B%8A%26order%3Dtime%26custom_params%3DeyJ6aGlQYXJhbSI6NSwicmF0ZVBhcmFtIjowLjcsImRheXMiOjUwfQ%3D%3D%26v%3Db%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTk1ODM5MGU0N2YxZjYyLTA3MmFmYjkzNDc2ZDVhOC0xYzUyNTYzNi0xOTMwMTc2LTE5NTgzOTBlNDgwMmYxYyIsIiRpZGVudGl0eV9sb2dpbl9pZCI6IjI4NDU1Mzg0MzEifQ%3D%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%222845538431%22%7D%2C%22%24device_id%22%3A%221958390e47f1f62-072afb93476d5a8-1c525636-1930176-1958390e4802f1c%22%7D; Hm_lpvt_9b7ac3d38f30fe89ff0b8a0546904e58=1747640989; w_tsfp=ltvuV0MF2utBvS0Q7a3vkEunHz8ucTw4h0wpEaR0f5thQLErU5mB1oB+vsL+OHDb4cxnvd7DsZoyJTLYCJI3dwNGQJrCJ4tFig/EwYMi3Y0TUhMyR5rYC1AbIOgj7WRGdXhCNxS00jA8eIUd379yilkMsyN1zap3TO14fstJ019E6KDQmI5uDW3HlFWQRzaLbjcMcuqPr6g18L5a5TfctA/9Kll9A70ThUWW0SlMD3sq4BK4dbwONR2pIs39SqA=';
+// 读取环境变量中的 SMZDM_COOKIE，如果未设置则给一个提示或默认值
+const staticCookie = process.env.SMZDM_COOKIE || '';
+
+// 如果 staticCookie 为空，可以考虑打印一条警告或者在没有Cookie时路由直接返回错误/提示信息
+if (!staticCookie) {
+    // logger.warn('SMZDM_COOKIE environment variable is not set. The SMZDM all-in-one route may not work correctly.');
+    // 您可以在这里决定如果没有设置Cookie该如何处理，例如：
+    // throw new Error('SMZDM_COOKIE environment variable is required for this route.');
+    // 或者让其继续，但很可能会失败
+}
 
 // link 参数现在应该是包含 custom_params 的完整 URL
 const getOne = async (fullLink: string, zhiParam: string, rateParam: string, days: string, exclude: string): Promise<Item[]> => {
@@ -33,7 +40,7 @@ const getOne = async (fullLink: string, zhiParam: string, rateParam: string, day
             accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7,zh-TW;q=0.6,fr;q=0.5,uk;q=0.4,ht;q=0.3,la;q=0.2,pt;q=0.1',
             'cache-control': 'no-cache',
-            cookie: staticCookie, // 使用上面定义的完整 cookie
+            cookie: staticCookie, // 使用从环境变量读取的 cookie
             pragma: 'no-cache',
             referer: fullLink, // Referer 也使用 fullLink
             'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',

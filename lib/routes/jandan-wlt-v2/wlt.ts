@@ -6,8 +6,7 @@ import config from './config';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const rootUrl = 'https://jandan.net';
-const apiUrl = 'https://jandan.net/api/comment/post/26402';
-const { pages, vote_positive, positive_rate, sizeLimit, authorBlackList } = config;
+const { apiUrl, pages, vote_positive, positive_rate, sizeLimit, authorBlackList } = config;
 
 interface Item {
     author: string;
@@ -128,7 +127,7 @@ async function handler(/* ctx */) {
 
 export const route: Route = {
     path: '/wlt',
-    name: '煎蛋无聊图',
+    name: '煎蛋无聊图v2',
     maintainers: [],
     example: '/jandan-wlt-v2/wlt',
     handler,

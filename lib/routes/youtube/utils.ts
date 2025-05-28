@@ -6,6 +6,7 @@ const { OAuth2 } = google.auth;
 import { art } from '@/utils/render';
 import path from 'node:path';
 import { config } from '@/config';
+import got from '@/utils/got';
 
 let count = 0;
 const youtube = {};
@@ -152,6 +153,62 @@ export const getLive = (id, cache) =>
         );
         return res;
     });
+
+export const getAccessToken = async (cache) => {
+    // 检查是否有缓存的access_token
+    let accessToken = await cache.get('youtube:accessToken', false);
+    if (!accessToken) {
+        if (!config.youtube || !config.youtube.clientId || !config.youtube.clientSecret || !config.youtube.refreshToken) {
+            return null;
+        }
+        try {
+            const response = await got.post('https://oauth2.googleapis.com/token', {
+                form: {
+                    client_id: config.youtube.clientId,
+                    client_secret: config.youtube.clientSecret,
+                    refresh_token: config.youtube.refreshToken,
+                    grant_type: 'refresh_token',
+                },
+            });
+            accessToken = response.data.access_token;
+            await cache.set('youtube:accessToken', accessToken, 3500); // 约1小时
+        } catch (error) {
+            console.error('Failed to refresh YouTube access token:', error);
+            return null;
+        }
+    }
+    return accessToken;
+};
+
+export const addVideoToPlaylist = async (playlistId, videoId, cache) => {
+    const accessToken = await getAccessToken(cache);
+    if (!accessToken) {
+        return { success: false, message: 'Failed to get access token' };
+    }
+
+    try {
+        await got.post('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            json: {
+                snippet: {
+                    playlistId,
+                    resourceId: {
+                        kind: 'youtube#video',
+                        videoId,
+                    },
+                },
+            },
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to add video to playlist:', error);
+        return { success: false, message: error.message };
+    }
+};
+
 const youtubeUtils = {
     getPlaylistItems,
     getPlaylist,
@@ -164,5 +221,7 @@ const youtubeUtils = {
     getSubscriptionsRecusive,
     isYouTubeChannelId,
     getLive,
+    getAccessToken,
+    addVideoToPlaylist,
 };
 export default youtubeUtils;

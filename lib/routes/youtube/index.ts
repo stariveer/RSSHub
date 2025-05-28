@@ -1,4 +1,4 @@
-export { route as channel, addToPlaylistRoute } from './channel';
+export { route as channel } from './channel';
 export { route as custom } from './custom';
 export { route as live } from './live';
 export { route as playlist } from './playlist';

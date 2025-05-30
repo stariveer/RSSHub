@@ -1,7 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import cache from './cache';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 export const route: Route = {
@@ -44,7 +44,7 @@ async function handler(ctx) {
     const uid = ctx.req.param('uid');
     const loginUid = ctx.req.param('loginUid');
 
-    const cookie = config.bilibili.cookies[loginUid];
+    const cookie = getUserCookie(loginUid);
     if (cookie === undefined) {
         throw new ConfigNotFoundError('缺少对应 loginUid 的 Bilibili 用户登录后的 Cookie 值 <a href="https://docs.rsshub.app/zh/deploy/config#route-specific-configurations">bilibili 用户关注动态系列路由</a>');
     }

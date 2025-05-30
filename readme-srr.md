@@ -1,4 +1,3 @@
-```
 npm run build
 npm run start
 ```
@@ -103,7 +102,4 @@ YOUTUBE_REFRESH_TOKEN
 
 
 我希望你参考/bilibili/user/video/171766569 这个路由的交互, 来添加这3个"按钮", 需要你修改的路由是这个/youtube/channel/UC0Qj2CZsALJRivClNuDStlA
-
-
-
 

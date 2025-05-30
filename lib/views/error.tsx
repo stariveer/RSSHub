@@ -8,7 +8,20 @@ const Index: FC<{
     message: string;
     errorRoute: string;
     nodeVersion: string;
-}> = ({ requestPath, message, errorRoute, nodeVersion }) => (
+}> = ({ requestPath, message, errorRoute, nodeVersion }) => {
+    // 检查是否是bilibili/followings/video路由
+    const isBilibiliFollowingsVideo = requestPath.includes('/bilibili/followings/video/');
+
+    // 从路径中提取uid
+    let bilibiliUid = '';
+    if (isBilibiliFollowingsVideo) {
+        const match = requestPath.match(/\/bilibili\/followings\/video\/(\d+)/);
+        if (match && match[1]) {
+            bilibiliUid = match[1];
+        }
+    }
+
+    return (
     <Layout>
         <div
             className="pointer-events-none absolute w-full h-screen"
@@ -23,6 +36,148 @@ const Index: FC<{
             <div className="text-left w-[800px] space-y-6 !mt-10">
                 <div className="space-y-2">
                     <p className="mb-2 font-bold">Helpful Information</p>
+                    {isBilibiliFollowingsVideo && (
+                        <div id="qrcode-login" className="mb-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+                            <h3 className="text-lg font-bold mb-2">二维码登录</h3>
+                            <p className="mb-2">检测到您的B站Cookie已过期，请使用二维码登录刷新Cookie</p>
+                            <div className="flex flex-col justify-center items-center p-4 border border-gray-300 rounded bg-white">
+                                <div id="qrcode-image" className="mb-4 w-48 h-48 flex items-center justify-center">
+                                    <p className="text-gray-500">加载中...</p>
+                                </div>
+                                <div id="qrcode-status" className="text-center mb-2">请使用哔哩哔哩APP扫描二维码登录</div>
+                                <div id="qrcode-refresh" className="text-center">
+                                    <button className="px-4 py-2 bg-[#FB7299] text-white rounded hover:bg-opacity-90" onclick="refreshQrCode()">
+                                        刷新二维码
+                                    </button>
+                                </div>
+                            </div>
+
+                            <script dangerouslySetInnerHTML={{
+                                __html: `
+                                let qrcodeKey = '';
+                                let pollTimer = null;
+                                const expectedUid = "${bilibiliUid}";
+
+                                // 初始化加载二维码
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    loadQrCode();
+                                });
+
+                                // 加载二维码
+                                async function loadQrCode() {
+                                    try {
+                                        const statusElement = document.getElementById('qrcode-status');
+                                        const qrcodeElement = document.getElementById('qrcode-image');
+
+                                        statusElement.innerText = '正在加载二维码...';
+                                        qrcodeElement.innerHTML = '<p class="text-gray-500">加载中...</p>';
+
+                                        // 获取二维码数据
+                                        const response = await fetch('/bilibili/qrcode/generate');
+                                        if (!response.ok) {
+                                            throw new Error('获取二维码失败，服务器响应错误');
+                                        }
+
+                                        const data = await response.json();
+                                        console.log('二维码生成响应:', data);
+
+                                        if (data.success) {
+                                            qrcodeKey = data.qrcode_key;
+                                            qrcodeElement.innerHTML = \`<img src="\${data.image}" alt="二维码" class="w-full h-full">\`;
+                                            statusElement.innerText = '请使用哔哩哔哩APP扫描二维码登录';
+
+                                            // 开始轮询登录状态
+                                            startPolling();
+                                        } else {
+                                            statusElement.innerText = '二维码加载失败: ' + (data.message || '未知错误');
+                                        }
+                                    } catch (error) {
+                                        console.error('加载二维码失败:', error);
+                                        document.getElementById('qrcode-status').innerText = '二维码加载失败，请刷新重试: ' + error.message;
+                                    }
+                                }
+
+                                // 刷新二维码
+                                function refreshQrCode() {
+                                    if (pollTimer) {
+                                        clearInterval(pollTimer);
+                                        pollTimer = null;
+                                    }
+                                    loadQrCode();
+                                }
+
+                                // 开始轮询登录状态
+                                function startPolling() {
+                                    if (pollTimer) {
+                                        clearInterval(pollTimer);
+                                    }
+
+                                    pollTimer = setInterval(async () => {
+                                        try {
+                                            if (!qrcodeKey) {
+                                                console.error('二维码key不存在，无法轮询');
+                                                return;
+                                            }
+
+                                            const pollUrl = \`/bilibili/qrcode/poll?qrcode_key=\${qrcodeKey}&uid=\${expectedUid}\`;
+                                            console.log('轮询URL:', pollUrl);
+
+                                            const response = await fetch(pollUrl);
+                                            if (!response.ok) {
+                                                throw new Error('轮询请求失败，服务器响应错误');
+                                            }
+
+                                            const data = await response.json();
+                                            console.log('轮询响应:', data);
+
+                                            const statusElement = document.getElementById('qrcode-status');
+
+                                            // 处理嵌套的data.code结构
+                                            const statusCode = data.data?.code !== undefined ? data.data.code : data.code;
+                                            const statusMessage = data.data?.message || data.message || '未知状态';
+
+                                            console.log('解析后的状态码:', statusCode, '消息:', statusMessage);
+
+                                            if (statusCode === 0) {
+                                                // 登录成功
+                                                clearInterval(pollTimer);
+                                                statusElement.innerText = '登录成功! 正在刷新页面...';
+                                                console.log('登录成功，将在1.5秒后刷新页面');
+                                                setTimeout(() => {
+                                                    window.location.reload();
+                                                }, 1500);
+                                            } else if (statusCode === 86038) {
+                                                // 二维码已失效
+                                                clearInterval(pollTimer);
+                                                statusElement.innerText = '二维码已失效，请刷新二维码';
+                                            } else if (statusCode === 86090) {
+                                                // 二维码已扫描
+                                                statusElement.innerText = '二维码已扫描，请在手机上确认登录';
+                                            } else if (statusCode === 86101) {
+                                                // 未扫描
+                                                statusElement.innerText = '请使用哔哩哔哩APP扫描二维码登录';
+                                            } else if (statusCode === -1) {
+                                                // 处理UID不匹配问题 - 忽略错误，直接刷新页面
+                                                clearInterval(pollTimer);
+                                                console.log('收到UID不匹配错误，但我们将忽略它并刷新页面');
+                                                statusElement.innerText = '登录成功! 正在刷新页面...';
+                                                setTimeout(() => {
+                                                    window.location.reload();
+                                                }, 1500);
+                                            } else {
+                                                // 其他状态
+                                                statusElement.innerText = statusMessage || '未知状态，请刷新二维码';
+                                            }
+                                        } catch (error) {
+                                            console.error('轮询状态失败:', error);
+                                            document.getElementById('qrcode-status').innerText = '轮询失败，请刷新二维码: ' + error.message;
+                                        }
+                                    }, 3000);
+                                }
+                                `
+                            }} />
+                        </div>
+                    )}
                     <p className="message">
                         Error Message:
                         <br />
@@ -139,6 +294,7 @@ const Index: FC<{
             </p>
         </div>
     </Layout>
-);
+    );
+};
 
 export default Index;

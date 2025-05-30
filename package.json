@@ -57,6 +57,7 @@
         "@postlight/parser": "2.2.3",
         "@sentry/node": "7.116.0",
         "@tonyrl/rand-user-agent": "2.0.67",
+        "@types/qrcode": "^1.5.5",
         "aes-js": "3.1.2",
         "art-template": "4.13.2",
         "bbcodejs": "0.0.4",
@@ -83,6 +84,7 @@
         "instagram-private-api": "1.46.1",
         "ioredis": "5.4.1",
         "ip-regex": "5.0.0",
+        "js-yaml": "^4.1.0",
         "jsdom": "24.1.0",
         "json-bigint": "1.0.0",
         "jsrsasign": "10.9.0",
@@ -102,6 +104,7 @@
         "puppeteer-extra-plugin-stealth": "2.11.2",
         "puppeteer-extra-plugin-user-data-dir": "2.4.1",
         "puppeteer-extra-plugin-user-preferences": "2.4.1",
+        "qrcode": "^1.5.4",
         "query-string": "9.0.0",
         "rate-limiter-flexible": "5.0.3",
         "re2js": "0.4.1",
@@ -181,7 +184,7 @@
         "vitest": "1.6.0"
     },
     "volta": {
-      "node": "22.14.0",
-      "pnpm": "10.7.1"
+        "node": "22.14.0",
+        "pnpm": "10.7.1"
     }
 }

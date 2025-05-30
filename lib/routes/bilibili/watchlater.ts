@@ -1,8 +1,8 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import cache from './cache';
-import { config } from '@/config';
 import utils from './utils';
+import { getUserCookie } from './yaml-config';
 import { parseDate } from '@/utils/parse-date';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
 
@@ -41,7 +41,7 @@ async function handler(ctx) {
     const disableEmbed = ctx.req.param('disableEmbed');
     const name = await cache.getUsernameFromUID(uid);
 
-    const cookie = config.bilibili.cookies[uid];
+    const cookie = getUserCookie(uid);
     if (cookie === undefined) {
         throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
     }

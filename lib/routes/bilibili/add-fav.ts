@@ -1,6 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 // import { sleep } from 'telegram/Helpers';
 
 export const route: Route = {
@@ -40,7 +41,11 @@ async function handler(ctx) {
     const aid = String(ctx.req.param('aid'));
     const folder = String(ctx.req.param('folder'));
     const folderId = folderNameIdMap[folder] || folderNameIdMap.default;
-    const cookie = config.bilibili.cookies[uid];
+    const cookie = getUserCookie(uid);
+    if (cookie === undefined) {
+        throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
+    }
+
     const csrf = getBiliJct(cookie);
 
     // console.log('请求参数：', { uid, aid, folder, folderId, csrf });

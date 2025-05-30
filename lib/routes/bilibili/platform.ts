@@ -1,7 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
 
 export const route: Route = {
     path: '/platform/:area?/:p_type?/:uid?',
@@ -38,7 +38,7 @@ export const route: Route = {
 
 async function handler(ctx) {
     const { area = -1, type = '全部类型', uid } = ctx.req.param();
-    const cookie = config.bilibili.cookies[uid];
+    const cookie = uid ? getUserCookie(uid) : undefined;
     const link = 'https://show.bilibili.com/api/ticket/project/listV2';
 
     const headers = {

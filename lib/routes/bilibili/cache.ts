@@ -5,12 +5,18 @@ import { load } from 'cheerio';
 import { config } from '@/config';
 import logger from '@/utils/logger';
 import puppeteer from '@/utils/puppeteer';
+import { getAllCookies } from './yaml-config';
 
 let disableConfigCookie = false;
 const getCookie = () => {
-    if (!disableConfigCookie && Object.keys(config.bilibili.cookies).length > 0) {
-        return config.bilibili.cookies[Object.keys(config.bilibili.cookies)[Math.floor(Math.random() * Object.keys(config.bilibili.cookies).length)]];
+    // 优先从YAML配置获取cookie
+    const cookies = getAllCookies();
+    logger.debug(`Debug getAllCookies result: ${Object.keys(cookies).length > 0 ? '有cookie' : '无cookie'}`);
+    if (!disableConfigCookie && Object.keys(cookies).length > 0) {
+        const cookieKeys = Object.keys(cookies);
+        return cookies[cookieKeys[Math.floor(Math.random() * cookieKeys.length)]];
     }
+
     const key = 'bili-cookie';
     return cache.tryGet(key, async () => {
         const browser = await puppeteer();

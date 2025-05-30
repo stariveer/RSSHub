@@ -5,6 +5,7 @@ import { route as radarRulesAllRoute, handler as radarRulesAllHandler } from '@/
 import { route as radarRulesOneRoute, handler as radarRulesOneHandler } from '@/api/radar/rules/one';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
+import { setupBilibiliApi } from './bilibili';
 
 const app = new OpenAPIHono();
 
@@ -12,6 +13,9 @@ app.openapi(namespaceAllRoute, namespaceAllHandler);
 app.openapi(namespaceOneRoute, namespaceOneHandler);
 app.openapi(radarRulesAllRoute, radarRulesAllHandler);
 app.openapi(radarRulesOneRoute, radarRulesOneHandler);
+
+// 设置Bilibili相关API
+setupBilibiliApi(app);
 
 const docs = app.getOpenAPI31Document({
     openapi: '3.1.0',

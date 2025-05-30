@@ -33,3 +33,4 @@ yarn-error.log
 
 scripts/twitter-token/accounts.*
 .user.ini
+bilibili-cookies.yml

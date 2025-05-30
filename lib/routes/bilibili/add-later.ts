@@ -1,6 +1,7 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
-import { config } from '@/config';
+import { getUserCookie } from './yaml-config';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 export const route: Route = {
     path: '/add-later/:uid/:aid',
@@ -23,7 +24,11 @@ function getBiliJct(str) {
 async function handler(ctx) {
     const uid = String(ctx.req.param('uid'));
     const aid = String(ctx.req.param('aid'));
-    const cookie = config.bilibili.cookies[uid];
+    const cookie = getUserCookie(uid);
+    if (cookie === undefined) {
+        throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
+    }
+
     const headers = { Cookie: cookie };
     const csrf = getBiliJct(cookie);
     const form = new URLSearchParams();

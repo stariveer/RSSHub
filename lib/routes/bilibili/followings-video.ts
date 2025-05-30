@@ -1,9 +1,10 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
 import cache from './cache';
-import { config } from '@/config';
 import utils from './utils';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
+import { getUserCookie } from './yaml-config';
+import logger from '@/utils/logger';
 
 export const route: Route = {
     path: '/followings/video/:uid/:disableEmbed?',
@@ -40,47 +41,64 @@ async function handler(ctx) {
     const disableEmbed = ctx.req.param('disableEmbed');
     const name = await cache.getUsernameFromUID(uid);
 
-    const cookie = config.bilibili.cookies[uid];
-    // console.log('##cookie', cookie);
-    if (cookie === undefined) {
-        throw new ConfigNotFoundError('缺少对应 uid 的 Bilibili 用户登录后的 Cookie 值');
+    // 使用yaml-config中的getUserCookie函数获取cookie
+    const cookie = getUserCookie(uid);
+    logger.debug(`Debug cookie for uid ${uid}: ${cookie ? 'Cookie exists' : 'Cookie is empty or undefined'}`);
+    if (!cookie) {
+        throw new ConfigNotFoundError('B站Cookie不存在，请扫码登录');
     }
 
     const dynamicUrl = `https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/dynamic_new?uid=${uid}&type=8`;
-    // console.log('##dynamicUrl', dynamicUrl);
+    logger.debug(`Debug dynamicUrl: ${dynamicUrl}`);
 
-    const response = await got({
-        method: 'get',
-        url: dynamicUrl,
-        headers: {
-            Referer: `https://space.bilibili.com/${uid}/`,
-            Cookie: cookie,
-        },
-    });
-    if (response.data.code === -6) {
-        throw new ConfigNotFoundError('对应 uid 的 Bilibili 用户的 Cookie 已过期');
-    }
-    // console.log('##response', response);
-    const cards = response.data.data.cards;
+    try {
+        const response = await got({
+            method: 'get',
+            url: dynamicUrl,
+            headers: {
+                Referer: `https://space.bilibili.com/${uid}/`,
+                Cookie: cookie,
+            },
+        });
 
-    const out = cards.map((card) => {
-        const card_data = JSON.parse(card.card);
+        if (response.data.code === -6) {
+            throw new ConfigNotFoundError('B站Cookie已过期，请扫码登录');
+        }
 
-        // 使用工具函数生成按钮
-        const actionButtons = utils.getActionButtons(card_data.aid);
+        // 添加对response.data为undefined或null的处理
+        if (!response.data || !response.data.data || !response.data.data.cards) {
+            logger.error(`Failed to get data from bilibili API: ${JSON.stringify(response.data)}`);
+            throw new Error('获取B站数据失败，可能是cookie无效或API发生变化');
+        }
+
+        const cards = response.data.data.cards;
+
+        const out = cards.map((card) => {
+            const card_data = JSON.parse(card.card);
+
+            // 使用工具函数生成按钮
+            const actionButtons = utils.getActionButtons(card_data.aid);
+
+            return {
+                title: card_data.title,
+                description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br>${actionButtons}<br><img src="${card_data.pic}">`,
+                pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
+                link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
+                author: card.desc.user_profile.info.uname,
+            };
+        });
 
         return {
-            title: card_data.title,
-            description: `${card_data.desc}${disableEmbed ? '' : `<br><br>${utils.iframe(card_data.aid)}`}<br>${actionButtons}<br><img src="${card_data.pic}">`,
-            pubDate: new Date(card_data.pubdate * 1000).toUTCString(),
-            link: card_data.pubdate > utils.bvidTime && card_data.bvid ? `https://www.bilibili.com/video/${card_data.bvid}` : `https://www.bilibili.com/video/av${card_data.aid}`,
-            author: card.desc.user_profile.info.uname,
+            title: `${name} 关注视频动态`,
+            link: `https://t.bilibili.com/?tab=8`,
+            item: out,
         };
-    });
-
-    return {
-        title: `${name} 关注视频动态`,
-        link: `https://t.bilibili.com/?tab=8`,
-        item: out,
-    };
+    } catch (error: any) {
+        if (error instanceof ConfigNotFoundError) {
+            throw error; // 直接抛出特定错误，错误页面会显示二维码登录区域
+        } else {
+            logger.error(`Error in bilibili followings-video route: ${error}`);
+            throw new Error(`获取B站关注视频动态失败: ${error.message}`);
+        }
+    }
 }

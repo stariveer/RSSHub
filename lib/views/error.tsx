@@ -82,6 +82,36 @@ const Index: FC<{
                                     loadQrCode();
                                 };
 
+                                // 通知服务器重新加载 Cookie
+                                async function notifyServerToReloadCookie() {
+                                    try {
+                                        console.log('通知服务器重新加载 Cookie');
+                                        const timestamp = new Date().getTime();
+                                        const response = await fetch('/bilibili/qrcode/reload-cookie?_t=' + timestamp, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                                                'Pragma': 'no-cache',
+                                                'Expires': '0'
+                                            },
+                                            body: JSON.stringify({ uid: expectedUid })
+                                        });
+
+                                        if (response.ok) {
+                                            const data = await response.json();
+                                            console.log('服务器重新加载 Cookie 响应:', data);
+                                            return data.success;
+                                        } else {
+                                            console.error('服务器重新加载 Cookie 失败');
+                                            return false;
+                                        }
+                                    } catch (error) {
+                                        console.error('通知服务器重新加载 Cookie 出错:', error);
+                                        return false;
+                                    }
+                                }
+
                                 // 初始化加载二维码
                                 document.addEventListener('DOMContentLoaded', function() {
                                     loadQrCode();
@@ -200,10 +230,26 @@ const Index: FC<{
                                                 // 登录成功
                                                 clearInterval(pollTimer);
                                                 statusElement.innerText = '登录成功! 正在刷新页面...';
-                                                console.log('登录成功，将在1.5秒后刷新页面');
-                                                setTimeout(() => {
-                                                    window.location.reload();
-                                                }, 1500);
+                                                console.log('登录成功，将在通知服务器重新加载 Cookie 后刷新页面');
+
+                                                // 先通知服务器重新加载 Cookie，然后再刷新页面
+                                                setTimeout(async () => {
+                                                    try {
+                                                        // 尝试通知服务器重新加载 Cookie
+                                                        await notifyServerToReloadCookie();
+
+                                                        console.log('等待服务器处理完成...');
+                                                        // 等待服务器处理完成
+                                                        setTimeout(() => {
+                                                            console.log('执行页面刷新');
+                                                            window.location.href = window.location.pathname + '?t=' + new Date().getTime();
+                                                        }, 2000);
+                                                    } catch (e) {
+                                                        console.error('处理登录成功时出错:', e);
+                                                        alert('登录成功，但页面刷新失败，请手动刷新页面');
+                                                        window.location.reload(true);
+                                                    }
+                                                }, 1000);
                                             } else if (statusCode === 86038) {
                                                 // 二维码已失效
                                                 clearInterval(pollTimer);
@@ -219,9 +265,25 @@ const Index: FC<{
                                                 clearInterval(pollTimer);
                                                 console.log('收到UID不匹配错误，但我们将忽略它并刷新页面');
                                                 statusElement.innerText = '登录成功! 正在刷新页面...';
-                                                setTimeout(() => {
-                                                    window.location.reload();
-                                                }, 1500);
+
+                                                // 先通知服务器重新加载 Cookie，然后再刷新页面
+                                                setTimeout(async () => {
+                                                    try {
+                                                        // 尝试通知服务器重新加载 Cookie
+                                                        await notifyServerToReloadCookie();
+
+                                                        console.log('等待服务器处理完成...');
+                                                        // 等待服务器处理完成
+                                                        setTimeout(() => {
+                                                            console.log('执行页面刷新（UID不匹配情况）');
+                                                            window.location.href = window.location.pathname + '?t=' + new Date().getTime();
+                                                        }, 2000);
+                                                    } catch (e) {
+                                                        console.error('处理UID不匹配时出错:', e);
+                                                        alert('登录成功，但页面刷新失败，请手动刷新页面');
+                                                        window.location.reload(true);
+                                                    }
+                                                }, 1000);
                                             } else {
                                                 // 其他状态
                                                 statusElement.innerText = statusMessage || '未知状态，请刷新二维码';

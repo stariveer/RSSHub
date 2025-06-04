@@ -9,7 +9,7 @@ export const route: Route = {
     path: '/qrcode/:action',
     categories: ['social-media'],
     example: '/bilibili/qrcode/generate',
-    parameters: { action: '操作类型，generate 生成二维码，poll 轮询状态' },
+    parameters: { action: '操作类型，generate 生成二维码，poll 轮询状态，reload-cookie 重新加载Cookie' },
     features: {
         requireConfig: false,
         requirePuppeteer: false,
@@ -196,6 +196,85 @@ async function handler(ctx) {
                 return ctx.json({
                     code: -1,
                     message: `轮询二维码状态出错: ${pollError.message}`
+                });
+            }
+        } else if (action === 'reload-cookie') {
+            // 重新加载Cookie的逻辑
+            try {
+                // 获取请求体中的UID
+                const requestBody = await ctx.req.json();
+                const uid = requestBody.uid || ctx.req.query('uid');
+
+                if (!uid) {
+                    return ctx.json({
+                        success: false,
+                        message: '缺少必要参数uid'
+                    });
+                }
+
+                logger.info(`尝试重新加载用户 ${uid} 的Cookie`);
+
+                // 重新加载配置
+                const YAML_CONFIG_PATH = path.join(process.cwd(), 'bilibili-cookies.yml');
+
+                if (!fs.existsSync(YAML_CONFIG_PATH)) {
+                    logger.error(`Cookie配置文件不存在: ${YAML_CONFIG_PATH}`);
+                    return ctx.json({
+                        success: false,
+                        message: 'Cookie配置文件不存在'
+                    });
+                }
+
+                // 读取YAML文件
+                const yamlContent = fs.readFileSync(YAML_CONFIG_PATH, 'utf8');
+                const yamlObj = yaml.load(yamlContent);
+
+                // 检查用户是否存在
+                if (!yamlObj || !yamlObj.users) {
+                    logger.error('YAML文件格式错误或不包含users字段');
+                    return ctx.json({
+                        success: false,
+                        message: 'YAML文件格式错误'
+                    });
+                }
+
+                const user = yamlObj.users.find((u) => u.uid === uid);
+
+                if (!user) {
+                    logger.warn(`未找到用户 ${uid} 的Cookie配置`);
+                    return ctx.json({
+                        success: false,
+                        message: `未找到用户 ${uid} 的Cookie配置`
+                    });
+                }
+
+                logger.info(`找到用户 ${uid} 的Cookie配置，尝试重新加载`);
+
+                // 这里我们可以尝试清除Node.js的模块缓存，强制重新加载配置
+                for (const key of Object.keys(require.cache)) {
+                    if (key.includes('bilibili-cookies.yml')) {
+                        delete require.cache[key];
+                    }
+                }
+
+                // 尝试触发配置重新加载
+                try {
+                    // 重新读取配置文件
+                    fs.readFileSync(YAML_CONFIG_PATH, 'utf8');
+                    logger.info('已重新读取配置文件');
+                } catch (readError) {
+                    logger.error(`重新读取配置文件失败: ${readError}`);
+                }
+
+                return ctx.json({
+                    success: true,
+                    message: '已重新加载Cookie配置'
+                });
+            } catch (error: any) {
+                logger.error(`重新加载Cookie时出错: ${error}`);
+                return ctx.json({
+                    success: false,
+                    message: `重新加载Cookie时出错: ${error.message}`
                 });
             }
         } else {

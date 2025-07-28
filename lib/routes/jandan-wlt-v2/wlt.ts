@@ -6,7 +6,7 @@ import config from './config';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const rootUrl = 'https://jandan.net';
-const { apiUrl, pages, vote_positive, positive_rate, sizeLimit, authorBlackList } = config;
+const { cookie, apiUrl, pages, vote_positive, positive_rate, sizeLimit, authorBlackList } = config;
 
 interface Item {
     author: string;
@@ -38,6 +38,7 @@ async function getImageSize(url: string): Promise<number> {
         const response = await gotOrig.head(url, {
             headers: {
                 Referer: rootUrl,
+                Cookie: cookie,
             },
         });
         const contentLength = response.headers['content-length'];
@@ -61,6 +62,7 @@ async function handler(/* ctx */) {
         const headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
             Referer: rootUrl,
+            Cookie: cookie,
         };
 
         const response = await got({

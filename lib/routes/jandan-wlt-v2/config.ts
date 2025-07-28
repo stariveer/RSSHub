@@ -25,4 +25,7 @@ export default {
 
     // 默认作者黑名单，可通过环境变量 JANDAN_WLT_AUTHOR_BLACKLIST 修改，格式为逗号分隔的字符串
     authorBlackList: parseArray(getEnv('AUTHOR_BLACKLIST', '用户1,用户2,用户3')),
+
+    // 默认cookie，可通过环境变量 JANDAN_WLT_COOKIE 修改
+    cookie: getEnv('COOKIE', ''),
 };

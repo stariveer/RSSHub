@@ -67,7 +67,7 @@ async function handler(/* ctx */) {
 
         const response = await got({
             method: 'get',
-            url: `${apiUrl}?order=desc&page=${page}`,
+            url: `${apiUrl}?page=${page}`,
             headers,
         });
 
@@ -114,8 +114,31 @@ async function handler(/* ctx */) {
         }
     }
 
+    // 先获取总页数
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        Referer: rootUrl,
+        Cookie: cookie,
+    };
+
+    const response = await got({
+        method: 'get',
+        url: apiUrl,
+        headers,
+    });
+
+    const data = response.data;
+    let totalPages = 1;
+    if (data.code === 0 && data.data?.total_pages) {
+        totalPages = data.data.total_pages;
+    }
+
+    // 根据pages配置倒序获取数据
+    // 如果pages是[1,2,3]，那么实际获取的是[totalPages, totalPages-1, totalPages-2]
+    const actualPages = pages.map((page) => totalPages - page + 1);
+
     // 获取指定页面的内容
-    for (const page of pages) {
+    for (const page of actualPages) {
         await getOnePage(page); // eslint-disable-line no-await-in-loop
         await sleep(100); // eslint-disable-line no-await-in-loop
     }

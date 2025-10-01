@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(env:*)",
+      "Bash(lsof:*)",
+      "mcp__playwright__browser_close",
+      "Bash(export:*)",
+      "Bash(pkill:*)",
+      "Bash(kill:*)",
+      "Bash(killall:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

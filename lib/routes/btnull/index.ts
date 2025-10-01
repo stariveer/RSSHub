@@ -99,6 +99,8 @@ async function handler(ctx: any) {
     const url = `https://www.gying.in/mv?year=${year}&region=${catesMap[cate].key}&sort=addtime&rrange=${score}_10`;
     // console.log('##url', url);
 
+    // console.log('##envs.BTNULL_AUTH_COOKIE', envs.BTNULL_AUTH_COOKIE);
+
     const gotOptions: Parameters<typeof got>[0] = {
         method: 'get',
         url,
@@ -124,8 +126,21 @@ async function handler(ctx: any) {
     // }
 
     const response = await got(gotOptions);
+    // console.log('##response', response);
+
+    // 检查是否被重定向到验证页面
+    if (response.data.includes('正在确认你是不是机器人')) {
+        throw new Error('Access denied: Robot verification required. Please check if BTNULL_AUTH_COOKIE is properly set.');
+    }
+
     const regexp = /_obj\.inlist\s*=\s*({.*?});/;
-    const obj = JSON.parse(response.data.match(regexp)[1]);
+    const match = response.data.match(regexp);
+    if (!match) {
+        // 截取响应数据的前1000个字符用于调试
+        const preview = response.data.substring(0, 1000);
+        throw new Error(`Failed to parse response data: no match found. Response preview: ${preview}`);
+    }
+    const obj = JSON.parse(match[1]);
 
     const {
         t, // 标题
@@ -152,7 +167,7 @@ async function handler(ctx: any) {
             const item = {
                 title: `[${point}][${year} ${tags}]${title}`,
                 link: `https://gying.in/mv/${i[index]}`,
-                description: `<img src="${imgPre}/${i[index]}/320.avif">`,
+                description: `<img src="${imgPre}/${i[index]}/384.avif">`,
             };
             return item;
         });

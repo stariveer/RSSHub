@@ -10,7 +10,13 @@
       "Bash(export:*)",
       "Bash(pkill:*)",
       "Bash(kill:*)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(pnpm config get:*)",
+      "Bash(pnpm config set:*)",
+      "Bash(pm2 list:*)",
+      "Bash(pm2 start:*)",
+      "Bash(pm2 save:*)",
+      "Bash(pm2 startup:*)"
     ],
     "deny": [],
     "ask": []

@@ -35,3 +35,4 @@ scripts/twitter-token/accounts.*
 .user.ini
 bilibili-cookies.yml
 .htaccess
+CLAUDE.md

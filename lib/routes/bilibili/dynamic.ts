@@ -335,7 +335,7 @@ async function handler(ctx) {
                 link = urlResult.url;
             }
 
-            // 获取视频aid用于"稍后听"和"默认收藏夹"功能
+            // 获取视频aid用于"稍后听(听)"和"默认收藏夹（看）"功能
             let actionButtonsHtml = '';
             if (urlResult?.aid) {
                 actionButtonsHtml = utils.getActionButtons(urlResult.aid);

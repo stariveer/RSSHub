@@ -127,7 +127,7 @@ function getActionButtons(aid) {
     const onclickDefault = `fetch('${domain}/bilibili/add-fav/default/${fixedUid}/${aid}')`;
     const onclickShare = `fetch('${domain}/bilibili/add-fav/share/${fixedUid}/${aid}')`;
 
-    return `<div style="display:flex; flex-direction: column;"><div style="display:flex;"><button style="${style}" onclick="${onclickLater}">稍后听</button><button style="${style}" onclick="${onclickDefault}">默认收藏</button><button style="${style}" onclick="${onclickShare}">投屏看</button></div><div style="display:flex;"><a style="${style}" href="bilibili://video/${aid}">打开客户端</a></div></div>`;
+    return `<div style="display:flex; flex-direction: column;"><div style="display:flex;"><button style="${style}" onclick="${onclickLater}">听</button><button style="${style}" onclick="${onclickDefault}">看</button><button style="${style}" onclick="${onclickShare}">投</button></div><div style="display:flex;"><a style="${style}" href="bilibili://video/${aid}">打开客户端</a></div></div>`;
 }
 
 export default {

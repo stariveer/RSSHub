@@ -160,7 +160,7 @@ async function handler(ctx) {
                 data_content = (await cache.getArticleDataFromCvid(data.id, uid)).description;
             }
 
-            // 添加"稍后听"、"默认收藏夹"和"打开客户端"按钮
+            // 添加"稍后听（听）"、"默认收藏夹（看）"和"打开客户端"按钮
             let actionButtonsHtml = '';
             if (data.aid) {
                 actionButtonsHtml = utils.getActionButtons(data.aid);

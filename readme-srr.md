@@ -40,12 +40,6 @@ npm run start
 -   点击 dynamic_new 请求，找到 Cookie
 -   视频和专栏，UP 主粉丝及关注只要求 SESSDATA 字段，动态需复制整段 Cookie
 
-### btnull
-
-- 站长歧视大陆ip, 大陆ip要验证人机
-- 先开全局代理
-- 再proxy_v2_on
-
 ```
 curl -X GET 'https://www.gying.in/mv?year=2024&region=%E5%A4%A7%E9%99%86&sort=addtime&rrange=7_10' \
   -H 'Host: www.gying.in' \
@@ -96,10 +90,4 @@ curl --location --request POST 'https://oauth2.googleapis.com/token' \
 --data-urlencode 'refresh_token=xxx' \
 --data-urlencode 'grant_type=refresh_token'
 ```
-
-refresh_token 从环境变量获取
-YOUTUBE_REFRESH_TOKEN
-
-
-我希望你参考/bilibili/user/video/171766569 这个路由的交互, 来添加这3个"按钮", 需要你修改的路由是这个/youtube/channel/UC0Qj2CZsALJRivClNuDStlA
 

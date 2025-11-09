@@ -49,17 +49,19 @@ const readYamlConfig = (forceRead = false): BilibiliConfig => {
     }
 };
 
-// 监听文件变化
-try {
-    fs.watchFile(YAML_CONFIG_PATH, { interval: 1000 }, (curr, prev) => {
-        if (curr.mtime !== prev.mtime) {
-            logger.info(`Bilibili cookies YAML file changed, reloading...`);
-            readYamlConfig(true);
-        }
-    });
-    logger.info(`Watching bilibili cookies YAML file: ${YAML_CONFIG_PATH}`);
-} catch (error) {
-    logger.error(`Failed to watch bilibili cookies YAML file: ${error}`);
+// 监听文件变化 - 只在非构建模式下启用
+if (process.env.NODE_ENV !== 'build' && !process.env.RSSHUB_BUILDING) {
+    try {
+        fs.watchFile(YAML_CONFIG_PATH, { interval: 1000 }, (curr, prev) => {
+            if (curr.mtime !== prev.mtime) {
+                logger.info(`Bilibili cookies YAML file changed, reloading...`);
+                readYamlConfig(true);
+            }
+        });
+        logger.info(`Watching bilibili cookies YAML file: ${YAML_CONFIG_PATH}`);
+    } catch (error) {
+        logger.error(`Failed to watch bilibili cookies YAML file: ${error}`);
+    }
 }
 
 /**
@@ -103,7 +105,8 @@ export const getAllCookies = (): Record<string, string | undefined> => {
     // 合并环境变量中的cookie
     if (config.bilibili?.cookies) {
         for (const [uid, cookie] of Object.entries(config.bilibili.cookies)) {
-            if (!cookies[uid]) { // 只有YAML中没有的才从环境变量加载
+            if (!cookies[uid]) {
+                // 只有YAML中没有的才从环境变量加载
                 logger.debug(`Loading cookie for uid ${uid} from environment variables`);
                 cookies[uid] = cookie;
             }
@@ -146,7 +149,7 @@ export const updateUserCookie = (uid: string, cookie: string): boolean => {
             yamlConfig.users.push({
                 uid,
                 cookie,
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
             });
             logger.debug(`Adding new user ${uid} to YAML config`);
         }
@@ -171,5 +174,5 @@ export default {
     getUserCookie,
     getAllCookies,
     updateUserCookie,
-    readYamlConfig
+    readYamlConfig,
 };

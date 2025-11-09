@@ -16,7 +16,8 @@
       "Bash(pm2 list:*)",
       "Bash(pm2 start:*)",
       "Bash(pm2 save:*)",
-      "Bash(pm2 startup:*)"
+      "Bash(pm2 startup:*)",
+      "Bash(pnpm run lint)"
     ],
     "deny": [],
     "ask": []

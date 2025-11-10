@@ -1,4 +1,5 @@
-import { Route } from '@/types';
+import { Route, Data } from '@/types';
+import { Context } from 'hono';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import parser from '@/utils/rss-parser';
@@ -169,7 +170,7 @@ function cleanHtmlContent(html: any, includeKeywords: string[] = []): string {
     return allContent.map((content) => content + '<br>').join('');
 }
 
-async function handler(ctx) {
+async function handler(ctx: Context): Promise<Data> {
     const mpId = ctx.req.param('mp-id');
     const category = ctx.req.param('category') || 'default';
     const filterParam = ctx.req.param('include') || '';
@@ -297,9 +298,9 @@ async function handler(ctx) {
                 const processedItems = filteredItems.map((item) => ({
                     title: item.title || '',
                     link: item.link || '',
-                    description: cleanHtmlContent(item.content || item.summary || '', includeKeywords), // 清理HTML内容，只保留文本和图片，并重排包含关键词的内容
+                    description: category === 'travel' ? cleanHtmlContent(item.content || item.summary || '', includeKeywords) : item.content || item.summary || '', // 只在 travel 分类时清理HTML内容
                     pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
-                    author: item.creator || item.author || '',
+                    author: (item as any).creator || (item as any).author || '',
                     category: item.categories || [],
                     guid: item.guid || item.link,
                 }));
@@ -325,5 +326,15 @@ async function handler(ctx) {
         3600
     ); // 缓存1小时
 
-    return result;
+    // 确保 result 符合 Data 类型，处理可能的 null 或字符串类型
+    if (!result || typeof result === 'string') {
+        return {
+            title: `RSS获取失败 - ${mpId}`,
+            description: `缓存获取失败: ${upstreamUrl}`,
+            link: upstreamUrl,
+            item: [],
+        };
+    }
+
+    return result as Data;
 }

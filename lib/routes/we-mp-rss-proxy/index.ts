@@ -7,14 +7,13 @@ import { load } from 'cheerio';
 import * as xml2js from 'xml2js';
 
 export const route: Route = {
-    path: '/:mp-id/:category/:include?/:limit?',
+    path: '/:mp-id/:category/:include?',
     categories: ['new-media', 'social-media'],
-    example: '/we-mp-rss-proxy/MP_WXS_3941413004/travel/旅游,攻略/10',
+    example: '/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,攻略',
     parameters: {
         'mp-id': '微信公众号ID，例如 MP_WXS_3941413004',
         category: '分类标签，例如 travel',
-        include: '必须包含的关键词，用逗号分隔，例如 旅游,攻略',
-        limit: '返回条数限制，例如 10',
+        filter: '过滤条件，支持：+旅游,攻略（包含）或 -广告,推广（排除），可组合：+旅游,-广告',
     },
     features: {
         requireConfig: false,
@@ -35,22 +34,27 @@ export const route: Route = {
     handler,
     description: `代理微信公众号RSS源并支持内容过滤。
 
-**查询参数：**
-- \`include\`: 必须包含的关键字（用逗号分隔）
-- \`exclude\`: 必须排除的关键字（用逗号分隔）
-- \`limit\`: 返回条数限制（默认20条）
+**路径参数：**
+- \`filter\`: 过滤条件，支持以下格式：
+  - \`+旅游,攻略\`：包含"旅游"或"攻略"的内容
+  - \`-广告,推广\`：排除包含"广告"或"推广"的内容
+  - \`+旅游,-广告\`：包含"旅游"但排除"广告"的内容
+  - 支持多个组合，用逗号分隔
+- 固定返回20条内容
 
 **使用示例：**
-- \`/we-mp-rss-proxy/MP_WXS_3941413004\` - 获取所有内容
-- \`/we-mp-rss-proxy/MP_WXS_3941413004?category=travel\` - 标记为旅游分类
-- \`/we-mp-rss-proxy/MP_WXS_3941413004?category=travel&include=旅游,攻略\` - 只包含"旅游"或"攻略"的内容
-- \`/we-mp-rss-proxy/MP_WXS_3941413004?exclude=广告,推广\` - 排除包含"广告"或"推广"的内容
-- \`/we-mp-rss-proxy/MP_WXS_3941413004?include=旅游&exclude=广告&limit=10\` - 综合过滤并限制10条`,
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/default\` - 获取所有内容
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/travel\` - 标记为旅游分类
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,攻略\` - 只包含"旅游"或"攻略"的内容
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/default/-广告,推广\` - 排除包含"广告"或"推广"的内容
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,-广告\` - 包含"旅游"但排除"广告"的内容`,
 };
 
 // 辅助函数：提取HTML中的纯文本
 function extractText(html: any): string {
-    if (!html) {return '';}
+    if (!html) {
+        return '';
+    }
     const $ = load(html);
     return $.text().trim();
 }
@@ -58,32 +62,50 @@ function extractText(html: any): string {
 async function handler(ctx) {
     const mpId = ctx.req.param('mp-id');
     const category = ctx.req.param('category') || 'default';
-    const includeParam = ctx.req.param('include') || '';
-    const limitParam = ctx.req.param('limit');
+    const filterParam = ctx.req.param('include') || '';
 
     // eslint-disable-next-line no-console
     console.log('请求参数:', {
         mpId,
         category,
-        include: includeParam,
-        limit: limitParam,
+        filter: filterParam,
     });
 
-    // 解析路径参数
-    const includeKeywords = includeParam
-        ? includeParam
-              .split(',')
-              .map((k) => k.trim())
-              .filter(Boolean)
-        : [];
-    const excludeKeywords = []; // 暂时固定为空，后续可以扩展为路径参数
-    const limit = limitParam ? Number.parseInt(limitParam) : 20;
+    // 解析过滤参数
+    const includeKeywords: string[] = [];
+    const excludeKeywords: string[] = [];
+
+    if (filterParam) {
+        const filterParts = filterParam
+            .split(',')
+            .map((k: string) => k.trim())
+            .filter(Boolean);
+
+        for (const part of filterParts) {
+            if (part.startsWith('+')) {
+                const keyword = part.slice(1);
+                if (keyword) {
+                    includeKeywords.push(keyword);
+                }
+            } else if (part.startsWith('-')) {
+                const keyword = part.slice(1);
+                if (keyword) {
+                    excludeKeywords.push(keyword);
+                }
+            } else {
+                // 默认为包含关键词（向后兼容）
+                includeKeywords.push(part);
+            }
+        }
+    }
+
+    const limit = 20; // 写死为20条
 
     // 上游RSS URL
     const upstreamUrl = `https://we-mp-rss.trainspott.in/feed/${mpId}.atom`;
 
     // 获取缓存键 - 基于路径参数，确保不同关键词有不同缓存
-    const cacheKey = `we-mp-rss-proxy:${mpId}:${category}:${includeParam}:${limit || 20}`;
+    const cacheKey = `we-mp-rss-proxy:${mpId}:${category}:${filterParam}`;
 
     const result = await cache.tryGet(
         cacheKey,
@@ -125,7 +147,7 @@ async function handler(ctx) {
                         const title = (item.title || '').toLowerCase();
                         // 优先使用content字段，如果没有则使用summary
                         const fullContent = item.content || item.summary || '';
-                        const content = extractText(fullContent).toLowerCase();
+                        const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
                         const fullText = `${title} ${content}`;
 
                         // 当前是OR关系：包含任一关键词即可
@@ -141,7 +163,7 @@ async function handler(ctx) {
                         const title = (item.title || '').toLowerCase();
                         // 优先使用content字段，如果没有则使用summary
                         const fullContent = item.content || item.summary || '';
-                        const content = extractText(fullContent).toLowerCase();
+                        const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
                         const fullText = `${title} ${content}`;
 
                         return !excludeKeywords.some((keyword) => fullText.includes(keyword.toLowerCase()));
@@ -165,7 +187,7 @@ async function handler(ctx) {
                 const processedItems = filteredItems.map((item) => ({
                     title: item.title || '',
                     link: item.link || '',
-                    description: item.summary || '',
+                    description: item.content || item.summary || '', // 优先使用content字段，透传原始HTML内容
                     pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
                     author: item.creator || item.author || '',
                     category: item.categories || [],

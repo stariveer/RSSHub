@@ -34,7 +34,8 @@ async function handler(ctx) {
     const action = ctx.req.param('action');
 
     try {
-        if (action === 'generate') {
+        switch (action) {
+        case 'generate': {
             // 生成二维码
             const qrcodeData = await generateQrCodeKey();
             const image = await generateQrCodeImage(qrcodeData.url);
@@ -46,10 +47,10 @@ async function handler(ctx) {
                 success: true,
                 qrcode_key: qrcodeData.qrcode_key,
                 image,
-                url: qrcodeData.url
+                url: qrcodeData.url,
             });
-
-        } else if (action === 'poll') {
+        }
+        case 'poll': {
             // 获取查询参数
             const qrcodeKey = ctx.req.query('qrcode_key');
             const expectedUid = ctx.req.query('uid');
@@ -57,7 +58,7 @@ async function handler(ctx) {
             if (!qrcodeKey) {
                 return ctx.json({
                     code: -1,
-                    message: '缺少必要参数qrcode_key'
+                    message: '缺少必要参数qrcode_key',
                 });
             }
 
@@ -115,7 +116,7 @@ async function handler(ctx) {
                                         yamlObj.users.push({
                                             uid: expectedUid,
                                             cookie: cookies,
-                                            updated_at: new Date().toISOString()
+                                            updated_at: new Date().toISOString(),
                                         });
                                     }
 
@@ -129,8 +130,8 @@ async function handler(ctx) {
                                         message: '登录成功！Cookie已更新',
                                         data: {
                                             code: 0,
-                                            message: '登录成功'
-                                        }
+                                            message: '登录成功',
+                                        },
                                     });
                                 } else {
                                     logger.error('无法解析YAML文件内容');
@@ -152,8 +153,8 @@ async function handler(ctx) {
                                 message: '登录成功！但未指定UID，无法保存Cookie',
                                 data: {
                                     code: 0,
-                                    message: '登录成功'
-                                }
+                                    message: '登录成功',
+                                },
                             });
                         }
                     } else {
@@ -167,38 +168,41 @@ async function handler(ctx) {
                     // 已扫码但未确认，特殊处理
                     return ctx.json({
                         code: 86090,
-                        message: '二维码已扫码未确认'
+                        message: '二维码已扫码未确认',
                     });
                 } else if (pollResult.code === 0 && pollResult.data && pollResult.data.code === 86101) {
                     // 未扫码，特殊处理
                     return ctx.json({
                         code: 86101,
-                        message: '未扫码'
+                        message: '未扫码',
                     });
                 } else if (pollResult.code === 0 && pollResult.data && pollResult.data.code === 86038) {
                     // 二维码已失效，特殊处理
                     return ctx.json({
                         code: 86038,
-                        message: '二维码已失效，请刷新'
+                        message: '二维码已失效，请刷新',
                     });
                 } else {
                     // 其他状态
-                    const statusCode = pollResult.data?.code !== undefined ? pollResult.data.code : pollResult.code;
+                    const statusCode = pollResult.data?.code === undefined ? pollResult.code : pollResult.data.code;
                     const statusMessage = pollResult.data?.message || pollResult.message || '未知状态';
 
                     return ctx.json({
                         code: statusCode,
-                        message: statusMessage
+                        message: statusMessage,
                     });
                 }
             } catch (pollError: any) {
                 logger.error(`轮询二维码状态出错: ${pollError}`);
                 return ctx.json({
                     code: -1,
-                    message: `轮询二维码状态出错: ${pollError.message}`
+                    message: `轮询二维码状态出错: ${pollError.message}`,
                 });
             }
-        } else if (action === 'reload-cookie') {
+
+        break;
+        }
+        case 'reload-cookie':
             // 重新加载Cookie的逻辑
             try {
                 // 获取请求体中的UID
@@ -208,7 +212,7 @@ async function handler(ctx) {
                 if (!uid) {
                     return ctx.json({
                         success: false,
-                        message: '缺少必要参数uid'
+                        message: '缺少必要参数uid',
                     });
                 }
 
@@ -221,7 +225,7 @@ async function handler(ctx) {
                     logger.error(`Cookie配置文件不存在: ${YAML_CONFIG_PATH}`);
                     return ctx.json({
                         success: false,
-                        message: 'Cookie配置文件不存在'
+                        message: 'Cookie配置文件不存在',
                     });
                 }
 
@@ -234,7 +238,7 @@ async function handler(ctx) {
                     logger.error('YAML文件格式错误或不包含users字段');
                     return ctx.json({
                         success: false,
-                        message: 'YAML文件格式错误'
+                        message: 'YAML文件格式错误',
                     });
                 }
 
@@ -244,7 +248,7 @@ async function handler(ctx) {
                     logger.warn(`未找到用户 ${uid} 的Cookie配置`);
                     return ctx.json({
                         success: false,
-                        message: `未找到用户 ${uid} 的Cookie配置`
+                        message: `未找到用户 ${uid} 的Cookie配置`,
                     });
                 }
 
@@ -268,27 +272,31 @@ async function handler(ctx) {
 
                 return ctx.json({
                     success: true,
-                    message: '已重新加载Cookie配置'
+                    message: '已重新加载Cookie配置',
                 });
             } catch (error: any) {
                 logger.error(`重新加载Cookie时出错: ${error}`);
                 return ctx.json({
                     success: false,
-                    message: `重新加载Cookie时出错: ${error.message}`
+                    message: `重新加载Cookie时出错: ${error.message}`,
                 });
             }
-        } else {
+
+        break;
+
+        default:
             return ctx.json({
                 code: -1,
-                message: `不支持的操作类型: ${action}`
+                message: `不支持的操作类型: ${action}`,
             });
+
         }
     } catch (error: any) {
         logger.error('二维码API错误:', error);
 
         return ctx.json({
             code: -1,
-            message: `处理请求时发生错误: ${error.message}`
+            message: `处理请求时发生错误: ${error.message}`,
         });
     }
 }

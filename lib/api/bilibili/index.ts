@@ -15,14 +15,17 @@ export function setupBilibiliApi(app: AnyHono) {
                 success: true,
                 qrcode_key: qrcodeData.qrcode_key,
                 image,
-                url: qrcodeData.url
+                url: qrcodeData.url,
             });
         } catch (error: any) {
             logger.error('二维码API错误:', error);
-            return ctx.json({
-                success: false,
-                message: '服务器错误: ' + error.message
-            }, 500);
+            return ctx.json(
+                {
+                    success: false,
+                    message: '服务器错误: ' + error.message,
+                },
+                500
+            );
         }
     });
 
@@ -36,7 +39,7 @@ export function setupBilibiliApi(app: AnyHono) {
             if (!qrcodeKey) {
                 return ctx.json({
                     success: false,
-                    message: '缺少必要参数'
+                    message: '缺少必要参数',
                 });
             }
 
@@ -55,7 +58,7 @@ export function setupBilibiliApi(app: AnyHono) {
                     return ctx.json({
                         code: -1,
                         message: 'UID不匹配',
-                        data: actualUid
+                        data: actualUid,
                     });
                 }
 
@@ -66,21 +69,24 @@ export function setupBilibiliApi(app: AnyHono) {
 
                 return ctx.json({
                     code: 0,
-                    message: '登录成功'
+                    message: '登录成功',
                 });
             }
 
             // 返回原始状态
             return ctx.json({
                 code: pollResult.data.code,
-                message: pollResult.data.message
+                message: pollResult.data.message,
             });
         } catch (error: any) {
             logger.error('二维码状态轮询错误:', error);
-            return ctx.json({
-                success: false,
-                message: '服务器错误: ' + error.message
-            }, 500);
+            return ctx.json(
+                {
+                    success: false,
+                    message: '服务器错误: ' + error.message,
+                },
+                500
+            );
         }
     });
 }

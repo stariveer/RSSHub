@@ -173,7 +173,7 @@ async function handler() {
             try {
                 custom_params_obj = JSON.parse(atob(customParamsEncoded));
             } catch (parseError) {
-                 // 如果项目中有统一的 logger，建议替换 console.error
+                // 如果项目中有统一的 logger，建议替换 console.error
                 console.error(`[SMZDM All-In-One] Failed to parse 'custom_params' for URL ${urlString}. Error: ${parseError instanceof Error ? parseError.message : String(parseError)}. Encoded params: ${customParamsEncoded}`);
                 continue;
             }
@@ -202,7 +202,8 @@ async function handler() {
         link: 'https://www.smzdm.com', // Feed 的主链接
         item: allItemsCollected.length
             ? allItemsCollected
-            : [ // 如果没有抓取到任何项目，则提供默认条目
+            : [
+                  // 如果没有抓取到任何项目，则提供默认条目
                   {
                       title: 'No items found or all requests failed',
                       description: 'No items were fetched for the configured SMZDM URLs. Please check your URLs and server logs for more details.',

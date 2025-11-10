@@ -84,9 +84,7 @@ export async function pollQrCodeStatus(qrcode_key) {
             if (urlString && urlString.includes('&cookies=')) {
                 const cookieStart = urlString.indexOf('&cookies=') + 9;
                 const cookieEnd = urlString.indexOf('&', cookieStart);
-                extractedCookie = cookieEnd > cookieStart ?
-                    decodeURIComponent(urlString.substring(cookieStart, cookieEnd)) :
-                    decodeURIComponent(urlString.substring(cookieStart));
+                extractedCookie = cookieEnd > cookieStart ? decodeURIComponent(urlString.substring(cookieStart, cookieEnd)) : decodeURIComponent(urlString.substring(cookieStart));
 
                 logger.info(`从URL中提取的cookie长度: ${extractedCookie.length}`);
 
@@ -131,12 +129,9 @@ export async function pollQrCodeStatus(qrcode_key) {
                         const biliJctMatch = urlString.match(/bili_jct=([^&]+)/);
 
                         if (dedeUserIDMatch && sessDataMatch && biliJctMatch) {
-                            const manualCookie = [
-                                `DedeUserID=${dedeUserIDMatch[1]}`,
-                                dedeUserIDCkMatch ? `DedeUserID__ckMd5=${dedeUserIDCkMatch[1]}` : '',
-                                `SESSDATA=${sessDataMatch[1]}`,
-                                `bili_jct=${biliJctMatch[1]}`
-                            ].filter(Boolean).join('; ');
+                            const manualCookie = [`DedeUserID=${dedeUserIDMatch[1]}`, dedeUserIDCkMatch ? `DedeUserID__ckMd5=${dedeUserIDCkMatch[1]}` : '', `SESSDATA=${sessDataMatch[1]}`, `bili_jct=${biliJctMatch[1]}`]
+                                .filter(Boolean)
+                                .join('; ');
 
                             logger.info(`手动构建的cookie: ${manualCookie}`);
                             response.data.data.cookie = manualCookie;
@@ -204,7 +199,7 @@ export async function saveCookie(uid, cookie) {
                 const YAML_CONFIG_PATH = path.join(process.cwd(), 'bilibili-cookies.yml');
 
                 // 读取现有YAML文件
-                let yamlConfig: { users: Array<{uid: string, cookie: string, updated_at?: string}> } = { users: [] };
+                let yamlConfig: { users: Array<{ uid: string; cookie: string; updated_at?: string }> } = { users: [] };
                 if (fs.existsSync(YAML_CONFIG_PATH)) {
                     const fileContent = fs.readFileSync(YAML_CONFIG_PATH, 'utf8');
                     const loadedConfig = yaml.load(fileContent);
@@ -228,7 +223,7 @@ export async function saveCookie(uid, cookie) {
                     yamlConfig.users.push({
                         uid,
                         cookie,
-                        updated_at: new Date().toISOString()
+                        updated_at: new Date().toISOString(),
                     });
                 }
 

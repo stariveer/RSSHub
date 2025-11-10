@@ -181,7 +181,7 @@ function cleanHtmlContent(html: any, includeKeywords: string[] = []): string {
 
 // 产品信息接口定义
 interface ProductInfo {
-    brand: string;
+    brand?: string | null; // 允许为null，用于过滤非Apple产品
     model: string;
     version: string;
     region: string;
@@ -206,14 +206,12 @@ function parseLandeContent(html: any): ProductInfo[] {
     const lines = textContent.split('\n').filter((line) => line.trim());
     const products: ProductInfo[] = [];
 
-    // 正则表达式模式
-    const productPatterns = [
-        // iPhone系列: iPhone17ProMax行换行双卡全网（256G）官换单机未激活 银/蓝/橙【现货】9690/9690/9570
-        /((?:iPhone\d+(?:[A-Za-z]*)?|iPad[A-Za-z]*|华为[A-Za-z]*|三星[A-Za-z]*|Samsung[A-Za-z]*|Fold\d+|Flip\d+|Mate\d+))(.*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*)(【([^】]+)】\s*([\d/]+)?(.*)?)/,
-        // 简化版本: iPhone17ProMax美版全网（256G）全新单机未激活 银/蓝/橙【现货】9690/9690/9570
-        /([A-Za-z]+?\d+[A-Za-z]*)([^（]*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
-        // 带特殊字符的版本: iPhone17ProMax美版有锁（256G）全新单机未激活 银/橙/蓝【现货】7650/7700/7200
-        /([A-Za-z]+?\d+[A-Za-z]*)([^（）]*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
+    // Apple产品专用正则表达式模式
+    const appleProductPatterns = [
+        // 完整模式: iPhone17ProMax行换行双卡全网（256G）官换单机未激活 银/蓝/橙【现货】9690/9690/9570
+        /((?:iPhone|iPad|MacBook|iMac|Mac|Apple\s*Watch|AirPods)[\d\sA-Za-z]*)([^（]*?)（(\d+[GT]?)）([^【]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
+        // 无存储版本: iPhone17ProMax美版全网银/蓝/橙【现货】9690/9690/9570
+        /((?:iPhone|iPad|MacBook|iMac|Mac|Apple\s*Watch|AirPods)[\d\sA-Za-z]*)([^【（]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
     ];
 
     for (const line of lines) {
@@ -229,19 +227,77 @@ function parseLandeContent(html: any): ProductInfo[] {
 
         let matched = false;
 
-        for (const pattern of productPatterns) {
+        // 使用Apple产品专用正则表达式模式
+        for (const pattern of appleProductPatterns) {
             const match = cleanLine.match(pattern);
             if (match) {
+                const rawModel = match[1].trim();
+                const brand = detectBrand(rawModel);
+
+                // 只处理Apple产品，非Apple产品直接跳过
+                if (!brand || brand !== 'Apple') {
+                    matched = true; // 标记为已匹配，但跳过
+                    break;
+                }
+
+                // 格式化产品名称
+                const formattedModel = formatProductName(rawModel);
+
+                // 使用不同的匹配组索引，根据正则表达式模式
+                let versionAndRegion = '';
+                let storage = '';
+                let colorsText = '';
+                let status = '';
+                let pricesText = '';
+                let notes = '';
+
+                if (match[3]) { // 有存储容量的模式
+                    versionAndRegion = match[2]?.trim() || '';
+                    storage = match[3] || '';
+                    colorsText = match[5] || '';
+                    status = match[6] || '现货';
+                    pricesText = match[7] || '';
+                    notes = (match[8] || '').trim();
+                } else { // 无存储容量的模式
+                    versionAndRegion = match[2]?.trim() || '';
+                    colorsText = match[4] || '';
+                    status = match[5] || '现货';
+                    pricesText = match[6] || '';
+                    notes = (match[7] || '').trim();
+                }
+
+                const region = extractRegion(versionAndRegion);
+                const version = versionAndRegion.replaceAll(/(国行|港行|台版|美版|欧版|韩版|日版)/g, '').trim();
+
+                // 改进存储和地区信息解析
+                let finalRegion = region;
+
+                // 如果storage中包含地区信息，将其分离
+                if (storage && (storage.includes('版') || storage.includes('港') || storage.includes('台'))) {
+                    const storageRegion = extractRegion(storage);
+                    if (storageRegion) {
+                        finalRegion = storageRegion;
+                        storage = storage.replaceAll(/(国行|港行|台版|美版|欧版|韩版|日版)/g, '').trim();
+                    }
+                }
+
+                // 直接从原始文本中提取价格，这样更准确
+                const actualPrices = extractPricesFromText(cleanLine);
+
+                // 从【】中提取真实状态，而不是价格
+                const statusMatch = cleanLine.match(/【([^】]+)】/);
+                const realStatus = statusMatch ? statusMatch[1] : '现货';
+
                 const product: ProductInfo = {
-                    brand: detectBrand(match[1]),
-                    model: match[1].trim(),
-                    version: match[2]?.trim() || '',
-                    region: extractRegion(match[2]?.trim() || ''),
-                    storage: match[3] || '',
-                    colors: extractColors(match[4] || match[5] || ''),
-                    status: match[6] || match[5] || '现货',
-                    prices: parsePrices(match[7] || ''),
-                    notes: (match[8] || '').trim(),
+                    brand,
+                    model: formattedModel,
+                    version: version || cleanLine.replace(rawModel, '').replace(/（[^）]*）/, '').replace(/【[^】]*】/, '').trim(),
+                    region: finalRegion,
+                    storage,
+                    colors: extractColors(colorsText),
+                    status: realStatus,
+                    prices: actualPrices,
+                    notes,
                     originalText: cleanLine,
                 };
 
@@ -251,23 +307,41 @@ function parseLandeContent(html: any): ProductInfo[] {
             }
         }
 
-        // 如果没有匹配到标准模式，尝试简单提取
+        // 如果没有匹配到标准模式，但包含Apple关键词，尝试简单提取
         if (!matched && cleanLine.includes('【')) {
-            const simpleMatch = cleanLine.match(/([^【]+)【([^】]+)】\s*([\d/]+)?(.*)?/);
-            if (simpleMatch) {
-                const product: ProductInfo = {
-                    brand: '其他',
-                    model: simpleMatch[1].trim(),
-                    version: '',
-                    region: '',
-                    storage: '',
-                    colors: [],
-                    status: simpleMatch[2] || '',
-                    prices: parsePrices(simpleMatch[3] || ''),
-                    notes: (simpleMatch[4] || '').trim(),
-                    originalText: cleanLine,
-                };
-                products.push(product);
+            const appleKeywords = ['iPhone', 'iPad', 'Mac', 'Apple Watch', 'AirPods', 'MacBook', 'iMac'];
+            const hasAppleKeyword = appleKeywords.some((keyword) => cleanLine.toLowerCase().includes(keyword.toLowerCase()));
+
+            if (hasAppleKeyword) {
+                const simpleMatch = cleanLine.match(/([^【]+)【([^】]+)】\s*([\d/]+)?(.*)?/);
+                if (simpleMatch) {
+                    const rawModel = simpleMatch[1].trim();
+                    const brand = detectBrand(rawModel);
+
+                    // 只处理Apple产品
+                    if (brand && brand === 'Apple') {
+                        // 直接从原始文本中提取价格
+                        const actualPrices = extractPricesFromText(cleanLine);
+
+                        // 从【】中提取真实状态
+                        const statusMatch = cleanLine.match(/【([^】]+)】/);
+                        const realStatus = statusMatch ? statusMatch[1] : '现货';
+
+                        const product: ProductInfo = {
+                            brand,
+                            model: formatProductName(rawModel),
+                            version: '',
+                            region: '',
+                            storage: '',
+                            colors: [],
+                            status: realStatus,
+                            prices: actualPrices,
+                            notes: (simpleMatch[4] || '').trim(),
+                            originalText: cleanLine,
+                        };
+                        products.push(product);
+                    }
+                }
             }
         }
     }
@@ -275,19 +349,68 @@ function parseLandeContent(html: any): ProductInfo[] {
     return products;
 }
 
-// 检测品牌
-function detectBrand(model: string): string {
+// 检测品牌 - 只检测Apple产品，其他都返回null
+function detectBrand(model: string): string | null {
     const modelLower = model.toLowerCase();
-    if (modelLower.includes('iphone') || modelLower.includes('ipad') || modelLower.includes('airpods')) {
+    if (modelLower.includes('iphone') || modelLower.includes('ipad') || modelLower.includes('mac') || modelLower.includes('apple watch') || modelLower.includes('airpods') || modelLower.includes('apple')) {
         return 'Apple';
-    } else if (modelLower.includes('华为') || modelLower.includes('huawei') || modelLower.includes('mate')) {
-        return 'Huawei';
-    } else if (modelLower.includes('三星') || modelLower.includes('samsung') || modelLower.includes('fold') || modelLower.includes('flip')) {
-        return 'Samsung';
-    } else if (modelLower.includes('小米') || modelLower.includes('xiaomi')) {
-        return 'Xiaomi';
     }
-    return '其他';
+    return null; // 非Apple产品返回null
+}
+
+// 格式化产品名称，统一空格格式
+function formatProductName(model: string): string {
+    let formatted = model.trim();
+
+    // iPhone 系列格式化
+    if (formatted.toLowerCase().includes('iphone')) {
+        // iPhone17ProMax -> iPhone 17 Pro Max
+        formatted = formatted.replace(/iphone(\d+)(pro)?(max)?/i, (_match, num, pro, max) => {
+            let result = 'iPhone ' + num;
+            if (pro?.toLowerCase() === 'pro') {
+                result += ' Pro';
+            }
+            if (max?.toLowerCase() === 'max') {
+                result += ' Max';
+            }
+            return result;
+        });
+        // iPhone17Pro -> iPhone 17 Pro
+        formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
+        // iPhone17Plus -> iPhone 17 Plus
+        formatted = formatted.replace(/iphone(\d+)plus/i, 'iPhone $1 Plus');
+        // iPhone17mini -> iPhone 17 mini
+        formatted = formatted.replace(/iphone(\d+)mini/i, 'iPhone $1 mini');
+    }
+    // iPad 系列格式化
+    else if (formatted.toLowerCase().includes('ipad')) {
+        // iPadPro -> iPad Pro
+        formatted = formatted.replace(/ipad\s*pro/i, 'iPad Pro');
+        // iPadAir -> iPad Air
+        formatted = formatted.replace(/ipad\s*air/i, 'iPad Air');
+        // iPadmini -> iPad mini
+        formatted = formatted.replace(/ipad\s*mini/i, 'iPad mini');
+    }
+    // Mac 系列格式化
+    else if (formatted.toLowerCase().includes('mac')) {
+        // MacBookPro -> MacBook Pro
+        formatted = formatted.replace(/macbook\s*pro/i, 'MacBook Pro');
+        // MacBookAir -> MacBook Air
+        formatted = formatted.replace(/macbook\s*air/i, 'MacBook Air');
+        // MacPro -> Mac Pro
+        formatted = formatted.replace(/mac\s*pro/i, 'Mac Pro');
+        // MacMini -> Mac mini
+        formatted = formatted.replace(/mac\s*mini/i, 'Mac mini');
+        // iMac -> iMac
+        formatted = formatted.replace(/imac/i, 'iMac');
+    }
+    // Apple Watch 系列
+    else if (formatted.toLowerCase().includes('apple watch') || formatted.toLowerCase().includes('iwatch')) {
+        formatted = formatted.replace(/(apple\s*watch|iwatch)\s*(\d+)/i, 'Apple Watch $2');
+        formatted = formatted.replace(/apple\s*watch/i, 'Apple Watch');
+    }
+
+    return formatted;
 }
 
 // 提取地区信息
@@ -345,13 +468,30 @@ function parsePrices(priceText: string): number[] {
         return [];
     }
 
-    // 提取所有数字
+    // 提取所有数字，包括斜杠分隔的价格
     const numbers = priceText.match(/\d+/g);
     if (!numbers) {
         return [];
     }
 
     return numbers.map((num) => Number.parseInt(num, 10)).filter((num) => num > 0 && num < 100000);
+}
+
+// 从完整文本中提取价格信息（在【】后面的数字）
+function extractPricesFromText(text: string): number[] {
+    // 查找【】后面的价格
+    const priceMatch = text.match(/【([^】]+)】\s*([\d\/]+)/);
+    if (priceMatch) {
+        return parsePrices(priceMatch[2]);
+    }
+
+    // 如果没找到【】，尝试直接查找斜杠分隔的数字
+    const directPriceMatch = text.match(/([\d\/]+)\s*$/);
+    if (directPriceMatch) {
+        return parsePrices(directPriceMatch[1]);
+    }
+
+    return [];
 }
 
 // 生成产品表格HTML

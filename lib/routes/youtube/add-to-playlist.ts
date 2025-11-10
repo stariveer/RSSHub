@@ -60,27 +60,26 @@ async function handler(ctx) {
     let playlistName;
 
     switch (type) {
-    case 'later':
-        playlistId = process.env.YOUTUBE_PLAYLIST_ID_ADD_LATER;
-        playlistName = '稍后听';
+        case 'later':
+            playlistId = process.env.YOUTUBE_PLAYLIST_ID_ADD_LATER;
+            playlistName = '稍后听';
 
-    break;
+            break;
 
-    case 'favorite':
-        playlistId = process.env.YOUTUBE_PLAYLIST_ID_DEFAULT_FAVORITE;
-        playlistName = '默认收藏';
+        case 'favorite':
+            playlistId = process.env.YOUTUBE_PLAYLIST_ID_DEFAULT_FAVORITE;
+            playlistName = '默认收藏';
 
-    break;
+            break;
 
-    case 'cast':
-        playlistId = process.env.YOUTUBE_PLAYLIST_ID_SCREEN_CAST;
-        playlistName = '投屏看';
+        case 'cast':
+            playlistId = process.env.YOUTUBE_PLAYLIST_ID_SCREEN_CAST;
+            playlistName = '投屏看';
 
-    break;
+            break;
 
-    default:
-        throw new InvalidParameterError('无效的播放列表类型');
-
+        default:
+            throw new InvalidParameterError('无效的播放列表类型');
     }
 
     if (!playlistId) {

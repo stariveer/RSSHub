@@ -405,15 +405,26 @@ function formatProductName(model: string): string {
         formatted = formatted.replace(/iphone(\d+)plus/i, 'iPhone $1 Plus');
         formatted = formatted.replace(/iphone\s*(\d+)mini/i, 'iPhone $1 mini');
         formatted = formatted.replace(/iphone(\d+)mini/i, 'iPhone $1 mini');
+        formatted = formatted.replace(/iphone\s*(\d+)air/i, 'iPhone $1 Air');
+        formatted = formatted.replace(/iphone(\d+)air/i, 'iPhone $1 Air');
 
         // iPhone17ProMax -> iPhone 17 Pro Max (当Pro和Max分开时)
-        formatted = formatted.replace(/iphone(\d+)(pro)?(max)?/i, (_match, num, pro, max) => {
+        formatted = formatted.replace(/iphone(\d+)(pro)?(max)?(air)?(mini)?(plus)?/i, (_match, num, pro, max, air, mini, plus) => {
             let result = 'iPhone ' + num;
             if (pro?.toLowerCase() === 'pro') {
                 result += ' Pro';
             }
             if (max?.toLowerCase() === 'max') {
                 result += ' Max';
+            }
+            if (air?.toLowerCase() === 'air') {
+                result += ' Air';
+            }
+            if (mini?.toLowerCase() === 'mini') {
+                result += ' mini';
+            }
+            if (plus?.toLowerCase() === 'plus') {
+                result += ' Plus';
             }
             return result;
         });

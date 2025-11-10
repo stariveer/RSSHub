@@ -251,14 +251,16 @@ function parseLandeContent(html: any): ProductInfo[] {
                 let pricesText = '';
                 let notes = '';
 
-                if (match[3]) { // 有存储容量的模式
+                if (match[3]) {
+                    // 有存储容量的模式
                     versionAndRegion = match[2]?.trim() || '';
                     storage = match[3] || '';
                     colorsText = match[5] || '';
                     status = match[6] || '现货';
                     pricesText = match[7] || '';
                     notes = (match[8] || '').trim();
-                } else { // 无存储容量的模式
+                } else {
+                    // 无存储容量的模式
                     versionAndRegion = match[2]?.trim() || '';
                     colorsText = match[4] || '';
                     status = match[5] || '现货';
@@ -291,7 +293,13 @@ function parseLandeContent(html: any): ProductInfo[] {
                 const product: ProductInfo = {
                     brand,
                     model: formattedModel,
-                    version: version || cleanLine.replace(rawModel, '').replace(/（[^）]*）/, '').replace(/【[^】]*】/, '').trim(),
+                    version:
+                        version ||
+                        cleanLine
+                            .replace(rawModel, '')
+                            .replace(/（[^）]*）/, '')
+                            .replace(/【[^】]*】/, '')
+                            .trim(),
                     region: finalRegion,
                     storage,
                     colors: extractColors(colorsText),
@@ -364,7 +372,7 @@ function formatProductName(model: string): string {
 
     // iPhone 系列格式化
     if (formatted.toLowerCase().includes('iphone')) {
-        // iPhone17ProMax -> iPhone 17 Pro Max
+        // iPhone17ProMax, iPhone17PROMAX -> iPhone 17 Pro Max
         formatted = formatted.replace(/iphone(\d+)(pro)?(max)?/i, (_match, num, pro, max) => {
             let result = 'iPhone ' + num;
             if (pro?.toLowerCase() === 'pro') {
@@ -375,12 +383,16 @@ function formatProductName(model: string): string {
             }
             return result;
         });
-        // iPhone17Pro -> iPhone 17 Pro
+        // iPhone17Pro, iPhone17PRO -> iPhone 17 Pro
         formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
-        // iPhone17Plus -> iPhone 17 Plus
+        // iPhone17Plus, iPhone17PLUS -> iPhone 17 Plus
         formatted = formatted.replace(/iphone(\d+)plus/i, 'iPhone $1 Plus');
         // iPhone17mini -> iPhone 17 mini
         formatted = formatted.replace(/iphone(\d+)mini/i, 'iPhone $1 mini');
+
+        // 处理特殊格式：iPhone17PROMAX -> iPhone 17 Pro Max
+        formatted = formatted.replace(/iphone(\d+)promax/i, 'iPhone $1 Pro Max');
+        formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
     }
     // iPad 系列格式化
     else if (formatted.toLowerCase().includes('ipad')) {
@@ -480,18 +492,93 @@ function parsePrices(priceText: string): number[] {
 // 从完整文本中提取价格信息（在【】后面的数字）
 function extractPricesFromText(text: string): number[] {
     // 查找【】后面的价格
-    const priceMatch = text.match(/【([^】]+)】\s*([\d\/]+)/);
+    const priceMatch = text.match(/【([^】]+)】\s*([\d/]+)/);
     if (priceMatch) {
         return parsePrices(priceMatch[2]);
     }
 
     // 如果没找到【】，尝试直接查找斜杠分隔的数字
-    const directPriceMatch = text.match(/([\d\/]+)\s*$/);
+    const directPriceMatch = text.match(/([\d/]+)\s*$/);
     if (directPriceMatch) {
         return parsePrices(directPriceMatch[1]);
     }
 
     return [];
+}
+
+// 获取产品排序权重
+function getProductSortWeight(product: ProductInfo): number {
+    const modelLower = product.model.toLowerCase();
+
+    // 产品系列优先级：iPhone > iPad > Mac > Apple Watch > AirPods
+    let seriesWeight = 1000;
+    if (modelLower.includes('iphone')) {
+        seriesWeight = 1; // iPhone 权重设为最小，确保排在最前
+    } else if (modelLower.includes('ipad')) {
+        seriesWeight = 100; // iPad 权重大一些
+    } else if (modelLower.includes('macbook') || modelLower.includes('imac') || (modelLower.includes('mac') && !modelLower.includes('ipad'))) {
+        seriesWeight = 300;
+    } else if (modelLower.includes('apple watch') || (modelLower.includes('watch') && !modelLower.includes('ipad'))) {
+        seriesWeight = 400;
+    } else if (modelLower.includes('airpods')) {
+        seriesWeight = 500;
+    }
+
+    // iPhone 特殊排序：按型号和等级
+    if (modelLower.includes('iphone')) {
+        const modelMatch = modelLower.match(/iphone\s*(\d+)/i);
+        const modelNumber = modelMatch ? Number.parseInt(modelMatch[1], 10) : 0;
+
+        // 型号权重：新机型权重更低（排在前面）
+        const modelWeight = (100 - modelNumber) * 10;
+
+        // 等级权重：Pro Max < Pro < Plus < 标准 < mini（数值越小越靠前）
+        let tierWeight = 50;
+        if (modelLower.includes('pro max')) {
+            tierWeight = 10;
+        } else if (modelLower.includes('pro')) {
+            tierWeight = 20;
+        } else if (modelLower.includes('plus')) {
+            tierWeight = 30;
+        } else if (modelLower.includes('mini')) {
+            tierWeight = 40;
+        } else if (modelLower.includes('se')) {
+            tierWeight = 60;
+        }
+
+        return seriesWeight + modelWeight + tierWeight;
+    }
+
+    // iPad 排序逻辑
+    if (modelLower.includes('ipad')) {
+        let tierWeight = 50;
+        if (modelLower.includes('pro')) {
+            tierWeight = 10;
+        } else if (modelLower.includes('air')) {
+            tierWeight = 20;
+        } else if (modelLower.includes('mini')) {
+            tierWeight = 30;
+        }
+        return seriesWeight + tierWeight;
+    }
+
+    // Mac 排序逻辑
+    if (modelLower.includes('mac')) {
+        let tierWeight = 50;
+        if (modelLower.includes('macbook pro')) {
+            tierWeight = 10;
+        } else if (modelLower.includes('macbook air')) {
+            tierWeight = 20;
+        } else if (modelLower.includes('mac pro')) {
+            tierWeight = 30;
+        } else if (modelLower.includes('imac')) {
+            tierWeight = 40;
+        }
+        return seriesWeight + tierWeight;
+    }
+
+    // 其他产品使用默认排序
+    return seriesWeight;
 }
 
 // 生成产品表格HTML
@@ -500,7 +587,36 @@ function generateProductTable(products: ProductInfo[]): string {
         return '<p>未找到产品信息</p>';
     }
 
-    const tableRows = products
+    // 首先按产品系列分离：iPhone > iPad > Mac > Apple Watch > AirPods > 其他
+    const iPhoneProducts = products.filter((p) => p.model.toLowerCase().includes('iphone'));
+    const iPadProducts = products.filter((p) => p.model.toLowerCase().includes('ipad'));
+    const macProducts = products.filter((p) => p.model.toLowerCase().includes('macbook') || p.model.toLowerCase().includes('imac') || (p.model.toLowerCase().includes('mac') && !p.model.toLowerCase().includes('ipad')));
+    const watchProducts = products.filter((p) => p.model.toLowerCase().includes('apple watch') || (p.model.toLowerCase().includes('watch') && !p.model.toLowerCase().includes('ipad')));
+    const airpodsProducts = products.filter((p) => p.model.toLowerCase().includes('airpods'));
+    const otherProducts = products.filter(
+        (p) =>
+            !p.model.toLowerCase().includes('iphone') &&
+            !p.model.toLowerCase().includes('ipad') &&
+            !p.model.toLowerCase().includes('macbook') &&
+            !p.model.toLowerCase().includes('imac') &&
+            !(p.model.toLowerCase().includes('mac') && !p.model.toLowerCase().includes('ipad')) &&
+            !p.model.toLowerCase().includes('apple watch') &&
+            !(p.model.toLowerCase().includes('watch') && !p.model.toLowerCase().includes('ipad')) &&
+            !p.model.toLowerCase().includes('airpods')
+    );
+
+    // 对每个系列内部进行排序
+    const sortediPhoneProducts = iPhoneProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortediPadProducts = iPadProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortedMacProducts = macProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortedWatchProducts = watchProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortedAirpodsProducts = airpodsProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortedOtherProducts = otherProducts.sort((a, b) => a.model.localeCompare(b.model));
+
+    // 合并排序结果
+    const sortedProducts = [...sortediPhoneProducts, ...sortediPadProducts, ...sortedMacProducts, ...sortedWatchProducts, ...sortedAirpodsProducts, ...sortedOtherProducts];
+
+    const tableRows = sortedProducts
         .map((product) => {
             const priceDisplay = product.prices.length > 0 ? (product.prices.length === 1 ? `¥${product.prices[0]}` : `¥${product.prices.join('/')} ${product.colors.length > 1 ? `(${product.colors.join('/')})` : ''}`) : '价格面议';
 

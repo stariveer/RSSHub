@@ -6,7 +6,7 @@ import parser from '@/utils/rss-parser';
 import { parseDate } from '@/utils/parse-date';
 import { load } from 'cheerio';
 import * as xml2js from 'xml2js';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, stat } from 'fs/promises';
 import path from 'path';
 
 // HTML 自动生成开关
@@ -14,6 +14,22 @@ const ENABLE_HTML_GENERATION = process.env.ENABLE_LANDE_HTML === 'true';
 
 // JSON 自动生成开关（默认开启）
 const ENABLE_JSON_GENERATION = process.env.ENABLE_LANDE_JSON !== 'false';
+
+// 从文章标题中提取日期
+function extractDateFromTitle(title: string): string {
+    // 匹配格式：YYYY年M月D日 或 YYYY-MM-DD 等
+    const dateMatch = title.match(/(\d{4})[年\-\/](\d{1,2})[月\-\/](\d{1,2})[日]?/);
+    if (dateMatch) {
+        const year = dateMatch[1];
+        const month = String(dateMatch[2]).padStart(2, '0');
+        const day = String(dateMatch[3]).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // 如果没有找到日期，使用当前日期
+    const today = new Date();
+    return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+}
 
 export const route: Route = {
     path: '/:mp-id/:category/:include?',
@@ -892,8 +908,31 @@ async function generateLandeHtml(title: string, description: string): Promise<vo
 </body>
 </html>`;
 
+      
+        // 从标题生成文件名（直接使用清理后的完整标题）
+        const cleanTitle = title
+            .replace(/[^\u4e00-\u9fa5A-Za-z0-9\s]/g, '') // 移除特殊字符，保留中文、英文、数字、空格
+            .replaceAll(/\s+/g, '_') // 空格替换为下划线
+            .slice(0, 50); // 适当增加长度限制以容纳完整标题
+
+        const fileName = cleanTitle ? `${cleanTitle}.html` : 'default.html';
+
         // 保存 HTML 文件到当前目录
-        const filePath = path.join(__dirname, 'lande.html');
+        const filePath = path.join(__dirname, fileName);
+
+        // 检查文件是否已存在
+        try {
+            const fileStat = await stat(filePath);
+            if (fileStat.isFile()) {
+                // 文件已存在，跳过生成
+                // eslint-disable-next-line no-console
+                console.log(`HTML 文件已存在，跳过生成: ${filePath}`);
+                return;
+            }
+        } catch {
+            // 文件不存在，继续生成
+        }
+
         await writeFile(filePath, htmlTemplate, 'utf-8');
 
         // eslint-disable-next-line no-console
@@ -915,18 +954,15 @@ async function generateLandeJson(title: string, products: any[]): Promise<void> 
             return;
         }
 
-        // 提取日期并生成文件名
-        const today = new Date();
-        const dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-
-        // 从标题生成文件名（清理特殊字符）
+        // 从标题生成文件名（直接使用清理后的完整标题）
         const cleanTitle = title
             .replace(/[^\u4e00-\u9fa5A-Za-z0-9\s]/g, '') // 移除特殊字符，保留中文、英文、数字、空格
             .replaceAll(/\s+/g, '_') // 空格替换为下划线
-            .slice(0, 20); // 限制长度
+            .slice(0, 50); // 适当增加长度限制以容纳完整标题
 
-        // 生成唯一的文件名：日期_标题前缀.json
-        const fileName = cleanTitle ? `${dateStr}_${cleanTitle}.json` : `${dateStr}.json`;
+        // 从标题中提取日期用于JSON数据中的date字段
+        const dateStr = extractDateFromTitle(title);
+        const fileName = cleanTitle ? `${cleanTitle}.json` : `${dateStr}.json`;
 
         // 按产品类别分组
         const categories: Record<string, any[]> = {};
@@ -971,7 +1007,7 @@ async function generateLandeJson(title: string, products: any[]): Promise<void> 
         const jsonData = {
             date: dateStr,
             title,
-            generatedAt: today.toISOString(),
+            generatedAt: new Date().toISOString(),
             categories,
         };
 
@@ -985,6 +1021,20 @@ async function generateLandeJson(title: string, products: any[]): Promise<void> 
 
         // 保存JSON文件
         const filePath = path.join(dataDir, fileName);
+
+        // 检查文件是否已存在
+        try {
+            const fileStat = await stat(filePath);
+            if (fileStat.isFile()) {
+                // 文件已存在，跳过生成
+                // eslint-disable-next-line no-console
+                console.log(`JSON 文件已存在，跳过生成: ${filePath}`);
+                return;
+            }
+        } catch {
+            // 文件不存在，继续生成
+        }
+
         await writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8');
 
         // eslint-disable-next-line no-console

@@ -1,7 +1,7 @@
 {
-  "date": "2025-11-10",
-  "title": "云鹏数码 2025年10月22日零售参考报价，三星国行",
-  "generatedAt": "2025-11-10T12:00:08.980Z",
+  "date": "2025-10-08",
+  "title": "云鹏数码 2025年10月8日零售参考报价，华为Mate X5行换行",
+  "generatedAt": "2025-11-10T14:17:02.056Z",
   "categories": {
     "AirPods": [
       {
@@ -150,12 +150,12 @@
         ],
         "status": "现货",
         "prices": [
-          7350,
-          7400,
-          6990
+          7650,
+          7500,
+          7300
         ],
         "notes": "",
-        "originalText": "iPhone17ProMax美版有锁（256G）全新单机未激活 银/橙/蓝【现货】7350/7400/6990"
+        "originalText": "iPhone17ProMax美版有锁（256G）全新单机未激活 银/橙/蓝【现货】7650/7500/7300"
       },
       {
         "brand": "Apple",
@@ -170,12 +170,12 @@
         ],
         "status": "现货",
         "prices": [
-          7900,
-          7750,
-          7450
+          8100,
+          8000,
+          7900
         ],
         "notes": "",
-        "originalText": "iPhone17ProMax美版有锁（512G）全新单机未激活 银/橙/蓝【现货】7900/7750/7450"
+        "originalText": "iPhone17ProMax美版有锁（512G）全新单机未激活 银/橙/蓝【现货】8100/8000/7900"
       },
       {
         "brand": "Apple",
@@ -184,18 +184,16 @@
         "region": "美版",
         "storage": "1T",
         "colors": [
-          "银",
           "橙",
           "蓝"
         ],
         "status": "现货",
         "prices": [
-          8600,
-          8550,
-          8250
+          8800,
+          8750
         ],
         "notes": "",
-        "originalText": "iPhone17ProMax美版有锁（1T）全新单机未激活 银/橙/蓝【现货】8600/8550/8250"
+        "originalText": "iPhone17ProMax美版有锁（1T）全新单机未激活 橙/蓝【现货】8800/8750"
       },
       {
         "brand": "Apple",
@@ -210,12 +208,12 @@
         ],
         "status": "现货",
         "prices": [
-          6050,
-          6000,
-          5750
+          6200,
+          6150,
+          5950
         ],
         "notes": "",
-        "originalText": "iPhone17Pro美版有锁（256G）全新单机未激活 银/橙/蓝【现货】6050/6000/5750"
+        "originalText": "iPhone17Pro美版有锁（256G）全新单机未激活 银/橙/蓝【现货】6200/6150/5950"
       },
       {
         "brand": "Apple",
@@ -230,134 +228,69 @@
         ],
         "status": "现货",
         "prices": [
-          6650,
-          6450,
-          6250
-        ],
-        "notes": "",
-        "originalText": "iPhone17Pro美版有锁（512G）全新单机未激活 银/橙/蓝【现货】6650/6450/6250"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 17 Pro",
-        "version": "有锁",
-        "region": "美版",
-        "storage": "1T",
-        "colors": [
-          "橙",
-          "蓝"
-        ],
-        "status": "现货",
-        "prices": [
-          7200,
-          7050
-        ],
-        "notes": "",
-        "originalText": "iPhone17Pro美版有锁（1T）全新单机未激活 橙/蓝【现货】7200/7050"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 17 Air",
-        "version": "全网",
-        "region": "美版",
-        "storage": "256G",
-        "colors": [
-          "黑",
-          "白",
-          "蓝",
-          "金"
-        ],
-        "status": "现货",
-        "prices": [
-          6550,
           6750,
-          6700,
-          6700
+          6750,
+          6600
         ],
         "notes": "",
-        "originalText": "iPhone17Air美版全网（256G）全新单机未激活 黑/白/蓝/金【现货】6550/6750/6700/6700"
+        "originalText": "iPhone17Pro美版有锁（512G）全新单机未激活 银/橙/蓝【现货】6750/6750/6600"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPhone 17 Pro",
+        "version": "有锁",
+        "region": "美版",
+        "storage": "1T",
+        "colors": [
+          "橙",
+          "蓝"
+        ],
+        "status": "现货",
+        "prices": [
+          8800
+        ],
+        "notes": "",
+        "originalText": "iPhone17Pro美版有锁（1T）全新单机未激活 橙/蓝【现货】8800"
       },
       {
         "brand": "Apple",
         "model": "iPhone 17 Air",
         "version": "有锁",
         "region": "美版",
-        "storage": "256G",
+        "storage": "512G",
         "colors": [
           "黑",
-          "白",
           "蓝",
           "金"
         ],
         "status": "现货",
         "prices": [
-          4800,
-          4950,
-          4800,
-          4850
+          5850,
+          6050,
+          6150
         ],
         "notes": "",
-        "originalText": "iPhone17Air美版有锁（256G）全新单机未激活 黑/白/蓝/金【现货】4800/4950/4800/4850"
+        "originalText": "iPhone17Air美版有锁（512G）全新单机未激活 黑/蓝/金【现货】5850/6050/6150"
       },
       {
         "brand": "Apple",
         "model": "iPhone 17",
         "version": "全网",
-        "region": "美版",
-        "storage": "256G",
-        "colors": [
-          "黑",
-          "蓝",
-          "紫"
-        ],
-        "status": "现货",
-        "prices": [
-          6050,
-          6050,
-          6090
-        ],
-        "notes": "",
-        "originalText": "iPhone 17美版全网（256G）全新单机未激活 黑/蓝/紫【现货】6050/6050/6090（改好双卡）"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 17",
-        "version": "全网",
-        "region": "美版",
-        "storage": "512G",
-        "colors": [
-          "紫"
-        ],
-        "status": "现货",
-        "prices": [
-          7490
-        ],
-        "notes": "",
-        "originalText": "iPhone 17美版全网（512G）全新单机未激活 紫【现货】7490（改好双卡）"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 17",
-        "version": "有锁",
         "region": "美版",
         "storage": "256G",
         "colors": [
           "黑",
           "白",
-          "蓝",
-          "绿",
-          "紫"
+          "蓝"
         ],
-        "status": "现货",
+        "status": "现货少量",
         "prices": [
-          4950,
-          5150,
-          4950,
-          5150,
-          5000
+          5950,
+          6050,
+          6050
         ],
         "notes": "",
-        "originalText": "iPhone 17美版有锁（256G）全新单机未激活 黑/白/蓝/绿/紫【现货】4950/5150/4950/5150/5000"
+        "originalText": "iPhone 17美版全网（256G）全新单机未激活 黑/白/蓝【现货少量】5950/6050/6050（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -376,10 +309,10 @@
           7500,
           7650,
           7520,
-          7420
+          7520
         ],
         "notes": "",
-        "originalText": "iPhone16ProMax行换行双卡全网（256G）官换单机未激活 黑/白/原/金【现货】7500/7650/7520/7420"
+        "originalText": "iPhone16ProMax行换行双卡全网（256G）官换单机未激活 黑/白/原/金【现货】7500/7650/7520/7520"
       },
       {
         "brand": "Apple",
@@ -395,13 +328,10 @@
         ],
         "status": "现货",
         "prices": [
-          8450,
-          8450,
-          8450,
-          8590
+          8620
         ],
         "notes": "",
-        "originalText": "iPhone16ProMax行换行双卡全网（512G）官换单机未激活 黑/白/原/金【现货】8450/8450/8450/8590"
+        "originalText": "iPhone16ProMax行换行双卡全网（512G）官换单机未激活 黑/白/原/金【现货】8620"
       },
       {
         "brand": "Apple",
@@ -418,12 +348,30 @@
         "status": "现货",
         "prices": [
           9020,
-          8880,
-          8830,
-          8880
+          9090,
+          8920,
+          8920
         ],
         "notes": "",
-        "originalText": "iPhone16ProMax行换行双卡全网（1T）官换单机未激活 黑/白/原/金【现货】9020/8880/8830/8880"
+        "originalText": "iPhone16ProMax行换行双卡全网（1T）官换单机未激活 黑/白/原/金【现货】9020/9090/8920/8920"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPhone 16 Pro Max",
+        "version": "全网",
+        "region": "欧版",
+        "storage": "512G",
+        "colors": [
+          "黑",
+          "金",
+          "原"
+        ],
+        "status": "现货",
+        "prices": [
+          8600
+        ],
+        "notes": "",
+        "originalText": "iPhone16ProMax欧版全网（512G）官换单机未激活 黑/金/原【现货】8600（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -438,12 +386,12 @@
         ],
         "status": "现货",
         "prices": [
-          6900,
-          6990,
+          6850,
+          6970,
           6990
         ],
         "notes": "",
-        "originalText": "iPhone16ProMax美版全网（256G）官换单机未激活 黑/金/原【现货】6900/6990/6990（改好双卡）"
+        "originalText": "iPhone16ProMax美版全网（256G）官换单机未激活 黑/金/原【现货】6850/6970/6990（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -580,13 +528,13 @@
         ],
         "status": "现货",
         "prices": [
-          6390,
+          6720,
           6650,
           6650,
           6650
         ],
         "notes": "",
-        "originalText": "iPhone16Pro行换行双卡全网（256G）官换单机未激活 黑/白/原/金【现货】6390/6650/6650/6650"
+        "originalText": "iPhone16Pro行换行双卡全网（256G）官换单机未激活 黑/白/原/金【现货】6720/6650/6650/6650"
       },
       {
         "brand": "Apple",
@@ -627,10 +575,10 @@
           8750,
           8310,
           8750,
-          8200
+          8250
         ],
         "notes": "",
-        "originalText": "iPhone16Pro行换行双卡全网（1T）官换单机未激活 黑/白/原/金【现货】8750/8310/8750/8200"
+        "originalText": "iPhone16Pro行换行双卡全网（1T）官换单机未激活 黑/白/原/金【现货】8750/8310/8750/8250"
       },
       {
         "brand": "Apple",
@@ -639,14 +587,16 @@
         "region": "美版",
         "storage": "128G",
         "colors": [
-          "黑"
+          "黑",
+          "金"
         ],
-        "status": "现货",
+        "status": "现货少量",
         "prices": [
-          5450
+          5450,
+          5650
         ],
         "notes": "",
-        "originalText": "iPhone16Pro美版全网（128G）官换单机未激活 黑【现货】5450（改好双卡）"
+        "originalText": "iPhone16Pro美版全网（128G）官换单机未激活 黑/金【现货少量】5450/5650（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -655,16 +605,16 @@
         "region": "美版",
         "storage": "256G",
         "colors": [
-          "白",
-          "金"
+          "黑",
+          "白"
         ],
         "status": "现货少量",
         "prices": [
-          6550,
-          6420
+          6350,
+          6550
         ],
         "notes": "",
-        "originalText": "iPhone16Pro美版全网（256G）官换单机未激活 白/金【现货少量】6550/6420（改好双卡）"
+        "originalText": "iPhone16Pro美版全网（256G）官换单机未激活 黑/白【现货少量】6350/6550（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -796,13 +746,10 @@
         ],
         "status": "现货",
         "prices": [
-          6830,
-          6830,
-          6830,
-          6750
+          6830
         ],
         "notes": "",
-        "originalText": "iPhone 16Plus行换行双卡全网（512G）官换单机未激活 黑/白/蓝/绿【现货】6830/6830/6830/6750"
+        "originalText": "iPhone 16Plus行换行双卡全网（512G）官换单机未激活 黑/白/蓝/绿【现货】6830"
       },
       {
         "brand": "Apple",
@@ -987,18 +934,16 @@
         "colors": [
           "黑",
           "白",
-          "蓝",
           "绿"
         ],
         "status": "现货",
         "prices": [
-          4090,
-          4290,
-          4190,
-          4250
+          4200,
+          4250,
+          4300
         ],
         "notes": "",
-        "originalText": "iPhone 16美版全网（128G）官换单机未激活 黑/白/蓝/绿【现货】4090/4290/4190/4250（改好双卡）"
+        "originalText": "iPhone 16美版全网（128G）官换单机未激活 黑/白/绿【现货】4200/4250/4300（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -1037,73 +982,6 @@
         ],
         "notes": "",
         "originalText": "iPhone 16美版有锁（256G）全新单机未激活 黑/粉/群青【现货】4580/4630/4530（改好双卡，卡贴完美）"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 16e",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "128G",
-        "colors": [
-          "黑",
-          "白"
-        ],
-        "status": "现货",
-        "prices": [
-          3750
-        ],
-        "notes": "",
-        "originalText": "iPhone 16e行换行双卡全网（128G）全新单机未激活 黑/白【现货】3750"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 16e",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "256G",
-        "colors": [
-          "黑",
-          "白"
-        ],
-        "status": "现货",
-        "prices": [
-          4450
-        ],
-        "notes": "",
-        "originalText": "iPhone 16e行换行双卡全网（256G）全新单机未激活 黑/白【现货】4450"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 16e",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "512G",
-        "colors": [
-          "黑",
-          "白"
-        ],
-        "status": "现货",
-        "prices": [
-          4950
-        ],
-        "notes": "",
-        "originalText": "iPhone 16e行换行双卡全网（512G）全新单机未激活 黑/白【现货】4950"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 16e",
-        "version": "全网",
-        "region": "美版",
-        "storage": "128G",
-        "colors": [
-          "白"
-        ],
-        "status": "现货",
-        "prices": [
-          3250
-        ],
-        "notes": "",
-        "originalText": "iPhone 16e美版全网（128G）全新单机未激活 白【现货】3250（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -1230,16 +1108,14 @@
         "region": "美版",
         "storage": "256G",
         "colors": [
-          "黑",
           "蓝"
         ],
         "status": "现货",
         "prices": [
-          5850,
-          5790
+          5850
         ],
         "notes": "",
-        "originalText": "iPhone15ProMax美版全网（256G）官换单机未激活 黑/蓝【现货】5850/5790（改好双卡）"
+        "originalText": "iPhone15ProMax美版全网（256G）官换单机未激活 蓝【现货】5850（改好双卡）"
       },
       {
         "brand": "Apple",
@@ -1401,10 +1277,10 @@
         ],
         "status": "现货",
         "prices": [
-          4490
+          4770
         ],
         "notes": "",
-        "originalText": "iPhone15Pro美版全网（128G）官换单机未激活 黑【现货】4490（改好单卡）"
+        "originalText": "iPhone15Pro美版全网（128G）官换单机未激活 黑【现货】4770（改好单卡）"
       },
       {
         "brand": "Apple",
@@ -1466,10 +1342,10 @@
           4380,
           4380,
           4380,
-          4200
+          4250
         ],
         "notes": "",
-        "originalText": "iPhone15Plus行换行全网双卡（128G）官换单机未激活 黑/蓝/绿/粉/黄【现货】4380/4380/4380/4380/4200"
+        "originalText": "iPhone15Plus行换行全网双卡（128G）官换单机未激活 黑/蓝/绿/粉/黄【现货】4380/4380/4380/4380/4250"
       },
       {
         "brand": "Apple",
@@ -1985,13 +1861,13 @@
         "status": "现货",
         "prices": [
           3730,
-          3600,
-          3390,
+          3650,
+          3450,
           3550,
           3450
         ],
         "notes": "",
-        "originalText": "iPhone14Plus行换行双卡全网（128G）官换单机未激活 黑/白/红/蓝/黄【现货】3730/3600/3390/3550/3450"
+        "originalText": "iPhone14Plus行换行双卡全网（128G）官换单机未激活 黑/白/红/蓝/黄【现货】3730/3650/3450/3550/3450"
       },
       {
         "brand": "Apple",
@@ -3242,10 +3118,10 @@
         ],
         "status": "现货",
         "prices": [
-          1890
+          1950
         ],
         "notes": "",
-        "originalText": "iPhone XS MAX美版全网（64G）官换单机未激活 黑/白/金【现货】1890"
+        "originalText": "iPhone XS MAX美版全网（64G）官换单机未激活 黑/白/金【现货】1950"
       },
       {
         "brand": "Apple",
@@ -3260,73 +3136,73 @@
         ],
         "status": "现货",
         "prices": [
-          2180
-        ],
-        "notes": "",
-        "originalText": "iPhone XS MAX美版全网（256G）官换单机未激活 黑/白/金【现货】2180"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone XR",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "64G",
-        "colors": [
-          "黑",
-          "白",
-          "红",
-          "蓝",
-          "黄",
-          "橙"
-        ],
-        "status": "现货",
-        "prices": [
-          1700
-        ],
-        "notes": "",
-        "originalText": "iPhone XR行换行双卡全网（64G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】1700"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone XR",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "128G",
-        "colors": [
-          "黑",
-          "白",
-          "红",
-          "蓝",
-          "黄",
-          "橙"
-        ],
-        "status": "现货",
-        "prices": [
-          1920
-        ],
-        "notes": "",
-        "originalText": "iPhone XR行换行双卡全网（128G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】1920"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone XR",
-        "version": "行换行双卡全网",
-        "region": "",
-        "storage": "256G",
-        "colors": [
-          "黑",
-          "白",
-          "红",
-          "蓝",
-          "黄",
-          "橙"
-        ],
-        "status": "现货",
-        "prices": [
           2220
         ],
         "notes": "",
-        "originalText": "iPhone XR行换行双卡全网（256G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】2220"
+        "originalText": "iPhone XS MAX美版全网（256G）官换单机未激活 黑/白/金【现货】2220"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPhone XR",
+        "version": "行换行双卡全网",
+        "region": "",
+        "storage": "64G",
+        "colors": [
+          "黑",
+          "白",
+          "红",
+          "蓝",
+          "黄",
+          "橙"
+        ],
+        "status": "现货",
+        "prices": [
+          1750
+        ],
+        "notes": "",
+        "originalText": "iPhone XR行换行双卡全网（64G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】1750"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPhone XR",
+        "version": "行换行双卡全网",
+        "region": "",
+        "storage": "128G",
+        "colors": [
+          "黑",
+          "白",
+          "红",
+          "蓝",
+          "黄",
+          "橙"
+        ],
+        "status": "现货",
+        "prices": [
+          1980
+        ],
+        "notes": "",
+        "originalText": "iPhone XR行换行双卡全网（128G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】1980"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPhone XR",
+        "version": "行换行双卡全网",
+        "region": "",
+        "storage": "256G",
+        "colors": [
+          "黑",
+          "白",
+          "红",
+          "蓝",
+          "黄",
+          "橙"
+        ],
+        "status": "现货",
+        "prices": [
+          2290
+        ],
+        "notes": "",
+        "originalText": "iPhone XR行换行双卡全网（256G）官换单机未激活 黑/白/红/蓝/黄/橙【现货】2290"
       },
       {
         "brand": "Apple",
@@ -3343,10 +3219,10 @@
         ],
         "status": "现货",
         "prices": [
-          1550
+          1590
         ],
         "notes": "",
-        "originalText": "iPhone XR美版全网（64G）官换单机未激活 黑/白/红/蓝/橙【现货】1550"
+        "originalText": "iPhone XR美版全网（64G）官换单机未激活 黑/白/红/蓝/橙【现货】1590"
       },
       {
         "brand": "Apple",
@@ -3363,10 +3239,10 @@
         ],
         "status": "现货",
         "prices": [
-          1720
+          1810
         ],
         "notes": "",
-        "originalText": "iPhone XR美版全网（128G）官换单机未激活 黑/白/红/蓝/橙【现货】1720"
+        "originalText": "iPhone XR美版全网（128G）官换单机未激活 黑/白/红/蓝/橙【现货】1810"
       },
       {
         "brand": "Apple",
@@ -3383,10 +3259,10 @@
         ],
         "status": "现货",
         "prices": [
-          2050
+          2110
         ],
         "notes": "",
-        "originalText": "iPhone XR美版全网（256G）官换单机未激活 黑/白/红/蓝/橙【现货】2050"
+        "originalText": "iPhone XR美版全网（256G）官换单机未激活 黑/白/红/蓝/橙【现货】2110"
       },
       {
         "brand": "Apple",
@@ -3400,10 +3276,10 @@
         ],
         "status": "现货",
         "prices": [
-          1600
+          1650
         ],
         "notes": "",
-        "originalText": "iPhone X行换行全网（64G）官换单机未激活 黑/白【现货】1600"
+        "originalText": "iPhone X行换行全网（64G）官换单机未激活 黑/白【现货】1650"
       },
       {
         "brand": "Apple",
@@ -3417,10 +3293,10 @@
         ],
         "status": "现货",
         "prices": [
-          1900
+          1950
         ],
         "notes": "",
-        "originalText": "iPhone X行换行全网（256G）官换单机未激活 黑/白【现货】1900"
+        "originalText": "iPhone X行换行全网（256G）官换单机未激活 黑/白【现货】1950"
       },
       {
         "brand": "Apple",
@@ -3436,10 +3312,10 @@
         ],
         "status": "现货",
         "prices": [
-          1490
+          1550
         ],
         "notes": "",
-        "originalText": "iPhone 8 PLUS行换行全网（64G）官换单机未激活 黑/白/金/红【现货】1490"
+        "originalText": "iPhone 8 PLUS行换行全网（64G）官换单机未激活 黑/白/金/红【现货】1550"
       },
       {
         "brand": "Apple",
@@ -3474,10 +3350,10 @@
         ],
         "status": "现货",
         "prices": [
-          980
+          1050
         ],
         "notes": "",
-        "originalText": "iPhone 8行换行全网（64G）官换单机未激活 黑/白/金/红【现货】980"
+        "originalText": "iPhone 8行换行全网（64G）官换单机未激活 黑/白/金/红【现货】1050"
       },
       {
         "brand": "Apple",
@@ -3493,10 +3369,10 @@
         ],
         "status": "现货",
         "prices": [
-          1320
+          1400
         ],
         "notes": "",
-        "originalText": "iPhone 8行换行全网（256G）官换单机未激活 黑/白/金/红【现货】1320"
+        "originalText": "iPhone 8行换行全网（256G）官换单机未激活 黑/白/金/红【现货】1400"
       },
       {
         "brand": "Apple",
@@ -3683,12 +3559,12 @@
         ],
         "status": "现货",
         "prices": [
-          10200,
-          10250,
-          10200
+          10550,
+          10800,
+          10350
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX国行双卡全网（256G）原封 银/橙/蓝【现货】10200/10250/10200"
+        "originalText": "iPhone 17PROMAX国行双卡全网（256G）原封 银/橙/蓝【现货】10550/10800/10350"
       },
       {
         "brand": "Apple",
@@ -3704,11 +3580,11 @@
         "status": "现货",
         "prices": [
           12300,
-          12250,
-          11990
+          12600,
+          12350
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX国行双卡全网（512G）原封 银/橙/蓝【现货】12300/12250/11990"
+        "originalText": "iPhone 17PROMAX国行双卡全网（512G）原封 银/橙/蓝【现货】12300/12600/12350"
       },
       {
         "brand": "Apple",
@@ -3723,12 +3599,12 @@
         ],
         "status": "现货",
         "prices": [
-          14300,
-          14350,
-          14150
+          14600,
+          14750,
+          14350
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX国行双卡全网（1T）原封 银/橙/蓝【现货】14300/14350/14150"
+        "originalText": "iPhone 17PROMAX国行双卡全网（1T）原封 银/橙/蓝【现货】14600/14750/14350"
       },
       {
         "brand": "Apple",
@@ -3743,12 +3619,12 @@
         ],
         "status": "现货",
         "prices": [
-          18050,
-          18300,
-          17950
+          18000,
+          18200,
+          17850
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX国行双卡全网（2T）原封 银/橙/蓝【现货】18050/18300/17950"
+        "originalText": "iPhone 17PROMAX国行双卡全网（2T）原封 银/橙/蓝【现货】18000/18200/17850"
       },
       {
         "brand": "Apple",
@@ -3763,12 +3639,12 @@
         ],
         "status": "现货",
         "prices": [
-          10380,
-          10180,
-          10180
+          10700,
+          11050,
+          10350
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX港行全网（256G）原封 银/橙/蓝【现货】10380/10180/10180"
+        "originalText": "iPhone 17PROMAX港行全网（256G）原封 银/橙/蓝【现货】10700/11050/10350"
       },
       {
         "brand": "Apple",
@@ -3783,12 +3659,12 @@
         ],
         "status": "现货",
         "prices": [
-          12000,
-          11950,
-          11580
+          12150,
+          12050,
+          11800
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX港行全网（512G）原封 银/橙/蓝【现货】12000/11950/11580"
+        "originalText": "iPhone 17PROMAX港行全网（512G）原封 银/橙/蓝【现货】12150/12050/11800"
       },
       {
         "brand": "Apple",
@@ -3797,18 +3673,16 @@
         "region": "港行",
         "storage": "1T",
         "colors": [
-          "银",
           "橙",
           "蓝"
         ],
         "status": "现货",
         "prices": [
-          14300,
-          14200,
-          14300
+          15800,
+          15150
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX港行全网（1T）原封 银/橙/蓝【现货】14300/14200/14300"
+        "originalText": "iPhone 17PROMAX港行全网（1T）原封 橙/蓝【现货】15800/15150"
       },
       {
         "brand": "Apple",
@@ -3821,10 +3695,10 @@
         ],
         "status": "现货",
         "prices": [
-          16400
+          17400
         ],
         "notes": "",
-        "originalText": "iPhone 17PROMAX港行全网（2T）原封 橙【现货】16400"
+        "originalText": "iPhone 17PROMAX港行全网（2T）原封 橙【现货】17400"
       },
       {
         "brand": "Apple",
@@ -3839,12 +3713,12 @@
         ],
         "status": "现货",
         "prices": [
-          9100,
-          9100,
-          8890
+          9290,
+          9370,
+          9230
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO国行双卡全网（256G）原封 银/橙/蓝【现货】9100/9100/8890"
+        "originalText": "iPhone 17PRO国行双卡全网（256G）原封 银/橙/蓝【现货】9290/9370/9230"
       },
       {
         "brand": "Apple",
@@ -3859,12 +3733,12 @@
         ],
         "status": "现货",
         "prices": [
-          10990,
-          10990,
-          10550
+          11340,
+          11300,
+          11100
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO国行双卡全网（512G）原封 银/橙/蓝【现货】10990/10990/10550"
+        "originalText": "iPhone 17PRO国行双卡全网（512G）原封 银/橙/蓝【现货】11340/11300/11100"
       },
       {
         "brand": "Apple",
@@ -3879,12 +3753,12 @@
         ],
         "status": "现货",
         "prices": [
+          13400,
           13150,
-          12950,
-          12400
+          13200
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO国行双卡全网（1T）原封 银/橙/蓝【现货】13150/12950/12400"
+        "originalText": "iPhone 17PRO国行双卡全网（1T）原封 银/橙/蓝【现货】13400/13150/13200"
       },
       {
         "brand": "Apple",
@@ -3901,10 +3775,10 @@
         "prices": [
           9300,
           9250,
-          9750
+          9200
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO港行全网（256G）原封 银/橙/蓝【现货】9300/9250/9750"
+        "originalText": "iPhone 17PRO港行全网（256G）原封 银/橙/蓝【现货】9300/9250/9200"
       },
       {
         "brand": "Apple",
@@ -3919,10 +3793,12 @@
         ],
         "status": "现货",
         "prices": [
-          11050
+          10850,
+          1110,
+          10900
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO港行全网（512G）原封 银/橙/蓝【现货】11050"
+        "originalText": "iPhone 17PRO港行全网（512G）原封 银/橙/蓝【现货】10850/1110/10900"
       },
       {
         "brand": "Apple",
@@ -3937,10 +3813,12 @@
         ],
         "status": "现货",
         "prices": [
-          12190
+          13000,
+          12700,
+          12500
         ],
         "notes": "",
-        "originalText": "iPhone 17PRO港行全网（1T）原封 银/橙/蓝【现货】12190"
+        "originalText": "iPhone 17PRO港行全网（1T）原封 银/橙/蓝【现货】13000/12700/12500"
       },
       {
         "brand": "Apple",
@@ -3956,13 +3834,10 @@
         ],
         "status": "现货",
         "prices": [
-          8100,
-          8100,
-          8050,
-          7890
+          8250
         ],
         "notes": "",
-        "originalText": "iPhone 17Air港行全网（256G）原封 黑/白/金/蓝【现货】8100/8100/8050/7890"
+        "originalText": "iPhone 17Air港行全网（256G）原封 黑/白/金/蓝【现货】8250"
       },
       {
         "brand": "Apple",
@@ -3972,16 +3847,14 @@
         "storage": "512G",
         "colors": [
           "黑",
-          "白",
-          "金",
           "蓝"
         ],
         "status": "现货",
         "prices": [
-          9250
+          9950
         ],
         "notes": "",
-        "originalText": "iPhone 17Air港行全网（512G）原封 黑/白/金/蓝【现货】9250"
+        "originalText": "iPhone 17Air港行全网（512G）原封 黑/蓝【现货】9950"
       },
       {
         "brand": "Apple",
@@ -3990,14 +3863,16 @@
         "region": "港行",
         "storage": "1T",
         "colors": [
-          "金"
+          "黑",
+          "白"
         ],
         "status": "现货",
         "prices": [
-          11200
+          11800,
+          12100
         ],
         "notes": "",
-        "originalText": "iPhone 17Air港行全网（1T）原封 金【现货】11200"
+        "originalText": "iPhone 17Air港行全网（1T）原封 黑/白【现货】11800/12100"
       },
       {
         "brand": "Apple",
@@ -4014,14 +3889,14 @@
         ],
         "status": "现货",
         "prices": [
-          6370,
-          6370,
-          6400,
-          6400,
-          6400
+          6320,
+          6340,
+          6260,
+          6280,
+          6370
         ],
         "notes": "",
-        "originalText": "iPhone 17国行双卡全网（256G）原封 黑/白/蓝/紫/绿【现货】6370/6370/6400/6400/6400"
+        "originalText": "iPhone 17国行双卡全网（256G）原封 黑/白/蓝/紫/绿【现货】6320/6340/6260/6280/6370"
       },
       {
         "brand": "Apple",
@@ -4038,14 +3913,14 @@
         ],
         "status": "现货",
         "prices": [
-          8250,
           8150,
           8180,
-          8150,
-          8150
+          8050,
+          8200,
+          8200
         ],
         "notes": "",
-        "originalText": "iPhone 17国行双卡全网（512G）原封 黑/白/蓝/紫/绿【现货】8250/8150/8180/8150/8150"
+        "originalText": "iPhone 17国行双卡全网（512G）原封 黑/白/蓝/紫/绿【现货】8150/8180/8050/8200/8200"
       },
       {
         "brand": "Apple",
@@ -4061,10 +3936,10 @@
         ],
         "status": "现货",
         "prices": [
-          7850
+          7950
         ],
         "notes": "",
-        "originalText": "iPhone 16PROMAX国行双卡全网（256G）原封 黑/白/原/金【现货】7850"
+        "originalText": "iPhone 16PROMAX国行双卡全网（256G）原封 黑/白/原/金【现货】7950"
       },
       {
         "brand": "Apple",
@@ -4099,10 +3974,10 @@
         ],
         "status": "现货",
         "prices": [
-          9800
+          9850
         ],
         "notes": "",
-        "originalText": "iPhone 16PROMAX国行双卡全网（1T）原封 黑/白/原/金【现货】9800"
+        "originalText": "iPhone 16PROMAX国行双卡全网（1T）原封 黑/白/原/金【现货】9850"
       },
       {
         "brand": "Apple",
@@ -4118,10 +3993,10 @@
         ],
         "status": "现货",
         "prices": [
-          6120
+          6150
         ],
         "notes": "",
-        "originalText": "iPhone 16PRO国行双卡全网（128G）原封 黑/白/原/金【现货】6120"
+        "originalText": "iPhone 16PRO国行双卡全网（128G）原封 黑/白/原/金【现货】6150"
       },
       {
         "brand": "Apple",
@@ -4137,13 +4012,13 @@
         ],
         "status": "现货",
         "prices": [
-          6950,
-          6950,
-          6950,
+          7050,
+          6980,
+          6980,
           6900
         ],
         "notes": "",
-        "originalText": "iPhone 16PRO国行双卡全网（256G）原封 黑/白/原/金【现货】6950/6950/6950/6900"
+        "originalText": "iPhone 16PRO国行双卡全网（256G）原封 黑/白/原/金【现货】7050/6980/6980/6900"
       },
       {
         "brand": "Apple",
@@ -4159,10 +4034,10 @@
         ],
         "status": "现货",
         "prices": [
-          7950
+          7990
         ],
         "notes": "",
-        "originalText": "iPhone 16PRO国行双卡全网（512G）原封 黑/白/原/金【现货】7950"
+        "originalText": "iPhone 16PRO国行双卡全网（512G）原封 黑/白/原/金【现货】7990"
       },
       {
         "brand": "Apple",
@@ -4178,10 +4053,10 @@
         ],
         "status": "现货",
         "prices": [
-          8900
+          8950
         ],
         "notes": "",
-        "originalText": "iPhone 16PRO国行双卡全网（1T）原封 黑/白/原/金【现货】8900"
+        "originalText": "iPhone 16PRO国行双卡全网（1T）原封 黑/白/原/金【现货】8950"
       },
       {
         "brand": "Apple",
@@ -4198,10 +4073,10 @@
         ],
         "status": "现货",
         "prices": [
-          5370
+          5480
         ],
         "notes": "",
-        "originalText": "iPhone 16 PLUS国行双卡全网（128G）原封 黑/白/粉/群青/深青【现货】5370"
+        "originalText": "iPhone 16 PLUS国行双卡全网（128G）原封 黑/白/粉/群青/深青【现货】5480"
       },
       {
         "brand": "Apple",
@@ -4218,10 +4093,10 @@
         ],
         "status": "现货",
         "prices": [
-          6150
+          6180
         ],
         "notes": "",
-        "originalText": "iPhone 16 PLUS国行双卡全网（256G）原封 黑/白/粉/群青/深青【现货】6150"
+        "originalText": "iPhone 16 PLUS国行双卡全网（256G）原封 黑/白/粉/群青/深青【现货】6180"
       },
       {
         "brand": "Apple",
@@ -4238,10 +4113,10 @@
         ],
         "status": "现货",
         "prices": [
-          7030
+          7100
         ],
         "notes": "",
-        "originalText": "iPhone 16 PLUS国行双卡全网（512G）原封 黑/白/粉/群青/深青【现货】7030"
+        "originalText": "iPhone 16 PLUS国行双卡全网（512G）原封 黑/白/粉/群青/深青【现货】7100"
       },
       {
         "brand": "Apple",
@@ -4258,10 +4133,10 @@
         ],
         "status": "现货",
         "prices": [
-          4650
+          4800
         ],
         "notes": "",
-        "originalText": "iPhone 16国行双卡全网（128G）原封 黑/白/粉/群青/深青【现货】4650"
+        "originalText": "iPhone 16国行双卡全网（128G）原封 黑/白/粉/群青/深青【现货】4800"
       },
       {
         "brand": "Apple",
@@ -4292,27 +4167,10 @@
         ],
         "status": "现货",
         "prices": [
-          4590
+          4750
         ],
         "notes": "",
-        "originalText": "iPhone 16e国行双卡全网（256G）原封 黑/白【现货】4590"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPhone 16e",
-        "version": "双卡全网",
-        "region": "国行",
-        "storage": "512G",
-        "colors": [
-          "黑",
-          "白"
-        ],
-        "status": "现货",
-        "prices": [
-          5150
-        ],
-        "notes": "",
-        "originalText": "iPhone 16e国行双卡全网（512G）原封 黑/白【现货】5150"
+        "originalText": "iPhone 16e国行双卡全网（256G）原封 黑/白【现货】4750"
       },
       {
         "brand": "Apple",
@@ -4514,7 +4372,7 @@
       {
         "brand": "Apple",
         "model": "iPad mini6",
-        "version": "美版官换单机未激活 粉2990",
+        "version": "5G版",
         "region": "美版",
         "storage": "256G",
         "colors": [
@@ -4522,26 +4380,10 @@
         ],
         "status": "现货",
         "prices": [
-          2990
+          3090
         ],
         "notes": "",
-        "originalText": "iPad Mini6美版（256G）官换单机未激活 粉【现货】2990"
-      },
-      {
-        "brand": "Apple",
-        "model": "iPad mini6",
-        "version": "5G版",
-        "region": "美版",
-        "storage": "256G",
-        "colors": [
-          "黑"
-        ],
-        "status": "现货",
-        "prices": [
-          3190
-        ],
-        "notes": "",
-        "originalText": "iPad Mini6美版5G版（256G）官换单机未激活 黑【现货】3190"
+        "originalText": "iPad Mini6美版5G版（256G）官换单机未激活 粉【现货】3090"
       },
       {
         "brand": "Apple",
@@ -4722,18 +4564,18 @@
       {
         "brand": "Apple",
         "model": "iPad Air5 10",
-        "version": ".95G版",
+        "version": ".9",
         "region": "美版",
         "storage": "256G",
         "colors": [
-          "黑"
+          "金"
         ],
         "status": "现货",
         "prices": [
-          3580
+          3080
         ],
         "notes": "",
-        "originalText": "iPad Air5 10.9美版5G版（256G）官换单机未激活 黑【现货】3580"
+        "originalText": "iPad Air5 10.9美版（256G）官换单机未激活 金【现货】3080"
       },
       {
         "brand": "Apple",
@@ -5119,18 +4961,19 @@
       {
         "brand": "Apple",
         "model": "iPad Pro11",
-        "version": "24款美版官换单机未激活 黑7300",
+        "version": "24款美版官换单机未激活 黑/白7350",
         "region": "美版",
         "storage": "512G",
         "colors": [
-          "黑"
+          "黑",
+          "白"
         ],
         "status": "现货",
         "prices": [
-          7300
+          7350
         ],
         "notes": "",
-        "originalText": "24款iPad Pro11美版（512G）官换单机未激活 黑【现货】7300"
+        "originalText": "24款iPad Pro11美版（512G）官换单机未激活 黑/白【现货】7350"
       },
       {
         "brand": "Apple",
@@ -5152,7 +4995,7 @@
       {
         "brand": "Apple",
         "model": "iPad Pro11",
-        "version": "24款美版官换单机未激活 黑/白9550",
+        "version": "24款美版官换单机未激活 黑/白9590",
         "region": "美版",
         "storage": "2T",
         "colors": [
@@ -5161,10 +5004,10 @@
         ],
         "status": "现货",
         "prices": [
-          9550
+          9590
         ],
         "notes": "",
-        "originalText": "24款iPad Pro11美版（2T）官换单机未激活 黑/白【现货】9550"
+        "originalText": "24款iPad Pro11美版（2T）官换单机未激活 黑/白【现货】9590"
       },
       {
         "brand": "Apple",
@@ -5185,7 +5028,7 @@
       {
         "brand": "Apple",
         "model": "iPad Pro13",
-        "version": "24款美版官换单机未激活 黑9550",
+        "version": "24款美版官换单机未激活 黑9720",
         "region": "美版",
         "storage": "1T",
         "colors": [
@@ -5193,10 +5036,24 @@
         ],
         "status": "现货",
         "prices": [
-          9550
+          9720
         ],
         "notes": "",
-        "originalText": "24款iPad Pro13美版（1T）官换单机未激活 黑【现货】9550"
+        "originalText": "24款iPad Pro13美版（1T）官换单机未激活 黑【现货】9720"
+      },
+      {
+        "brand": "Apple",
+        "model": "24款iPad Pro13美版（2T纳米）官换单机未激活 黑/白",
+        "version": "",
+        "region": "",
+        "storage": "",
+        "colors": [],
+        "status": "现货",
+        "prices": [
+          10480
+        ],
+        "notes": "",
+        "originalText": "24款iPad Pro13美版（2T纳米）官换单机未激活 黑/白【现货】10480"
       },
       {
         "brand": "Apple",
@@ -5232,6 +5089,57 @@
         ],
         "notes": "",
         "originalText": "22款iPad 10.9美版（256G）原封 白/粉【现货】2700"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPad Pro11",
+        "version": "22款美版原封 黑/白5080",
+        "region": "美版",
+        "storage": "128G",
+        "colors": [
+          "黑",
+          "白"
+        ],
+        "status": "现货",
+        "prices": [
+          5080
+        ],
+        "notes": "",
+        "originalText": "22款iPadPro11美版（128G）原封 黑/白【现货】5080"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPad Pro11",
+        "version": "22款美版原封 黑/白5650",
+        "region": "美版",
+        "storage": "256G",
+        "colors": [
+          "黑",
+          "白"
+        ],
+        "status": "现货",
+        "prices": [
+          5650
+        ],
+        "notes": "",
+        "originalText": "22款iPadPro11美版（256G）原封 黑/白【现货】5650"
+      },
+      {
+        "brand": "Apple",
+        "model": "iPad Pro11",
+        "version": "22款美版原封 黑/白6150",
+        "region": "美版",
+        "storage": "512G",
+        "colors": [
+          "黑",
+          "白"
+        ],
+        "status": "现货",
+        "prices": [
+          6150
+        ],
+        "notes": "",
+        "originalText": "22款iPadPro11美版（512G）原封 黑/白【现货】6150"
       },
       {
         "brand": "Apple",
@@ -5320,7 +5228,7 @@
       {
         "brand": "Apple",
         "model": "iPad Pro11",
-        "version": "24款美版原封 黑/白8000",
+        "version": "24款美版原封 黑/白8050",
         "region": "美版",
         "storage": "512G",
         "colors": [
@@ -5329,10 +5237,10 @@
         ],
         "status": "现货",
         "prices": [
-          8000
+          8050
         ],
         "notes": "",
-        "originalText": "24款iPad Pro11美版（512G）原封 黑/白【现货】8000"
+        "originalText": "24款iPad Pro11美版（512G）原封 黑/白【现货】8050"
       },
       {
         "brand": "Apple",
@@ -5345,10 +5253,10 @@
         ],
         "status": "现货",
         "prices": [
-          8100
+          8150
         ],
         "notes": "",
-        "originalText": "24款iPad Pro13美版5G版（256G）原封 黑【现货】8100"
+        "originalText": "24款iPad Pro13美版5G版（256G）原封 黑【现货】8150"
       },
       {
         "brand": "Apple",
@@ -5361,10 +5269,10 @@
         ],
         "status": "现货",
         "prices": [
-          9750
+          9650
         ],
         "notes": "",
-        "originalText": "24款iPad Pro13美版5G版（512G）原封 黑【现货】9750"
+        "originalText": "24款iPad Pro13美版5G版（512G）原封 黑【现货】9650"
       },
       {
         "brand": "Apple",
@@ -5393,10 +5301,10 @@
         ],
         "status": "现货",
         "prices": [
-          12700
+          12750
         ],
         "notes": "",
-        "originalText": "24款iPad Pro13美版5G版（2T）原封 黑【现货】12700"
+        "originalText": "24款iPad Pro13美版5G版（2T）原封 黑【现货】12750"
       },
       {
         "brand": "Apple",

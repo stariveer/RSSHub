@@ -21,7 +21,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run format:check:*)",
       "Bash(npm run format:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

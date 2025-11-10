@@ -43,12 +43,16 @@ export const route: Route = {
   - 支持多个组合，用逗号分隔
 - 固定返回20条内容
 
+**特殊分类：**
+- \`lande\`：该分类会自动过滤，只保留标题包含"零售参考报价"的文章，忽略其他过滤参数
+
 **使用示例：**
 - \`/we-mp-rss-proxy/MP_WXS_3941413004/default\` - 获取所有内容
 - \`/we-mp-rss-proxy/MP_WXS_3941413004/travel\` - 标记为旅游分类
 - \`/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,攻略\` - 只包含"旅游"或"攻略"的内容
 - \`/we-mp-rss-proxy/MP_WXS_3941413004/default/-广告,推广\` - 排除包含"广告"或"推广"的内容
-- \`/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,-广告\` - 包含"旅游"但排除"广告"的内容`,
+- \`/we-mp-rss-proxy/MP_WXS_3941413004/travel/+旅游,-广告\` - 包含"旅游"但排除"广告"的内容
+- \`/we-mp-rss-proxy/MP_WXS_2397228061/lande\` - 只保留标题包含"零售参考报价"的文章`,
 };
 
 // 辅助函数：提取HTML中的纯文本
@@ -252,33 +256,49 @@ async function handler(ctx: Context): Promise<Data> {
                 // 过滤和处理文章
                 let filteredItems = feed.items || [];
 
-                // 应用包含过滤器
-                if (includeKeywords.length > 0) {
+                // 特殊处理：如果是lande分类，只保留标题包含"零售参考报价"的文章
+                if (category === 'lande') {
                     filteredItems = filteredItems.filter((item) => {
-                        const title = (item.title || '').toLowerCase();
-                        // 优先使用content字段，如果没有则使用summary
-                        const fullContent = item.content || item.summary || '';
-                        const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
-                        const fullText = `${title} ${content}`;
-
-                        // 当前是OR关系：包含任一关键词即可
-                        // 如需AND关系，改为：
-                        // return includeKeywords.every((keyword) => fullText.includes(keyword.toLowerCase()));
-                        return includeKeywords.some((keyword) => fullText.includes(keyword.toLowerCase()));
+                        const title = item.title || '';
+                        return title.includes('零售参考报价');
                     });
-                }
 
-                // 应用排除过滤器
-                if (excludeKeywords.length > 0) {
-                    filteredItems = filteredItems.filter((item) => {
-                        const title = (item.title || '').toLowerCase();
-                        // 优先使用content字段，如果没有则使用summary
-                        const fullContent = item.content || item.summary || '';
-                        const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
-                        const fullText = `${title} ${content}`;
-
-                        return !excludeKeywords.some((keyword) => fullText.includes(keyword.toLowerCase()));
+                    // eslint-disable-next-line no-console
+                    console.log('Land分类过滤结果:', {
+                        原始条目数: feed.items?.length || 0,
+                        过滤后条目数: filteredItems.length,
+                        过滤条件: '标题包含"零售参考报价"',
                     });
+                } else {
+                    // 其他分类应用原有的包含/排除过滤器
+                    // 应用包含过滤器
+                    if (includeKeywords.length > 0) {
+                        filteredItems = filteredItems.filter((item) => {
+                            const title = (item.title || '').toLowerCase();
+                            // 优先使用content字段，如果没有则使用summary
+                            const fullContent = item.content || item.summary || '';
+                            const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
+                            const fullText = `${title} ${content}`;
+
+                            // 当前是OR关系：包含任一关键词即可
+                            // 如需AND关系，改为：
+                            // return includeKeywords.every((keyword) => fullText.includes(keyword.toLowerCase()));
+                            return includeKeywords.some((keyword) => fullText.includes(keyword.toLowerCase()));
+                        });
+                    }
+
+                    // 应用排除过滤器
+                    if (excludeKeywords.length > 0) {
+                        filteredItems = filteredItems.filter((item) => {
+                            const title = (item.title || '').toLowerCase();
+                            // 优先使用content字段，如果没有则使用summary
+                            const fullContent = item.content || item.summary || '';
+                            const content = typeof fullContent === 'string' ? fullContent : extractText(fullContent).toLowerCase();
+                            const fullText = `${title} ${content}`;
+
+                            return !excludeKeywords.some((keyword) => fullText.includes(keyword.toLowerCase()));
+                        });
+                    }
                 }
 
                 // 限制条数

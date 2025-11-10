@@ -12,7 +12,6 @@ https://rsshub.trainspott.in/we-mp-rss-proxy/MP_WXS_3074432418/travel/+成都
 
 http://localhost:1200/we-mp-rss-proxy/MP_WXS_3941413004/travel/+成都,-嘎嘎1
 
-
 ---
 
 https://we-mp-rss.trainspott.in/feed/MP_WXS_2397228061.atom
@@ -20,3 +19,5 @@ http://localhost:1200/we-mp-rss-proxy/MP_WXS_2397228061/lande
 
 
 http://localhost:1200/we-mp-rss-proxy/MP_WXS_2397228061/lande 现在返回的description 太多富文本了,我只想要关键的有用信息, 然后以table显示展示, 这个过程可能需要你先过滤文本, 然后将其解析成结构化的数据, 你先思考一下
+
+http://localhost:1200/we-mp-rss-proxy/MP_WXS_2397228061/lande/+国行

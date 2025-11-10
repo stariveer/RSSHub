@@ -252,18 +252,40 @@ function parseLandeContent(html: any): ProductInfo[] {
                 let notes = '';
 
                 if (match[3]) {
-                    // 有存储容量的模式
+                    // 有存储容量的模式: ((model)(versionAndRegion)(storage)(statusAndColors)【status】(prices)(notes)
                     versionAndRegion = match[2]?.trim() || '';
                     storage = match[3] || '';
-                    colorsText = match[5] || '';
-                    status = match[6] || '现货';
+                    // 这里需要从 match[4] 中分离状态和颜色
+                    const beforeBrackets = match[4] || '';
+                    const lastSpaceIndex = beforeBrackets.lastIndexOf(' ');
+                    if (lastSpaceIndex > 0) {
+                        status = beforeBrackets.substring(0, lastSpaceIndex);
+                        colorsText = beforeBrackets.substring(lastSpaceIndex + 1);
+                    } else {
+                        colorsText = beforeBrackets;
+                        status = '现货';
+                    }
+                    const statusMatch = cleanLine.match(/【([^】]+)】/);
+                    status = statusMatch ? statusMatch[1] : status || '现货';
                     pricesText = match[7] || '';
                     notes = (match[8] || '').trim();
                 } else {
-                    // 无存储容量的模式
+                    // 无存储容量的模式: ((model)(versionAndStatusAndColors)【status】(prices)(notes)
                     versionAndRegion = match[2]?.trim() || '';
-                    colorsText = match[4] || '';
-                    status = match[5] || '现货';
+                    const beforeBrackets = match[4] || '';
+                    // 从版本、状态和颜色混合中分离
+                    const parts = beforeBrackets.split(' ');
+                    if (parts.length >= 2) {
+                        // 最后一个部分应该是颜色
+                        colorsText = parts.at(-1) || '';
+                        // 前面的部分是版本和状态
+                        versionAndRegion = parts.slice(0, -1).join(' ');
+                    } else {
+                        // 如果没有空格，可能只是版本信息
+                        versionAndRegion = beforeBrackets;
+                    }
+                    const statusMatch = cleanLine.match(/【([^】]+)】/);
+                    status = statusMatch ? statusMatch[1] : '现货';
                     pricesText = match[6] || '';
                     notes = (match[7] || '').trim();
                 }
@@ -372,7 +394,19 @@ function formatProductName(model: string): string {
 
     // iPhone 系列格式化
     if (formatted.toLowerCase().includes('iphone')) {
-        // iPhone17ProMax, iPhone17PROMAX -> iPhone 17 Pro Max
+        // 处理特殊格式：iPhone17PROMAX -> iPhone 17 Pro Max (必须先处理，因为PROMAX是一个整体)
+        formatted = formatted.replace(/iphone\s*(\d+)promax/i, 'iPhone $1 Pro Max');
+        formatted = formatted.replace(/iphone(\d+)promax/i, 'iPhone $1 Pro Max');
+        formatted = formatted.replace(/iphone\s*(\d+)pro/i, 'iPhone $1 Pro');
+        formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
+        formatted = formatted.replace(/iphone\s*(\d+)max/i, 'iPhone $1 Max');
+        formatted = formatted.replace(/iphone(\d+)max/i, 'iPhone $1 Max');
+        formatted = formatted.replace(/iphone\s*(\d+)plus/i, 'iPhone $1 Plus');
+        formatted = formatted.replace(/iphone(\d+)plus/i, 'iPhone $1 Plus');
+        formatted = formatted.replace(/iphone\s*(\d+)mini/i, 'iPhone $1 mini');
+        formatted = formatted.replace(/iphone(\d+)mini/i, 'iPhone $1 mini');
+
+        // iPhone17ProMax -> iPhone 17 Pro Max (当Pro和Max分开时)
         formatted = formatted.replace(/iphone(\d+)(pro)?(max)?/i, (_match, num, pro, max) => {
             let result = 'iPhone ' + num;
             if (pro?.toLowerCase() === 'pro') {
@@ -383,16 +417,6 @@ function formatProductName(model: string): string {
             }
             return result;
         });
-        // iPhone17Pro, iPhone17PRO -> iPhone 17 Pro
-        formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
-        // iPhone17Plus, iPhone17PLUS -> iPhone 17 Plus
-        formatted = formatted.replace(/iphone(\d+)plus/i, 'iPhone $1 Plus');
-        // iPhone17mini -> iPhone 17 mini
-        formatted = formatted.replace(/iphone(\d+)mini/i, 'iPhone $1 mini');
-
-        // 处理特殊格式：iPhone17PROMAX -> iPhone 17 Pro Max
-        formatted = formatted.replace(/iphone(\d+)promax/i, 'iPhone $1 Pro Max');
-        formatted = formatted.replace(/iphone(\d+)pro/i, 'iPhone $1 Pro');
     }
     // iPad 系列格式化
     else if (formatted.toLowerCase().includes('ipad')) {
@@ -506,6 +530,111 @@ function extractPricesFromText(text: string): number[] {
     return [];
 }
 
+// 提取存储容量数值（用于排序）
+function getStorageSize(storage: string): number {
+    if (!storage) {
+        return 0;
+    }
+
+    // 提取数字和单位部分，支持 G, GB, T, TB 单位
+    const match = storage.match(/(\d+)\s*([gt]?b?)/i);
+    if (match) {
+        const size = Number.parseInt(match[1], 10);
+        const unit = (match[2] || '').toLowerCase();
+
+        // 将T单位转换为GB
+        if (unit.includes('t')) {
+            return size * 1024; // 1T = 1024GB
+        }
+        return size; // GB单位直接返回
+    }
+
+    return 0;
+}
+
+// iPhone专用排序比较函数
+function compareiPhoneProducts(a: ProductInfo, b: ProductInfo): number {
+    const aModel = a.model.toLowerCase();
+    const bModel = b.model.toLowerCase();
+
+    // 提取iPhone型号数字
+    const aMatch = aModel.match(/iphone\s*(\d+)/i);
+    const bMatch = bModel.match(/iphone\s*(\d+)/i);
+    const aModelNum = aMatch ? Number.parseInt(aMatch[1], 10) : 0;
+    const bModelNum = bMatch ? Number.parseInt(bMatch[1], 10) : 0;
+
+    // 1. 首先按型号排序：17 > 16 > 15 > ... (新机型在前)
+    if (aModelNum !== bModelNum) {
+        return bModelNum - aModelNum; // 新型号在前
+    }
+
+    // 2. 同型号按等级排序：Pro Max > Pro > Plus > 标准 > mini
+    function getTierWeight(model: string): number {
+        if (model.includes('pro max')) {
+            return 1;
+        }
+        if (model.includes('pro')) {
+            return 2;
+        }
+        if (model.includes('plus')) {
+            return 3;
+        }
+        if (model.includes('mini')) {
+            return 4;
+        }
+        if (model.includes('se')) {
+            return 5;
+        }
+        return 3; // 标准版
+    }
+
+    const aTierWeight = getTierWeight(aModel);
+    const bTierWeight = getTierWeight(bModel);
+
+    if (aTierWeight !== bTierWeight) {
+        return aTierWeight - bTierWeight; // Pro Max在最前
+    }
+
+    // 3. 同型号同等级按存储容量排序：容量大的在前
+    const aStorage = getStorageSize(a.storage);
+    const bStorage = getStorageSize(b.storage);
+
+    if (aStorage !== bStorage) {
+        return bStorage - aStorage; // 容量大的在前
+    }
+
+    // 4. 最后按版本排序：国行 > 港行 > 台版 > 美版 > 欧版 > 其他
+    function getRegionWeight(region: string): number {
+        if (region.includes('国行')) {
+            return 1;
+        }
+        if (region.includes('港行')) {
+            return 2;
+        }
+        if (region.includes('台版')) {
+            return 3;
+        }
+        if (region.includes('美版')) {
+            return 4;
+        }
+        if (region.includes('欧版')) {
+            return 5;
+        }
+        if (region.includes('韩版')) {
+            return 6;
+        }
+        if (region.includes('日版')) {
+            return 7;
+        }
+        return 8; // 其他
+    }
+
+    const aRegionWeight = getRegionWeight(a.region);
+    const bRegionWeight = getRegionWeight(b.region);
+
+    return aRegionWeight - bRegionWeight;
+}
+
 // 获取产品排序权重
 function getProductSortWeight(product: ProductInfo): number {
     const modelLower = product.model.toLowerCase();
@@ -546,7 +675,11 @@ function getProductSortWeight(product: ProductInfo): number {
             tierWeight = 60;
         }
 
-        return seriesWeight + modelWeight + tierWeight;
+        // 存储容量权重：容量越大权重越小（排在前面）
+        const storageSize = getStorageSize(product.storage);
+        const storageWeight = storageSize > 0 ? Math.max(0, 1000 - storageSize) : 999; // 无容量信息排在最后
+
+        return seriesWeight + modelWeight + tierWeight + storageWeight;
     }
 
     // iPad 排序逻辑
@@ -606,7 +739,7 @@ function generateProductTable(products: ProductInfo[]): string {
     );
 
     // 对每个系列内部进行排序
-    const sortediPhoneProducts = iPhoneProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
+    const sortediPhoneProducts = iPhoneProducts.sort(compareiPhoneProducts);
     const sortediPadProducts = iPadProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
     const sortedMacProducts = macProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
     const sortedWatchProducts = watchProducts.sort((a, b) => getProductSortWeight(a) - getProductSortWeight(b));
@@ -634,14 +767,8 @@ function generateProductTable(products: ProductInfo[]): string {
                 </td>
                 <td>${specDisplay}</td>
                 <td>${colorDisplay}</td>
-                <td style="text-align: center; font-weight: bold; color: #e74c3c;">
+                <td style="text-align: left; font-weight: bold; color: #e74c3c;">
                     ${priceDisplay}
-                </td>
-                <td>
-                    <span style="background-color: #27ae60; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
-                        ${product.status}
-                    </span>
-                    ${product.notes ? `<br><small>${product.notes}</small>` : ''}
                 </td>
             </tr>
         `;
@@ -691,11 +818,10 @@ function generateProductTable(products: ProductInfo[]): string {
         <table class="product-table">
             <thead>
                 <tr>
-                    <th width="25%">产品名称</th>
-                    <th width="15%">规格</th>
-                    <th width="15%">颜色</th>
-                    <th width="20%">价格</th>
-                    <th width="25%">状态</th>
+                    <th width="30%">产品名称</th>
+                    <th width="20%">规格</th>
+                    <th width="20%">颜色</th>
+                    <th width="30%">价格</th>
                 </tr>
             </thead>
             <tbody>

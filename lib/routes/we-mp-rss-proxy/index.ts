@@ -6,11 +6,14 @@ import parser from '@/utils/rss-parser';
 import { parseDate } from '@/utils/parse-date';
 import { load } from 'cheerio';
 import * as xml2js from 'xml2js';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
 // HTML 自动生成开关
 const ENABLE_HTML_GENERATION = process.env.ENABLE_LANDE_HTML === 'true';
+
+// JSON 自动生成开关（默认开启）
+const ENABLE_JSON_GENERATION = process.env.ENABLE_LANDE_JSON !== 'false';
 
 export const route: Route = {
     path: '/:mp-id/:category/:include?',
@@ -901,6 +904,97 @@ async function generateLandeHtml(title: string, description: string): Promise<vo
     }
 }
 
+// 生成 JSON 文件并保存到本地
+async function generateLandeJson(title: string, products: any[]): Promise<void> {
+    if (!ENABLE_JSON_GENERATION) {
+        return;
+    }
+
+    try {
+        if (products.length === 0) {
+            return;
+        }
+
+        // 提取日期并生成文件名
+        const today = new Date();
+        const dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+        // 从标题生成文件名（清理特殊字符）
+        const cleanTitle = title
+            .replace(/[^\u4e00-\u9fa5A-Za-z0-9\s]/g, '') // 移除特殊字符，保留中文、英文、数字、空格
+            .replaceAll(/\s+/g, '_') // 空格替换为下划线
+            .slice(0, 20); // 限制长度
+
+        // 生成唯一的文件名：日期_标题前缀.json
+        const fileName = cleanTitle ? `${dateStr}_${cleanTitle}.json` : `${dateStr}.json`;
+
+        // 按产品类别分组
+        const categories: Record<string, any[]> = {};
+
+        for (const product of products) {
+            // 确定产品类别
+            let category = 'Other';
+            const modelLower = product.model.toLowerCase();
+
+            if (modelLower.includes('iphone')) {
+                category = 'iPhone';
+            } else if (modelLower.includes('ipad')) {
+                category = 'iPad';
+            } else if (modelLower.includes('macbook') || modelLower.includes('imac') || modelLower.includes('mac')) {
+                category = 'Mac';
+            } else if (modelLower.includes('watch')) {
+                category = 'Watch';
+            } else if (modelLower.includes('airpods')) {
+                category = 'AirPods';
+            }
+
+            if (!categories[category]) {
+                categories[category] = [];
+            }
+
+            // 转换为JSON格式
+            categories[category].push({
+                brand: product.brand || undefined,
+                model: product.model,
+                version: product.version,
+                region: product.region,
+                storage: product.storage,
+                colors: product.colors,
+                status: product.status,
+                prices: product.prices,
+                notes: product.notes,
+                originalText: product.originalText,
+            });
+        }
+
+        // 创建JSON数据结构
+        const jsonData = {
+            date: dateStr,
+            title,
+            generatedAt: today.toISOString(),
+            categories,
+        };
+
+        // 确保data目录存在
+        const dataDir = path.join(__dirname, 'data');
+        try {
+            await mkdir(dataDir, { recursive: true });
+        } catch {
+            // 目录已存在或创建失败，忽略
+        }
+
+        // 保存JSON文件
+        const filePath = path.join(dataDir, fileName);
+        await writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8');
+
+        // eslint-disable-next-line no-console
+        console.log(`JSON 文件已自动更新: ${filePath}`);
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('JSON 文件生成失败:', error);
+    }
+}
+
 async function handler(ctx: Context): Promise<Data> {
     const mpId = ctx.req.param('mp-id');
     const category = ctx.req.param('category') || 'default';
@@ -1041,6 +1135,9 @@ async function handler(ctx: Context): Promise<Data> {
                     限制条数: limit,
                 });
 
+                // 存储每篇文章的产品数据，用于JSON生成
+                const allProducts: any[][] = [];
+
                 // 格式化输出
                 const processedItems = filteredItems.map((item) => {
                     let description: string;
@@ -1049,6 +1146,8 @@ async function handler(ctx: Context): Promise<Data> {
                         // 对于lande分类，使用表格化处理
                         try {
                             const products = parseLandeContent(item.content || item.summary || '');
+                            // 保存每篇文章的产品数据
+                            allProducts.push(products);
                             if (products.length > 0) {
                                 description = generateProductTable(products);
                                 // eslint-disable-next-line no-console
@@ -1062,13 +1161,16 @@ async function handler(ctx: Context): Promise<Data> {
                             // eslint-disable-next-line no-console
                             console.error('Lande分类解析失败:', error);
                             description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
+                            allProducts.push([]); // 确保数组长度对应
                         }
                     } else if (category === 'travel') {
                         // travel分类使用原有的清理逻辑
                         description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
+                        allProducts.push([]); // 非lande分类，添加空数组
                     } else {
                         // 其他分类直接返回原内容
                         description = item.content || item.summary || '';
+                        allProducts.push([]); // 非lande分类，添加空数组
                     }
 
                     return {
@@ -1092,15 +1194,22 @@ async function handler(ctx: Context): Promise<Data> {
                     item: processedItems,
                 };
 
-                // 如果是 lande 分类，自动生成 HTML 文件
+                // 如果是 lande 分类，为每篇文章自动生成 HTML 和 JSON 文件
                 if (category === 'lande' && processedItems.length > 0) {
-                    // 获取第一个 lande 条目的内容用于生成 HTML
-                    const firstLandeItem = processedItems[0];
-                    if (firstLandeItem?.description) {
+                    for (const [index, processedItem] of processedItems.entries()) {
+                        // 获取对应的产品数据
+                        const products = allProducts[index] || [];
+
                         // 异步生成 HTML 文件，不阻塞 RSS 响应
-                        generateLandeHtml(firstLandeItem.title || '', firstLandeItem.description).catch((error) => {
+                        generateLandeHtml(processedItem.title || '', processedItem.description || '').catch((error) => {
                             // eslint-disable-next-line no-console
                             console.error('异步生成 HTML 文件失败:', error);
+                        });
+
+                        // 异步生成 JSON 文件，不阻塞 RSS 响应，传入产品数据
+                        generateLandeJson(processedItem.title || '', products).catch((error) => {
+                            // eslint-disable-next-line no-console
+                            console.error('异步生成 JSON 文件失败:', error);
                         });
                     }
                 }

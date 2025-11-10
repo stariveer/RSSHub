@@ -10,7 +10,9 @@ https://rsshub.trainspott.in/we-mp-rss-proxy/MP_WXS_2395030160/travel/+成都
 https://rsshub.trainspott.in/we-mp-rss-proxy/MP_WXS_3074432418/travel/+成都
 
 
-http://localhost:1200/we-mp-rss-proxy/MP_WXS_3941413004/travel/+成都,-嘎嘎1
+http://localhost:1200/we-mp-rss-proxy/MP_WXS_3941413004/travel/+成都,-嘎嘎
+http://localhost:1200/we-mp-rss-proxy/MP_WXS_2395030160/travel/+成都,-嘎嘎
+http://localhost:1200/we-mp-rss-proxy/MP_WXS_3074432418/travel/+成都,-嘎嘎
 
 ---
 

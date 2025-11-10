@@ -6,6 +6,11 @@ import parser from '@/utils/rss-parser';
 import { parseDate } from '@/utils/parse-date';
 import { load } from 'cheerio';
 import * as xml2js from 'xml2js';
+import { writeFile } from 'fs/promises';
+import path from 'path';
+
+// HTML 自动生成开关
+const ENABLE_HTML_GENERATION = process.env.ENABLE_LANDE_HTML === 'true';
 
 export const route: Route = {
     path: '/:mp-id/:category/:include?',
@@ -174,6 +179,335 @@ function cleanHtmlContent(html: any, includeKeywords: string[] = []): string {
     return allContent.map((content) => content + '<br>').join('');
 }
 
+// 产品信息接口定义
+interface ProductInfo {
+    brand: string;
+    model: string;
+    version: string;
+    region: string;
+    storage: string;
+    colors: string[];
+    status: string;
+    prices: number[];
+    notes: string;
+    originalText: string;
+}
+
+// 解析lande分类的产品信息
+function parseLandeContent(html: any): ProductInfo[] {
+    if (!html) {
+        return [];
+    }
+
+    const $ = load(html);
+    const textContent = $.text().trim();
+
+    // 按行分割文本
+    const lines = textContent.split('\n').filter((line) => line.trim());
+    const products: ProductInfo[] = [];
+
+    // 正则表达式模式
+    const productPatterns = [
+        // iPhone系列: iPhone17ProMax行换行双卡全网（256G）官换单机未激活 银/蓝/橙【现货】9690/9690/9570
+        /((?:iPhone\d+(?:[A-Za-z]*)?|iPad[A-Za-z]*|华为[A-Za-z]*|三星[A-Za-z]*|Samsung[A-Za-z]*|Fold\d+|Flip\d+|Mate\d+))(.*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*)(【([^】]+)】\s*([\d/]+)?(.*)?)/,
+        // 简化版本: iPhone17ProMax美版全网（256G）全新单机未激活 银/蓝/橙【现货】9690/9690/9570
+        /([A-Za-z]+?\d+[A-Za-z]*)([^（]*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
+        // 带特殊字符的版本: iPhone17ProMax美版有锁（256G）全新单机未激活 银/橙/蓝【现货】7650/7700/7200
+        /([A-Za-z]+?\d+[A-Za-z]*)([^（）]*?)（(\d+[GT]?|\d+\+?\d+[GT]?)）([^【]*?)【([^】]+)】\s*([\d/]+)?(.*)?/,
+    ];
+
+    for (const line of lines) {
+        const cleanLine = line.trim();
+        if (!cleanLine || cleanLine.length < 10) {
+            continue;
+        }
+
+        // 跳过标题行和无关内容
+        if (cleanLine.includes('云鹏数码') || cleanLine.includes('报价单') || cleanLine.includes('零售参考报价') || cleanLine.includes('﹀') || cleanLine.length < 20) {
+            continue;
+        }
+
+        let matched = false;
+
+        for (const pattern of productPatterns) {
+            const match = cleanLine.match(pattern);
+            if (match) {
+                const product: ProductInfo = {
+                    brand: detectBrand(match[1]),
+                    model: match[1].trim(),
+                    version: match[2]?.trim() || '',
+                    region: extractRegion(match[2]?.trim() || ''),
+                    storage: match[3] || '',
+                    colors: extractColors(match[4] || match[5] || ''),
+                    status: match[6] || match[5] || '现货',
+                    prices: parsePrices(match[7] || ''),
+                    notes: (match[8] || '').trim(),
+                    originalText: cleanLine,
+                };
+
+                products.push(product);
+                matched = true;
+                break;
+            }
+        }
+
+        // 如果没有匹配到标准模式，尝试简单提取
+        if (!matched && cleanLine.includes('【')) {
+            const simpleMatch = cleanLine.match(/([^【]+)【([^】]+)】\s*([\d/]+)?(.*)?/);
+            if (simpleMatch) {
+                const product: ProductInfo = {
+                    brand: '其他',
+                    model: simpleMatch[1].trim(),
+                    version: '',
+                    region: '',
+                    storage: '',
+                    colors: [],
+                    status: simpleMatch[2] || '',
+                    prices: parsePrices(simpleMatch[3] || ''),
+                    notes: (simpleMatch[4] || '').trim(),
+                    originalText: cleanLine,
+                };
+                products.push(product);
+            }
+        }
+    }
+
+    return products;
+}
+
+// 检测品牌
+function detectBrand(model: string): string {
+    const modelLower = model.toLowerCase();
+    if (modelLower.includes('iphone') || modelLower.includes('ipad') || modelLower.includes('airpods')) {
+        return 'Apple';
+    } else if (modelLower.includes('华为') || modelLower.includes('huawei') || modelLower.includes('mate')) {
+        return 'Huawei';
+    } else if (modelLower.includes('三星') || modelLower.includes('samsung') || modelLower.includes('fold') || modelLower.includes('flip')) {
+        return 'Samsung';
+    } else if (modelLower.includes('小米') || modelLower.includes('xiaomi')) {
+        return 'Xiaomi';
+    }
+    return '其他';
+}
+
+// 提取地区信息
+function extractRegion(version: string): string {
+    if (version.includes('国行')) {
+        return '国行';
+    }
+    if (version.includes('港行')) {
+        return '港行';
+    }
+    if (version.includes('台版')) {
+        return '台版';
+    }
+    if (version.includes('美版')) {
+        return '美版';
+    }
+    if (version.includes('欧版')) {
+        return '欧版';
+    }
+    if (version.includes('韩版')) {
+        return '韩版';
+    }
+    if (version.includes('日版')) {
+        return '日版';
+    }
+    return '';
+}
+
+// 提取颜色信息
+function extractColors(colorText: string): string[] {
+    if (!colorText) {
+        return [];
+    }
+
+    // 移除状态标记和价格信息
+    const cleanColorText = colorText
+        .replaceAll(/【[^】]*】/g, '')
+        .replace(/[\d/]+$/, '')
+        .trim();
+
+    // 按斜杠分割颜色
+    const colors = cleanColorText
+        .split('/')
+        .map((color) => color.trim())
+        .filter(
+            (color) => color && !color.includes('现货') && !color.includes('带票') && !color.includes('联保') && !color.includes('改好') && !color.includes('卡贴') && !/\d/.test(color) // 排除包含数字的项（通常是价格）
+        );
+
+    return colors.length > 0 ? colors : [];
+}
+
+// 解析价格信息
+function parsePrices(priceText: string): number[] {
+    if (!priceText) {
+        return [];
+    }
+
+    // 提取所有数字
+    const numbers = priceText.match(/\d+/g);
+    if (!numbers) {
+        return [];
+    }
+
+    return numbers.map((num) => Number.parseInt(num, 10)).filter((num) => num > 0 && num < 100000);
+}
+
+// 生成产品表格HTML
+function generateProductTable(products: ProductInfo[]): string {
+    if (!products || products.length === 0) {
+        return '<p>未找到产品信息</p>';
+    }
+
+    const tableRows = products
+        .map((product) => {
+            const priceDisplay = product.prices.length > 0 ? (product.prices.length === 1 ? `¥${product.prices[0]}` : `¥${product.prices.join('/')} ${product.colors.length > 1 ? `(${product.colors.join('/')})` : ''}`) : '价格面议';
+
+            const colorDisplay = product.colors.length > 0 ? product.colors.join('/') : '-';
+
+            const specDisplay = [product.storage, product.region].filter(Boolean).join(' ') || '-';
+
+            const versionDisplay = product.version || '-';
+
+            return `
+            <tr>
+                <td>
+                    <strong>${product.model}</strong><br>
+                    <small>${versionDisplay}</small>
+                </td>
+                <td>${specDisplay}</td>
+                <td>${colorDisplay}</td>
+                <td style="text-align: center; font-weight: bold; color: #e74c3c;">
+                    ${priceDisplay}
+                </td>
+                <td>
+                    <span style="background-color: #27ae60; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">
+                        ${product.status}
+                    </span>
+                    ${product.notes ? `<br><small>${product.notes}</small>` : ''}
+                </td>
+            </tr>
+        `;
+        })
+        .join('');
+
+    return `
+        <style>
+            .product-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                font-size: 14px;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .product-table th {
+                background: #3498db;
+                color: white;
+                padding: 12px 8px;
+                text-align: left;
+                font-weight: bold;
+                border-bottom: 2px solid #2980b9;
+            }
+            .product-table td {
+                padding: 10px 8px;
+                border-bottom: 1px solid #ecf0f1;
+                vertical-align: top;
+            }
+            .product-table tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            .product-table tr:hover {
+                background-color: #e3f2fd;
+            }
+            @media (max-width: 768px) {
+                .product-table {
+                    font-size: 12px;
+                }
+                .product-table th, .product-table td {
+                    padding: 6px 4px;
+                }
+            }
+        </style>
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th width="25%">产品名称</th>
+                    <th width="15%">规格</th>
+                    <th width="15%">颜色</th>
+                    <th width="20%">价格</th>
+                    <th width="25%">状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+        <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 10px;">
+            * 价格单位：人民币元 | * 现货价格为最新报价，颜色后面对应不同颜色价格
+        </p>
+    `;
+}
+
+// 生成 HTML 文件并保存到本地
+async function generateLandeHtml(title: string, description: string): Promise<void> {
+    if (!ENABLE_HTML_GENERATION) {
+        return;
+    }
+
+    try {
+        const currentTime = new Date().toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+
+        const htmlTemplate = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云鹏数码零售参考报价 - 表格预览</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+    <div style="max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px; color: #333;">
+            <h1>云鹏数码零售参考报价</h1>
+            <h2>${title}</h2>
+            <div style="color: #666; font-size: 14px; margin-bottom: 20px;">生成时间: ${currentTime}</div>
+        </div>
+
+        <div class="content">
+            ${description}
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 12px;">
+            <p>此页面由 RSSHub we-mp-rss-proxy 路由自动生成</p>
+            <p>数据来源: 云鹏数码懒得假如 微信公众号</p>
+            <p style="color: #999; font-size: 10px; margin-top: 10px;">自动生成功能 ${ENABLE_HTML_GENERATION ? '已启用' : '已禁用'}</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+        // 保存 HTML 文件到当前目录
+        const filePath = path.join(__dirname, 'lande.html');
+        await writeFile(filePath, htmlTemplate, 'utf-8');
+
+        // eslint-disable-next-line no-console
+        console.log(`HTML 文件已自动更新: ${filePath}`);
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('HTML 文件生成失败:', error);
+    }
+}
+
 async function handler(ctx: Context): Promise<Data> {
     const mpId = ctx.req.param('mp-id');
     const category = ctx.req.param('category') || 'default';
@@ -315,17 +649,47 @@ async function handler(ctx: Context): Promise<Data> {
                 });
 
                 // 格式化输出
-                const processedItems = filteredItems.map((item) => ({
-                    title: item.title || '',
-                    link: item.link || '',
-                    description: category === 'travel' ? cleanHtmlContent(item.content || item.summary || '', includeKeywords) : item.content || item.summary || '', // 只在 travel 分类时清理HTML内容
-                    pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
-                    author: (item as any).creator || (item as any).author || '',
-                    category: item.categories || [],
-                    guid: item.guid || item.link,
-                }));
+                const processedItems = filteredItems.map((item) => {
+                    let description: string;
 
-                return {
+                    if (category === 'lande') {
+                        // 对于lande分类，使用表格化处理
+                        try {
+                            const products = parseLandeContent(item.content || item.summary || '');
+                            if (products.length > 0) {
+                                description = generateProductTable(products);
+                                // eslint-disable-next-line no-console
+                                console.log(`Lande分类处理成功: 解析出${products.length}个产品`);
+                            } else {
+                                description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
+                                // eslint-disable-next-line no-console
+                                console.log('Lande分类未解析到产品信息，使用默认处理');
+                            }
+                        } catch (error) {
+                            // eslint-disable-next-line no-console
+                            console.error('Lande分类解析失败:', error);
+                            description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
+                        }
+                    } else if (category === 'travel') {
+                        // travel分类使用原有的清理逻辑
+                        description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
+                    } else {
+                        // 其他分类直接返回原内容
+                        description = item.content || item.summary || '';
+                    }
+
+                    return {
+                        title: item.title || '',
+                        link: item.link || '',
+                        description,
+                        pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
+                        author: (item as any).creator || (item as any).author || '',
+                        category: item.categories || [],
+                        guid: item.guid || item.link,
+                    };
+                });
+
+                const result = {
                     title: `${feed.title || mpId} - ${category} | RSSHub代理`,
                     description: `${feed.description || `微信公众号 ${mpId} 的 ${category} 分类内容`} | 已过滤: ${includeKeywords.length > 0 ? `包含[${includeKeywords.join(', ')}]` : '无'} ${excludeKeywords.length > 0 ? `排除[${excludeKeywords.join(', ')}]` : ''}`,
                     link: feed.link || upstreamUrl,
@@ -334,6 +698,21 @@ async function handler(ctx: Context): Promise<Data> {
                     lastBuildDate: feed.lastBuildDate,
                     item: processedItems,
                 };
+
+                // 如果是 lande 分类，自动生成 HTML 文件
+                if (category === 'lande' && processedItems.length > 0) {
+                    // 获取第一个 lande 条目的内容用于生成 HTML
+                    const firstLandeItem = processedItems[0];
+                    if (firstLandeItem?.description) {
+                        // 异步生成 HTML 文件，不阻塞 RSS 响应
+                        generateLandeHtml(firstLandeItem.title || '', firstLandeItem.description).catch((error) => {
+                            // eslint-disable-next-line no-console
+                            console.error('异步生成 HTML 文件失败:', error);
+                        });
+                    }
+                }
+
+                return result;
             } catch (error) {
                 return {
                     title: `RSS获取失败 - ${mpId}`,

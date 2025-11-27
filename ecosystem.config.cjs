@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'rsshub',
-      script: 'node_modules/.bin/tsx',
-      args: 'lib/index.ts',
+      script: 'pnpm',
+      args: 'start',
       env: {
         NODE_ENV: 'production',
       },

@@ -8,9 +8,8 @@ import * as xml2js from 'xml2js';
 
 // 导入工具模块
 import { cleanHtmlContent } from './utils/html-processor';
-import { parseLandeContent, ProductInfo } from './utils/product-parser';
-import { generateProductTable, generateLandeHtml, generateLandeJson } from './utils/file-generator';
 import { parseFilterParams, applyContentFilter } from './utils/content-filter';
+import { handleLande } from './lande-handler';
 
 export const route: Route = {
     path: '/:mp-id/:category/:include?',
@@ -130,60 +129,38 @@ async function handler(ctx: Context): Promise<Data> {
                     限制条数: limit,
                 });
 
-                // 存储每篇文章的产品数据，用于JSON生成
-                const allProducts: ProductInfo[][] = [];
-
                 // 格式化输出
-                const processedItems = filteredItems.map((item) => {
-                    let description: string;
+                let processedItems;
+                if (category === 'lande') {
+                    processedItems = await handleLande(filteredItems, includeKeywords);
+                } else {
+                    processedItems = filteredItems.map((item) => {
+                        let description: string;
 
-                    if (category === 'lande') {
-                        // 对于lande分类，使用表格化处理
-                        try {
-                            const products = parseLandeContent(item.content || item.summary || '');
-                            // 保存每篇文章的产品数据
-                            allProducts.push(products);
-                            if (products.length > 0) {
-                                description = generateProductTable(products);
-                                // eslint-disable-next-line no-console
-                                console.log(`Lande分类处理成功: 解析出${products.length}个产品`);
-                            } else {
-                                description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
-                                // eslint-disable-next-line no-console
-                                console.log('Lande分类未解析到产品信息，使用默认处理');
-                            }
-                        } catch (error) {
-                            // eslint-disable-next-line no-console
-                            console.error('Lande分类解析失败:', error);
+                        if (category === 'travel') {
+                            // travel分类使用原有的清理逻辑
                             description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
-                            allProducts.push([]); // 确保数组长度对应
+                        } else {
+                            // 其他分类直接返回原内容
+                            description = item.content || item.summary || '';
                         }
-                    } else if (category === 'travel') {
-                        // travel分类使用原有的清理逻辑
-                        description = cleanHtmlContent(item.content || item.summary || '', includeKeywords);
-                        allProducts.push([]); // 非lande分类，添加空数组
-                    } else {
-                        // 其他分类直接返回原内容
-                        description = item.content || item.summary || '';
-                        allProducts.push([]); // 非lande分类，添加空数组
-                    }
 
-                    return {
-                        title: item.title || '',
-                        link: item.link || '',
-                        description,
-                        pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
-                        author: (item as any).creator || (item as any).author || '',
-                        category: item.categories || [],
-                        guid: item.guid || item.link,
-                    };
-                });
+                        return {
+                            title: item.title || '',
+                            link: item.link || '',
+                            description,
+                            pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
+                            author: (item as any).creator || (item as any).author || '',
+                            category: item.categories || [],
+                            guid: item.guid || item.link,
+                        };
+                    });
+                }
 
                 const result = {
                     title: `${feed.title || mpId} - ${category} | RSSHub代理`,
-                    description: `${feed.description || `微信公众号 ${mpId} 的 ${category} 分类内容`} | 已过滤: ${
-                        includeKeywords.length > 0 ? `包含[${includeKeywords.join(', ')}]` : '无'
-                    } ${excludeKeywords.length > 0 ? `排除[${excludeKeywords.join(', ')}]` : ''}`,
+                    description: `${feed.description || `微信公众号 ${mpId} 的 ${category} 分类内容`} | 已过滤: ${includeKeywords.length > 0 ? `包含[${includeKeywords.join(', ')}]` : '无'
+                        } ${excludeKeywords.length > 0 ? `排除[${excludeKeywords.join(', ')}]` : ''}`,
                     link: feed.link || upstreamUrl,
                     image: feed.image?.url || feed.image,
                     language: feed.language || 'zh-cn',
@@ -191,25 +168,7 @@ async function handler(ctx: Context): Promise<Data> {
                     item: processedItems,
                 };
 
-                // 如果是 lande 分类，为每篇文章自动生成 HTML 和 JSON 文件
-                if (category === 'lande' && processedItems.length > 0) {
-                    for (const [index, processedItem] of processedItems.entries()) {
-                        // 获取对应的产品数据
-                        const products = allProducts[index] || [];
 
-                        // 异步生成 HTML 文件，不阻塞 RSS 响应
-                        generateLandeHtml(processedItem.title || '', processedItem.description || '', products).catch((error) => {
-                            // eslint-disable-next-line no-console
-                            console.error('异步生成 HTML 文件失败:', error);
-                        });
-
-                        // 异步生成 JSON 文件，不阻塞 RSS 响应，传入产品数据
-                        generateLandeJson(processedItem.title || '', products).catch((error) => {
-                            // eslint-disable-next-line no-console
-                            console.error('异步生成 JSON 文件失败:', error);
-                        });
-                    }
-                }
 
                 return result;
             } catch (error) {

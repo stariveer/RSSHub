@@ -1,6 +1,6 @@
 import { cleanHtmlContent } from './utils/html-processor';
 import { parseLandeContent, ProductInfo } from './utils/product-parser';
-import { generateProductTable, generateLandeHtml, generateLandeJson } from './utils/file-generator';
+import { generateProductTable, generateLandeJson } from './utils/file-generator';
 import { parseDate } from '../../utils/parse-date';
 
 export async function handleLande(items: any[], includeKeywords: string[]) {
@@ -42,10 +42,6 @@ export async function handleLande(items: any[], includeKeywords: string[]) {
     if (processedItems.length > 0) {
         for (const [index, processedItem] of processedItems.entries()) {
             const products = allProducts[index] || [];
-            generateLandeHtml(processedItem.title || '', processedItem.description || '', products).catch((error) => {
-                // eslint-disable-next-line no-console
-                console.error('异步生成 HTML 文件失败:', error);
-            });
             generateLandeJson(processedItem.title || '', products).catch((error) => {
                 // eslint-disable-next-line no-console
                 console.error('异步生成 JSON 文件失败:', error);

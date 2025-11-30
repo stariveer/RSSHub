@@ -1,10 +1,9 @@
 import path from 'path';
-import { writeFile, mkdir, stat } from 'fs/promises';
+import { writeFile, mkdir, stat, readFile } from 'fs/promises';
 import { ProductInfo } from './product-parser';
 import { compareiPhoneProducts, getProductSortWeight } from './price-processor';
 
-// HTML 自动生成开关
-const ENABLE_HTML_GENERATION = process.env.ENABLE_LANDE_HTML === 'true';
+
 
 // JSON 自动生成开关（默认开启）
 const ENABLE_JSON_GENERATION = process.env.ENABLE_LANDE_JSON !== 'false';
@@ -166,90 +165,7 @@ export function generateProductTable(products: ProductInfo[]): string {
     `;
 }
 
-/**
- * 生成 HTML 文件并保存到本地
- */
-export async function generateLandeHtml(title: string, description: string, products?: ProductInfo[]): Promise<void> {
-    if (!ENABLE_HTML_GENERATION) {
-        return;
-    }
 
-    try {
-        const currentTime = new Date().toLocaleString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-        });
-
-        const htmlTemplate = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>云鹏数码零售参考报价 - 表格预览</title>
-</head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-    <div style="max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <div style="text-align: center; margin-bottom: 30px; color: #333;">
-            <h1>云鹏数码零售参考报价</h1>
-            <h2>${title}</h2>
-            <div style="color: #666; font-size: 14px; margin-bottom: 20px;">生成时间: ${currentTime}</div>
-        </div>
-
-        <div class="content">
-            ${description}
-        </div>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666; font-size: 12px;">
-            <p>此页面由 RSSHub we-mp-rss-proxy 路由自动生成</p>
-            <p>数据来源: 云鹏数码懒得假如 微信公众号</p>
-            <p style="color: #999; font-size: 10px; margin-top: 10px;">自动生成功能 ${ENABLE_HTML_GENERATION ? '已启用' : '已禁用'}</p>
-        </div>
-    </div>
-</body>
-</html>`;
-
-        // 使用新的命名规则：yyyy-mm-dd-price.html
-        const dateStr = extractDateFromTitle(title);
-        const priceStr = products ? extractPriceForFileName(products) : 'no-price';
-        const fileName = `${dateStr}-${priceStr}.html`;
-
-        // 确保html目录存在
-        const htmlDir = path.join(__dirname, '..', 'html');
-        try {
-            await mkdir(htmlDir, { recursive: true });
-        } catch {
-            // 目录已存在或创建失败，忽略
-        }
-
-        // 保存 HTML 文件到html目录
-        const filePath = path.join(htmlDir, fileName);
-
-        // 检查文件是否已存在
-        try {
-            const fileStat = await stat(filePath);
-            if (fileStat.isFile()) {
-                // 文件已存在，跳过生成
-                // eslint-disable-next-line no-console
-                console.log(`HTML 文件已存在，跳过生成: ${filePath}`);
-                return;
-            }
-        } catch {
-            // 文件不存在，继续生成
-        }
-
-        await writeFile(filePath, htmlTemplate, 'utf-8');
-
-        // eslint-disable-next-line no-console
-        console.log(`HTML 文件已自动更新: ${filePath}`);
-    } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('HTML 文件生成失败:', error);
-    }
-}
 
 /**
  * 生成 JSON 文件并保存到本地
@@ -326,26 +242,61 @@ export async function generateLandeJson(title: string, products: ProductInfo[]):
 
         // 保存JSON文件
         const filePath = path.join(dataDir, fileName);
+        let fileExists = false;
 
         // 检查文件是否已存在
         try {
             const fileStat = await stat(filePath);
             if (fileStat.isFile()) {
+                fileExists = true;
                 // 文件已存在，跳过生成
                 // eslint-disable-next-line no-console
                 console.log(`JSON 文件已存在，跳过生成: ${filePath}`);
-                return;
             }
         } catch {
             // 文件不存在，继续生成
         }
 
-        await writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8');
+        if (!fileExists) {
+            await writeFile(filePath, JSON.stringify(jsonData, null, 2), 'utf-8');
+            // eslint-disable-next-line no-console
+            console.log(`JSON 文件已自动更新: ${filePath}`);
+        }
 
-        // eslint-disable-next-line no-console
-        console.log(`JSON 文件已自动更新: ${filePath}`);
+        // 更新 index.json
+        await updateIndexJson(dataDir, {
+            fileName,
+            date: dateStr,
+            title,
+            priceStr
+        });
+
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error('JSON 文件生成失败:', error);
+    }
+}
+
+async function updateIndexJson(dataDir: string, newItem: { fileName: string; date: string; title: string; priceStr: string }) {
+    const indexFilePath = path.join(dataDir, 'index.json');
+    let indexData: any[] = [];
+
+    try {
+        const content = await readFile(indexFilePath, 'utf-8');
+        indexData = JSON.parse(content);
+    } catch {
+        // index.json 不存在或解析失败，使用空数组
+    }
+
+    // 检查是否已存在
+    const exists = indexData.some(item => item.fileName === newItem.fileName);
+    if (!exists) {
+        indexData.push(newItem);
+        // 按日期倒序排序
+        indexData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        await writeFile(indexFilePath, JSON.stringify(indexData, null, 2), 'utf-8');
+        // eslint-disable-next-line no-console
+        console.log(`index.json 已更新`);
     }
 }

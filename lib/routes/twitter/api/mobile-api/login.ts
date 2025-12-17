@@ -81,7 +81,6 @@ async function login() {
                 }
             );
             logger.debug('Twitter login 2 finished: login flow.');
-
             headers.att = task1.headers.get('att');
 
             const task2 = await got.post('https://api.x.com/1.1/onboarding/task.json', {
@@ -102,21 +101,67 @@ async function login() {
             });
             logger.debug('Twitter login 3 finished: LoginEnterUserIdentifier.');
 
-            const task3 = await got.post('https://api.x.com/1.1/onboarding/task.json', {
-                headers,
-                json: {
-                    flow_token: task2.data.flow_token,
-                    subtask_inputs: [
-                        {
-                            enter_password: {
-                                password,
-                                link: 'next_link',
-                            },
-                            subtask_id: 'LoginEnterPassword',
+            let flowToken = task2.data.flow_token;
+
+            const alternateSubtask = task2.data.subtasks?.find((s) => s.subtask_id === 'LoginEnterAlternateIdentifierSubtask');
+            if (alternateSubtask) {
+                const text = process.env.TWITTER_VERIFICATION_INFO;
+                if (!text) {
+                    throw new Error('Twitter suspicious login: LoginEnterAlternateIdentifierSubtask. Please set TWITTER_VERIFICATION_INFO in .env with your phone number or username (handle).');
+                }
+                let taskAlternate;
+                try {
+                    taskAlternate = await got.post('https://api.x.com/1.1/onboarding/task.json', {
+                        headers,
+                        json: {
+                            flow_token: flowToken,
+                            subtask_inputs: [
+                                {
+                                    subtask_id: 'LoginEnterAlternateIdentifierSubtask',
+                                    enter_text: {
+                                        suggestion_id: null,
+                                        text,
+                                        link: 'next_link',
+                                    },
+                                },
+                            ],
                         },
-                    ],
-                },
-            });
+                    });
+                } catch (error: any) {
+                    const errorBody = error.data || error.response?.data;
+                    if (errorBody) {
+                        logger.error(`Twitter suspicious login verification failed. Response: ${JSON.stringify(errorBody)}`);
+                    }
+                    throw error;
+                }
+                flowToken = taskAlternate.data.flow_token;
+                logger.debug('Twitter login 3.5 finished: LoginEnterAlternateIdentifierSubtask.');
+            }
+
+            let task3;
+            try {
+                task3 = await got.post('https://api.x.com/1.1/onboarding/task.json', {
+                    headers,
+                    json: {
+                        flow_token: flowToken,
+                        subtask_inputs: [
+                            {
+                                enter_password: {
+                                    password,
+                                    link: 'next_link',
+                                },
+                                subtask_id: 'LoginEnterPassword',
+                            },
+                        ],
+                    },
+                });
+            } catch (error: any) {
+                const errorBody = error.data || error.response?.data;
+                if (errorBody) {
+                    logger.error(`Twitter login failed at LoginEnterPassword. Response: ${JSON.stringify(errorBody)}`);
+                }
+                throw error;
+            }
             logger.debug('Twitter login 4 finished: LoginEnterPassword.');
 
             const task4 = await got.post('https://api.x.com/1.1/onboarding/task.json', {

@@ -54,8 +54,8 @@ async function handler(ctx) {
     const data = (await utils.getPlaylistItems(playlistId, 'snippet', cache)).data.items;
 
     // 获取当前域名
-    // const isDev = process.env.NODE_ENV === 'dev';
-    // const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
+    const isDev = process.env.NODE_ENV === 'dev';
+    const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
 
     return {
         title: `${data[0].snippet.channelTitle} - YouTube`,
@@ -69,15 +69,15 @@ async function handler(ctx) {
 
                 // 创建三个按钮
                 const buttonStyle = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
-                // const onclickLater = `fetch('${domain}/youtube/add-to-playlist/later/${videoId}')`;
-                // const onclickFavorite = `fetch('${domain}/youtube/add-to-playlist/favorite/${videoId}')`;
-                // const onclickCast = `fetch('${domain}/youtube/add-to-playlist/cast/${videoId}')`;
-                // <div style="display:flex;">
-                //     <button style="${buttonStyle}" onclick="${onclickLater}">稍后听</button>
-                //     <button style="${buttonStyle}" onclick="${onclickFavorite}">默认收藏</button>
-                //     <button style="${buttonStyle}" onclick="${onclickCast}">投屏看</button>
-                // </div>
+                const onclickLater = `fetch('${domain}/youtube/add-to-playlist/later/${videoId}')`;
+                const onclickFavorite = `fetch('${domain}/youtube/add-to-playlist/favorite/${videoId}')`;
+                const onclickCast = `fetch('${domain}/youtube/add-to-playlist/cast/${videoId}')`;
                 const actionButtons = `<div style="display:flex; flex-direction: column;">
+                    <div style="display:flex;">
+                        <button style="${buttonStyle}" onclick="${onclickLater}">听</button>
+                        <button style="${buttonStyle}" onclick="${onclickFavorite}">看</button>
+                        <button style="${buttonStyle}" onclick="${onclickCast}">投</button>
+                    </div>
                     <div style="display:flex;">
                         <a style="${buttonStyle}" href="vnd.youtube://m.youtube.com/watch?v=${videoId}">打开客户端</a>
                     </div>

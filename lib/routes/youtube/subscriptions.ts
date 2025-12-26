@@ -71,9 +71,30 @@ async function handler(ctx) {
             const snippet = item.snippet;
             const videoId = snippet.resourceId.videoId;
             const img = utils.getThumbnail(snippet.thumbnails);
+
+            // 获取当前域名
+            const isDev = process.env.NODE_ENV === 'dev';
+            const domain = isDev ? 'http://localhost:1200' : 'https://rsshub.trainspott.in';
+
+            // 创建三个按钮
+            const buttonStyle = `font-size:40px; font-weight:bold; cursor:pointer; background-color:#4b9ae9; padding:40px 0; flex: 1; border: 1px solid #ccc; border-radius: 5px; text-align: center;`;
+            const onclickLater = `fetch('${domain}/youtube/add-to-playlist/later/${videoId}')`;
+            const onclickFavorite = `fetch('${domain}/youtube/add-to-playlist/favorite/${videoId}')`;
+            const onclickCast = `fetch('${domain}/youtube/add-to-playlist/cast/${videoId}')`;
+            const actionButtons = `<div style="display:flex; flex-direction: column;">
+                <div style="display:flex;">
+                    <button style="${buttonStyle}" onclick="${onclickLater}">听</button>
+                    <button style="${buttonStyle}" onclick="${onclickFavorite}">看</button>
+                    <button style="${buttonStyle}" onclick="${onclickCast}">投</button>
+                </div>
+                <div style="display:flex;">
+                    <a style="${buttonStyle}" href="vnd.youtube://m.youtube.com/watch?v=${videoId}">打开客户端</a>
+                </div>
+            </div>`;
+
             return {
                 title: snippet.title,
-                description: utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description)),
+                description: `${actionButtons}${utils.renderDescription(embed, videoId, img, utils.formatDescription(snippet.description))}`,
                 pubDate: parseDate(snippet.publishedAt),
                 link: `https://www.youtube.com/watch?v=${videoId}`,
                 author: snippet.videoOwnerChannelTitle,

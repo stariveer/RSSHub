@@ -130,7 +130,7 @@ async function handler(ctx: any) {
     // console.log('##response', response);
 
     // 检查是否被重定向到验证页面
-    if (response.data.includes('正在确认你是不是机器人') || response.data.includes("_BT.M.HTML('login')") || response.data.includes('<title>Loading...</title>')) {
+    if (response.data.includes('正在确认你是不是机器人') || response.data.includes("_BT.M.HTML('login')")) {
         throw new Error('Access denied: Robot verification or login required. Please check if BTNULL_AUTH_COOKIE is properly set and valid.');
     }
 

@@ -1,5 +1,6 @@
 import { Route } from '@/types';
 import got from '@/utils/got';
+import vm from 'node:vm';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 interface CatesMap {
@@ -129,18 +130,22 @@ async function handler(ctx: any) {
     // console.log('##response', response);
 
     // 检查是否被重定向到验证页面
-    if (response.data.includes('正在确认你是不是机器人')) {
-        throw new Error('Access denied: Robot verification required. Please check if BTNULL_AUTH_COOKIE is properly set.');
+    if (response.data.includes('正在确认你是不是机器人') || response.data.includes("_BT.M.HTML('login')") || response.data.includes('<title>Loading...</title>')) {
+        throw new Error('Access denied: Robot verification or login required. Please check if BTNULL_AUTH_COOKIE is properly set and valid.');
     }
 
-    const regexp = /_obj\.inlist\s*=\s*({.*?});/;
+    const regexp = /_obj\.inlist\s*=\s*({[\S\s]*?})\s*;/;
     const match = response.data.match(regexp);
     if (!match) {
         // 截取响应数据的前1000个字符用于调试
         const preview = response.data.substring(0, 1000);
         throw new Error(`Failed to parse response data: no match found. Response preview: ${preview}`);
     }
-    const obj = JSON.parse(match[1]);
+
+    const sandbox = { _obj: { inlist: {} } };
+    vm.createContext(sandbox);
+    vm.runInContext(`_obj.inlist = ${match[1]};`, sandbox);
+    const obj = sandbox._obj.inlist as any;
 
     const {
         t, // 标题

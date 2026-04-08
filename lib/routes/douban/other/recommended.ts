@@ -92,6 +92,7 @@ async function handler(ctx) {
                 title,
                 link,
                 description,
+                guid: `${link}#v2`, // 添加 v2 后缀，强制 RSS 阅读器认为这是新内容并拉取最新缓存
             };
         });
     return {

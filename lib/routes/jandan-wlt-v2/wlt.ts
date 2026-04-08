@@ -93,17 +93,22 @@ async function handler(/* ctx */) {
 
                 const isSizeOk = firstImgSize / (1024 * 1024) < sizeLimit;
 
-                // 将 gif 图片替换为 video 标签，iOS / WebKit 对 video 标签加载巨型 gif 的内存管理和预加载更好
-                const descriptionContent = content.replaceAll(/<img[^>]+src="([^"]+\.gif)"[^>]*>/gi, '<video src="$1" controls autoplay loop muted playsinline style="max-width: 100%; width: 100%;"></video>');
+                // 恢复为 img 标签，因为 Reeder 的原生视频播放器无法解码 image/gif 会一直转圈/报错。
+                // 我们改用你的 Cloudflare Worker 代理这些图片，利用 CF 强大的边缘节点进行缓存，
+                // 因为很多时候 iOS WebView 或者是 Reeder 无法加载巨型 gif 是因为源站（如王摸鱼）传输太慢导致连接断开被丢弃。
+                const descriptionContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
+                    const proxyUrl = `https://cf-p.trainspott.in/?url=${encodeURIComponent(p2)}`;
+                    return `<img${p1}src="${proxyUrl}"${p3}>`;
+                });
 
                 // 创建RSS条目
                 return {
                     author: apiItem.author,
                     description: descriptionContent,
-                    title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}...`,
+                    title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}-v4`,
                     pubDate: parseDate(apiItem.date_gmt),
                     link: `${rootUrl}/t/${apiItem.id}`,
-                    guid: `${rootUrl}/t/${apiItem.id}#v2`, // 强制刷新订阅缓存
+                    guid: `${rootUrl}/t/${apiItem.id}#v4`, // 强制刷新订阅缓存
                     isShow: isPositive && isSizeOk && isAuthorOk,
                 };
             });

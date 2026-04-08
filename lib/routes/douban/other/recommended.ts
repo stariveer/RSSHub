@@ -76,7 +76,7 @@ async function handler(ctx) {
             return rate >= score; // 保留rate大于等于score的项and过滤无评分项
         })
         .map((item) => {
-            const title = item.title;
+            const title = `${item.title}-v2`;
             const link = item.url;
             const coverUrl = item.cover_url || item.cover?.url;
             const description = art(path.join(__dirname, '../templates/list_description.art'), {

@@ -97,7 +97,10 @@ async function handler(/* ctx */) {
                 // 我们改用你的 Cloudflare Worker 代理这些图片，利用 CF 强大的边缘节点进行缓存，
                 // 因为很多时候 iOS WebView 或者是 Reeder 无法加载巨型 gif 是因为源站（如王摸鱼）传输太慢导致连接断开被丢弃。
                 const descriptionContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
-                    const proxyUrl = `https://cf-p.trainspott.in/?url=${encodeURIComponent(p2)}`;
+                    // 煎蛋 API 经常会返回压缩版本的图片如 mw1024，这不仅会导致无法获取 GIF 动图原始帧，甚至还会在 CF 代理时导致 404。
+                    // 因此我们将类似 /mw1024/, /bmiddle/ 之类的路径强制替换为 /large/
+                    const originalUrl = p2.replace(/\/(mw1024|bmiddle|small)\//i, '/large/');
+                    const proxyUrl = `https://cf-p.trainspott.in/?url=${encodeURIComponent(originalUrl)}`;
                     return `<img${p1}src="${proxyUrl}"${p3}>`;
                 });
 

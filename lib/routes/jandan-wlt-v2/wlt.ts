@@ -93,13 +93,17 @@ async function handler(/* ctx */) {
 
                 const isSizeOk = firstImgSize / (1024 * 1024) < sizeLimit;
 
+                // 将 gif 图片替换为 video 标签，iOS / WebKit 对 video 标签加载巨型 gif 的内存管理和预加载更好
+                const descriptionContent = content.replaceAll(/<img[^>]+src="([^"]+\.gif)"[^>]*>/gi, '<video src="$1" controls autoplay loop muted playsinline style="max-width: 100%; width: 100%;"></video>');
+
                 // 创建RSS条目
                 return {
                     author: apiItem.author,
-                    description: content,
+                    description: descriptionContent,
                     title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}...`,
                     pubDate: parseDate(apiItem.date_gmt),
                     link: `${rootUrl}/t/${apiItem.id}`,
+                    guid: `${rootUrl}/t/${apiItem.id}#v2`, // 强制刷新订阅缓存
                     isShow: isPositive && isSizeOk && isAuthorOk,
                 };
             });

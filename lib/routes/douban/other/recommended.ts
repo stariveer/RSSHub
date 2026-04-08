@@ -78,6 +78,7 @@ async function handler(ctx) {
         .map((item) => {
             const title = item.title;
             const link = item.url;
+            const coverUrl = item.cover_url || item.cover?.url;
             const description = art(path.join(__dirname, '../templates/list_description.art'), {
                 ranking_value: item.ranking_value,
                 title,
@@ -85,7 +86,7 @@ async function handler(ctx) {
                 rate: item.rating ? item.rating.value : null,
                 card_subtitle: item.card_subtitle,
                 description: item.cards ? item.cards[0].content : item.abstract,
-                cover: item.cover_url || item.cover?.url,
+                cover: coverUrl ? `https://cf-p.trainspott.in/?url=${encodeURIComponent(coverUrl)}` : undefined,
             });
             return {
                 title,

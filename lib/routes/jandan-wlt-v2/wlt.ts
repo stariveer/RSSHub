@@ -29,7 +29,7 @@ interface ApiItem {
     vote_negative: number;
     sub_comment_count: number;
     images: null | any;
-    post_title: string;
+    post_title: string; // 例如 "无聊图"
     ip_location: string;
 }
 
@@ -95,19 +95,30 @@ async function handler(/* ctx */) {
 
                 // 煎蛋 API 返回的图片链接有时是压缩版 /mw1024/ 路径，GIF 会被压成静态图甚至 404。
                 // 只需将压缩路径替换为 /large/ 即可获取原图，不需要走 CF 代理（代理反而有域名白名单限制等副作用）。
-                const descriptionContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
+                const fixedContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
                     const fixedUrl = p2.replace(/\/(mw1024|bmiddle|small)\//i, '/large/');
                     return `<img${p1}src="${fixedUrl}"${p3}>`;
                 });
 
-                // 创建RSS条目
+                // 格式化发布时间（UTC+8）
+                const pubDate = parseDate(apiItem.date_gmt);
+                const dateStr = pubDate.toLocaleString('zh-CN', {
+                    timeZone: 'Asia/Shanghai',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+                // 创建RSS条目，title 包含栏目、编号、作者和时间，description 只保留图片
                 return {
                     author: apiItem.author,
-                    description: descriptionContent,
-                    title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}...`,
-                    pubDate: parseDate(apiItem.date_gmt),
+                    description: fixedContent,
+                    title: `[No.${apiItem.id}] ${apiItem.author} · ${dateStr}`,
+                    pubDate,
                     link: `${rootUrl}/t/${apiItem.id}`,
-                    guid: `${rootUrl}/t/${apiItem.id}#v5`,
+                    guid: `${rootUrl}/t/${apiItem.id}#v8`,
                     isShow: isPositive && isSizeOk && isAuthorOk,
                 };
             });

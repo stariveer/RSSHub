@@ -93,25 +93,21 @@ async function handler(/* ctx */) {
 
                 const isSizeOk = firstImgSize / (1024 * 1024) < sizeLimit;
 
-                // 恢复为 img 标签，因为 Reeder 的原生视频播放器无法解码 image/gif 会一直转圈/报错。
-                // 我们改用你的 Cloudflare Worker 代理这些图片，利用 CF 强大的边缘节点进行缓存，
-                // 因为很多时候 iOS WebView 或者是 Reeder 无法加载巨型 gif 是因为源站（如王摸鱼）传输太慢导致连接断开被丢弃。
+                // 煎蛋 API 返回的图片链接有时是压缩版 /mw1024/ 路径，GIF 会被压成静态图甚至 404。
+                // 只需将压缩路径替换为 /large/ 即可获取原图，不需要走 CF 代理（代理反而有域名白名单限制等副作用）。
                 const descriptionContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
-                    // 煎蛋 API 经常会返回压缩版本的图片如 mw1024，这不仅会导致无法获取 GIF 动图原始帧，甚至还会在 CF 代理时导致 404。
-                    // 因此我们将类似 /mw1024/, /bmiddle/ 之类的路径强制替换为 /large/
-                    const originalUrl = p2.replace(/\/(mw1024|bmiddle|small)\//i, '/large/');
-                    const proxyUrl = `https://cf-p.trainspott.in/?url=${encodeURIComponent(originalUrl)}`;
-                    return `<img${p1}src="${proxyUrl}"${p3}>`;
+                    const fixedUrl = p2.replace(/\/(mw1024|bmiddle|small)\//i, '/large/');
+                    return `<img${p1}src="${fixedUrl}"${p3}>`;
                 });
 
                 // 创建RSS条目
                 return {
                     author: apiItem.author,
                     description: descriptionContent,
-                    title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}-v4`,
+                    title: `${apiItem.author}: ${apiItem.content.replaceAll(/<[^>]+>/g, '').substring(0, 50)}...`,
                     pubDate: parseDate(apiItem.date_gmt),
                     link: `${rootUrl}/t/${apiItem.id}`,
-                    guid: `${rootUrl}/t/${apiItem.id}#v4`, // 强制刷新订阅缓存
+                    guid: `${rootUrl}/t/${apiItem.id}#v5`,
                     isShow: isPositive && isSizeOk && isAuthorOk,
                 };
             });

@@ -47,9 +47,16 @@ async function getImageSize(url: string): Promise<number> {
         // @ts-ignore
         // eslint-disable-next-line no-console
         console.error('Error occurred while sending HEAD request:', error.message);
+        // 请求失败时返回 0，即视为正常大小（0MB < sizeLimit），不因网络问题误过滤图片
         return 0;
     }
 }
+
+const defaultHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+    Referer: rootUrl,
+    Cookie: cookie,
+};
 
 async function handler(/* ctx */) {
     // const { query } = ctx.req;
@@ -59,39 +66,33 @@ async function handler(/* ctx */) {
     const seenIds = new Set(); // 用于去重
 
     async function getOnePage(page: number) {
-        const headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-            Referer: rootUrl,
-            Cookie: cookie,
-        };
-
         const response = await got({
             method: 'get',
             url: `${apiUrl}?page=${page}`,
-            headers,
+            headers: defaultHeaders,
         });
 
         const data = response.data;
         if (data.code === 0 && data.data?.list && Array.isArray(data.data.list)) {
             const items: Promise<Item>[] = data.data.list.map(async (apiItem: ApiItem) => {
+                const content = apiItem.content;
+
                 // 判断是否符合点赞条件
                 const isPositive = apiItem.vote_positive > vote_positive && apiItem.vote_positive / (apiItem.vote_positive + apiItem.vote_negative) > positive_rate;
 
                 // 判断作者是否在黑名单中
                 const isAuthorOk = !authorBlackList.includes(apiItem.author);
 
-                // 提取图片URL并检查大小
-                const imgRegex = /<img\s+src="([^"]+)"/g;
-                let matches;
-                let firstImgSize = 0;
-                const content = apiItem.content;
-
-                if ((matches = imgRegex.exec(content)) !== null) {
-                    const imgUrl = matches[1];
-                    firstImgSize = await getImageSize(imgUrl);
+                // 短路：点赞不达标或作者在黑名单，直接跳过 HEAD 请求
+                let isSizeOk = true;
+                if (isPositive && isAuthorOk) {
+                    const imgRegex = /<img\s+src="([^"]+)"/g;
+                    const matches = imgRegex.exec(content);
+                    if (matches) {
+                        const firstImgSize = await getImageSize(matches[1]);
+                        isSizeOk = firstImgSize / (1024 * 1024) < sizeLimit;
+                    }
                 }
-
-                const isSizeOk = firstImgSize / (1024 * 1024) < sizeLimit;
 
                 // 煎蛋 API 返回的图片链接有时是压缩版 /mw1024/ 路径，GIF 会被压成静态图甚至 404。
                 // 只需将压缩路径替换为 /large/ 即可获取原图，不需要走 CF 代理（代理反而有域名白名单限制等副作用）。
@@ -124,16 +125,10 @@ async function handler(/* ctx */) {
     }
 
     // 先获取总页数
-    const headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        Referer: rootUrl,
-        Cookie: cookie,
-    };
-
     const response = await got({
         method: 'get',
         url: apiUrl,
-        headers,
+        headers: defaultHeaders,
     });
 
     const data = response.data;

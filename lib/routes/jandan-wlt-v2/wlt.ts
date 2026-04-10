@@ -100,25 +100,15 @@ async function handler(/* ctx */) {
                     return `<img${p1}src="${fixedUrl}"${p3}>`;
                 });
 
-                // 格式化发布时间（UTC+8）
+                // 创建RSS条目，title 包含编号和作者，description 只保留图片
                 const pubDate = parseDate(apiItem.date_gmt);
-                const dateStr = pubDate.toLocaleString('zh-CN', {
-                    timeZone: 'Asia/Shanghai',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                });
-
-                // 创建RSS条目，title 包含栏目、编号、作者和时间，description 只保留图片
                 return {
                     author: apiItem.author,
                     description: fixedContent,
-                    title: `[No.${apiItem.id}] ${apiItem.author} · ${dateStr}`,
+                    title: `[No.${apiItem.id}] ${apiItem.author}`,
                     pubDate,
                     link: `${rootUrl}/t/${apiItem.id}`,
-                    guid: `${rootUrl}/t/${apiItem.id}#v8`,
+                    guid: `${rootUrl}/t/${apiItem.id}#v9`,
                     isShow: isPositive && isSizeOk && isAuthorOk,
                 };
             });

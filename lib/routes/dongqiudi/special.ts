@@ -36,9 +36,8 @@ async function handler(ctx) {
     const out = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const { data: response } = await got(item.mobileLink);
-
-                utils.ProcessFeedType3(item, response);
+                const id = item.link.match(/articles\/(\d+)\.html/)[1];
+                await utils.ProcessFeedType2(item, id);
 
                 return item;
             })

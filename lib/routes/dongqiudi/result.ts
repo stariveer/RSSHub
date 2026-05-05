@@ -1,6 +1,6 @@
+import { config } from '@/config';
 import { Route } from '@/types';
 import got from '@/utils/got';
-import { JSDOM } from 'jsdom';
 import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
@@ -21,16 +21,24 @@ export const route: Route = {
 
 async function handler(ctx) {
     const team = ctx.req.param('team');
-    const link = `https://www.dongqiudi.com/team/${team}.html`;
+    const link = `https://www.dongqiudi.com/team/${team}`;
 
-    const response = await got(link);
-    const dom = new JSDOM(response.data, {
-        runScripts: 'dangerously',
+    const metadataUrl = `https://www.dongqiudi.com/sport-data/soccer/biz/dqd/team/sample/${team}?app=dqd&lang=zh-cn`;
+    const { data: metadataResponse } = await got(metadataUrl, {
+        headers: {
+            'user-agent': config.trueUA,
+        },
     });
-    const data = dom.window.__NUXT__.data[0];
-    const resultData = data.teamScheduleData.filter((data) => data.fs_A && data.fs_B);
+    const teamName = metadataResponse.team_name;
 
-    const teamName = data.teamDetail.base_info.team_name;
+    const scheduleUrl = `https://www.dongqiudi.com/sport-data/soccer/biz/dqd/team/schedule/${team}?app=dqd&lang=zh-cn`;
+    const { data: scheduleResponse } = await got(scheduleUrl, {
+        headers: {
+            'user-agent': config.trueUA,
+        },
+    });
+
+    const resultData = scheduleResponse.list.filter((match) => match.fs_A && match.fs_B);
 
     const out = resultData.map((result) => ({
         title: `${result.match_title} ${result.team_A_name} ${result.fs_A}-${result.fs_B} ${result.team_B_name}`,

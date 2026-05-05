@@ -40,6 +40,7 @@ async function handler(ctx) {
     const list = articles.map((item) => ({
         title: item.title,
         link: `https://www.dongqiudi.com/articles/${item.id}.html`,
+        id: item.id,
         category: [item.category, ...(item.secondary_category ?? [])],
         pubDate: parseDate(item.show_time),
     }));
@@ -47,8 +48,7 @@ async function handler(ctx) {
     const out = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const { data: response } = await got(item.link);
-                utils.ProcessFeedType2(item, response);
+                await utils.ProcessFeedType2(item, item.id);
                 return item;
             })
         )

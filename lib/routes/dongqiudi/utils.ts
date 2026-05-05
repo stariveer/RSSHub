@@ -1,8 +1,8 @@
+import { config } from '@/config';
 import cache from '@/utils/cache';
-import { load } from 'cheerio';
 import got from '@/utils/got';
-import { JSDOM } from 'jsdom';
 import { parseDate } from '@/utils/parse-date';
+import { load } from 'cheerio';
 
 const ProcessVideo = (content) => {
     content('div.video').each((i, v) => {
@@ -63,22 +63,28 @@ const ProcessImg = (content) => {
 };
 
 const ProcessFeed = async (ctx, type, id) => {
-    const link = `https://www.dongqiudi.com/${type}/${id}.html`;
-    const apiUrl = `https://api.dongqiudi.com/v3/archive/app/channel/feeds`;
-    const { data: response } = await got(link);
+    const link = `https://www.dongqiudi.com/${type}/${id}`;
+    const apiUrl = 'https://api.dongqiudi.com/v3/archive/app/channel/feeds';
 
-    let name;
+    const metadataUrl = type === 'team' ? `https://www.dongqiudi.com/sport-data/soccer/biz/dqd/team/sample/${id}?app=dqd&lang=zh-cn` : `https://www.dongqiudi.com/sport-data/soccer/biz/dqd/v1/person/sample/${id}?app=dqd&lang=zh-cn`;
 
-    const { window } = new JSDOM(response, {
-        runScripts: 'dangerously',
+    const { data: metadataResponse } = await got(metadataUrl, {
+        headers: {
+            'user-agent': config.trueUA,
+        },
     });
 
-    const typeInfo = window.__NUXT__.data[0][`${type}Detail`].base_info;
-    if (type === 'team') {
-        name = typeInfo.team_name;
-    } else if (type === 'player') {
-        name = typeInfo.person_name;
-    }
+    const typeInfo =
+        type === 'team'
+            ? {
+                  name: metadataResponse.team_name,
+                  logo: metadataResponse.team_logo,
+              }
+            : {
+                  name: metadataResponse.person_name,
+                  logo: metadataResponse.person_logo,
+              };
+    const name = typeInfo.name;
 
     const { data } = await got(apiUrl, {
         searchParams: {
@@ -100,9 +106,8 @@ const ProcessFeed = async (ctx, type, id) => {
     const out = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const { data: response } = await got(item.link);
-
-                ProcessFeedType2(item, response);
+                const id = item.link.match(/articles\/(\d+)\.html/)[1];
+                await ProcessFeedType2(item, id);
 
                 return item;
             })
@@ -112,24 +117,22 @@ const ProcessFeed = async (ctx, type, id) => {
     return {
         title: `${name} - 相关新闻`,
         link,
-        image: type === 'team' ? typeInfo.team_logo : typeInfo.person_logo,
+        image: typeInfo.logo,
         item: out,
     };
 };
 
-const ProcessFeedType2 = (item, response) => {
-    const dom = new JSDOM(response, {
-        runScripts: 'dangerously',
+const ProcessFeedType2 = async (item, id) => {
+    const url = `https://www.dongqiudi.com/api/v2/article/detail/${id}`;
+    const { data: response } = await got(url, {
+        headers: {
+            'user-agent': config.trueUA,
+        },
     });
 
-    const data = dom.window.__NUXT__.data[0].newData;
+    const data = response.data;
 
-    // filter out undefined item
-    if (!data) {
-        return;
-    }
-
-    if (Object.keys(data).length > 0) {
+    if (data && Object.keys(data).length > 0) {
         const body = ProcessVideo(load(data.body, null, false));
         ProcessHref(body('a'));
         ProcessImg(body('img'));

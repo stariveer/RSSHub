@@ -8,7 +8,17 @@ import { type PuppeteerExtra, addExtra } from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 const options = {
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-infobars', '--window-position=0,0', '--ignore-certificate-errors', '--ignore-certificate-errors-spki-list', `--user-agent=${config.ua}`],
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-infobars',
+        '--window-position=0,0',
+        '--ignore-certificate-errors',
+        '--ignore-certificate-errors-spki-list',
+        `--user-agent=${config.ua}`,
+        '--disable-quic',
+        '--disable-http2',
+    ],
     headless: true,
     ignoreHTTPSErrors: true,
 };
@@ -21,6 +31,7 @@ const options = {
 const outPuppeteer = async (
     extraOptions: {
         stealth?: boolean;
+        browserTimeout?: number;
     } = {}
 ) => {
     let insidePuppeteer: PuppeteerExtra | typeof puppeteer = puppeteer;
@@ -29,17 +40,22 @@ const outPuppeteer = async (
         insidePuppeteer.use(StealthPlugin());
     }
 
+    const launchOptions = {
+        ...options,
+        args: [...options.args],
+    };
+
     if (proxy.proxyUri) {
         if (proxy.proxyUrlHandler?.username || proxy.proxyUrlHandler?.password) {
             // only proxies with authentication need to be anonymized
             if (proxy.proxyUrlHandler.protocol === 'http:') {
-                options.args.push(`--proxy-server=${await proxyChain.anonymizeProxy(proxy.proxyUri)}`);
+                launchOptions.args.push(`--proxy-server=${await proxyChain.anonymizeProxy(proxy.proxyUri)}`);
             } else {
                 logger.warn('SOCKS/HTTPS proxy with authentication is not supported by puppeteer, continue without proxy');
             }
         } else {
             // Chromium cannot recognize socks5h and socks4a, so we need to trim their postfixes
-            options.args.push(`--proxy-server=${proxy.proxyUri.replace('socks5h://', 'socks5://').replace('socks4a://', 'socks4://')}`);
+            launchOptions.args.push(`--proxy-server=${proxy.proxyUri.replace('socks5h://', 'socks5://').replace('socks4a://', 'socks4://')}`);
         }
     }
     const browser = await (config.puppeteerWSEndpoint
@@ -50,13 +66,16 @@ const outPuppeteer = async (
               config.chromiumExecutablePath
                   ? {
                         executablePath: config.chromiumExecutablePath,
-                        ...options,
+                        ...launchOptions,
                     }
-                  : options
+                  : launchOptions
           ));
-    setTimeout(() => {
-        browser.close();
-    }, 30000);
+    const closeTimer = setTimeout(() => {
+        void browser.close();
+    }, extraOptions.browserTimeout || 30000);
+    browser.once('disconnected', () => {
+        clearTimeout(closeTimer);
+    });
 
     return browser;
 };

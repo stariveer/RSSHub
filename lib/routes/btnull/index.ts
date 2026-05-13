@@ -1,7 +1,5 @@
 import { Route } from '@/types';
-import got from '@/utils/got';
-import vm from 'node:vm';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import puppeteer from '@/utils/puppeteer';
 
 interface CatesMap {
     [key: string]: { text: string; key: string };
@@ -17,78 +15,37 @@ const catesMap: CatesMap = {
     kr: { text: '韩国', key: '韩国' },
 };
 
-const tagPool: string[] = [
-    '美国',
-    '大陆',
-    '日本',
-    '剧情',
-    '科幻',
-    '动作',
-    '喜剧',
-    '爱情',
-    '冒险',
-    '犯罪',
-    '悬疑',
-    '儿童',
-    '歌舞',
-    '音乐',
-    '奇幻',
-    '动画',
-    '恐怖',
-    '惊悚',
-    '丧尸',
-    '战争',
-    '传记',
-    '纪录',
-    '西部',
-    '灾难',
-    '古装',
-    '武侠',
-    '家庭',
-    '短片',
-    '校园',
-    '文艺',
-    '运动',
-    '青春',
-    '同性',
-    '励志',
-    '人性',
-    '美食',
-    '女性',
-    '治愈',
-    '历史',
-    '真人秀',
-    '脱口秀',
-    '萌系',
-    '日常',
-    '热血',
-    '机战',
-    '游戏',
-    '情色',
-    '搞笑',
-    '恋爱',
-    '后宫',
-    '百合',
-    '基腐',
-    '致郁',
-    '异世界',
-    '泡面',
-    '战斗',
-    '加拿大',
-    '香港',
-    '台湾',
-    '韩国',
-    '印度',
-    '德国',
-    '法国',
-    '英国',
-    '意大利',
-];
-
-const imgPre = `https://s.tutu.pm/img/mv`;
-
 const envs = process.env;
 const btnullDomain = envs.BTNULL_DOMAIN || '教父.com';
+const volatileCookieNames = new Set(['browser_verified', 'vrg_go', 'vrg_sc']);
+
+function getAuthCookies(cookieString: string | undefined, domain: string) {
+    if (!cookieString) {
+        return [];
+    }
+
+    return cookieString
+        .split(/;\s*/)
+        .map((pair) => {
+            const eqIdx = pair.indexOf('=');
+            if (eqIdx === -1) {
+                return null;
+            }
+
+            const name = pair.slice(0, eqIdx).trim();
+            if (!name || volatileCookieNames.has(name)) {
+                return null;
+            }
+
+            return {
+                name,
+                value: pair.slice(eqIdx + 1).trim(),
+                domain: `.${domain}`,
+                path: '/',
+            };
+        })
+        .filter(Boolean);
+}
 
 async function handler(ctx: any) {
     const { req } = ctx;
@@ -97,63 +54,18 @@ async function handler(ctx: any) {
     const score = params.score || 7;
     const year = params.year || '';
 
-    // const url = `https://www.${btnullDomain}/mv/-${year}-${catesMap[cate].key}--${score},10`;
-    const url = `https://www.${btnullDomain}/mv?year=${year}&region=${catesMap[cate].key}&sort=addtime&rrange=${score}_10`;
-    // console.log('##url', url);
+    // 使用 URL 对象自动将中文域名转换为 Punycode (如 教父.com -> xn--wcv59z.com)，
+    // 否则在配合 Clash TUN/无头浏览器时容易引发 ERR_CONNECTION_RESET
+    const baseUrl = new URL(`https://www.${btnullDomain}/mv`);
+    baseUrl.searchParams.set('year', year);
+    baseUrl.searchParams.set('region', catesMap[cate].key);
+    baseUrl.searchParams.set('sort', 'addtime');
+    baseUrl.searchParams.set('rrange', `${score}_10`);
 
-    // console.log('##envs.BTNULL_AUTH_COOKIE', envs.BTNULL_AUTH_COOKIE);
+    const url = baseUrl.href;
+    const punycodeDomain = baseUrl.hostname.replace(/^www\./, '');
 
-    const gotOptions: Parameters<typeof got>[0] = {
-        method: 'get',
-        url,
-        headers: {
-            Cookie: envs.BTNULL_AUTH_COOKIE,
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25',
-        },
-    };
-
-    const proxyUrl = envs.PROXY_URL;
-    if (proxyUrl && url.startsWith('https://')) {
-        gotOptions.agent = {
-            https: new HttpsProxyAgent(proxyUrl),
-        };
-    }
-    // Example for HTTP proxy if needed in the future:
-    // else if (proxyUrl && url.startsWith('http://')) {
-    // import { HttpProxyAgent } from 'http-proxy-agent'; // Would need to be at the top
-    //     gotOptions.agent = {
-    //         http: new HttpProxyAgent(proxyUrl),
-    //     };
-    // }
-
-    const response = await got(gotOptions);
-    // console.log('##response', response);
-
-    // 检查是否被重定向到验证页面
-    if (response.data.includes('正在确认你是不是机器人') || response.data.includes("_BT.M.HTML('login')")) {
-        throw new Error('Access denied: Robot verification or login required. Please check if BTNULL_AUTH_COOKIE is properly set and valid.');
-    }
-
-    const regexp = /_obj\.inlist\s*=\s*({[\S\s]*?})\s*;/;
-    const match = response.data.match(regexp);
-    if (!match) {
-        // 截取响应数据的前1000个字符用于调试
-        const preview = response.data.substring(0, 1000);
-        throw new Error(`Failed to parse response data: no match found. Response preview: ${preview}`);
-    }
-
-    const sandbox = { _obj: { inlist: {} } };
-    vm.createContext(sandbox);
-    vm.runInContext(`_obj.inlist = ${match[1]};`, sandbox);
-    const obj = sandbox._obj.inlist as any;
-
-    const {
-        t, // 标题
-        a, // tags
-        d, // 豆瓣评分
-        i, // 短链
-    } = obj;
-
+    const browser = await puppeteer({ stealth: true, browserTimeout: 120000 });
     let out = [
         {
             title: 'empty for now',
@@ -161,21 +73,71 @@ async function handler(ctx: any) {
             description: `empty for now`,
         },
     ];
-    if (obj.t && obj.t.length) {
-        out = t.map((title: string, index: number) => {
-            const point = d[index];
-            const year = a[index][0];
-            const tags = a[index]
-                .slice(1)
-                .map((tagIndex: number) => tagPool[tagIndex])
-                .join(' ');
-            const item = {
-                title: `[${point}][${year} ${tags}]${title}`,
-                link: `https://${btnullDomain}/mv/${i[index]}`,
-                description: `<img src="${imgPre}/${i[index]}/384.avif">`,
-            };
-            return item;
-        });
+
+    try {
+        const page = await browser.newPage();
+        // 设置真实的桌面 UA
+        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36');
+
+        // 只注入长期登录 Cookie；browser_verified 等短期安全验证 Cookie 交给浏览器实时生成。
+        const cookies = getAuthCookies(envs.BTNULL_AUTH_COOKIE, punycodeDomain) as Parameters<typeof page.setCookie>[0][];
+        if (cookies.length > 0) {
+            await page.setCookie(...cookies);
+        }
+
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+        // WASM PoW 验证约需几十秒；通过后新版页面由外部脚本渲染 DOM，不再暴露 _obj.inlist。
+        const result = await page.waitForFunction(
+            () => {
+                if (document.querySelector('.nologin') || document.title.includes('未登录') || document.body?.innerHTML?.includes("_BT.M.HTML('login')")) {
+                    return 'nologin';
+                }
+                if (document.querySelector('ul.content-list')) {
+                    return 'ok';
+                }
+                return false;
+            },
+            { timeout: 90000, polling: 1000 }
+        );
+
+        const resultValue = await result.jsonValue();
+        if (resultValue === 'nologin') {
+            throw new Error('Access denied: Login required. Please update BTNULL_AUTH_COOKIE in .env with a valid app_auth session cookie from your browser.');
+        }
+
+        const items = await page.$$eval('ul.content-list > li', (elements) =>
+            elements.flatMap((element) => {
+                const imageLink = element.querySelector<HTMLAnchorElement>('.li-img a[href*="/mv/"]');
+                const titleLink = element.querySelector<HTMLAnchorElement>('.li-bottom h3 a[href*="/mv/"]') ?? imageLink;
+                const image = imageLink?.querySelector<HTMLImageElement>('img');
+                const imageUrl = image?.dataset.src ?? image?.src;
+                const rating = element.querySelector<HTMLElement>('.li-bottom h3 span')?.textContent?.trim();
+                const meta = element.querySelector<HTMLElement>('.li-bottom .tag')?.textContent?.trim();
+                const title = titleLink?.textContent?.trim() || titleLink?.title || image?.alt;
+                const link = titleLink?.href ?? imageLink?.href;
+
+                if (!title || !link) {
+                    return [];
+                }
+
+                return [
+                    {
+                        title: `${rating ? `[${rating}]` : ''}${meta ? `[${meta}]` : ''}${title}`,
+                        link,
+                        description: [imageUrl ? `<img src="${imageUrl}">` : '', meta ? `<p>${meta}</p>` : ''].filter(Boolean).join(''),
+                    },
+                ];
+            })
+        );
+
+        if (items.length > 0) {
+            out = items;
+        }
+
+        await page.close();
+    } finally {
+        await browser.close();
     }
 
     // year 参数支持两种格式：

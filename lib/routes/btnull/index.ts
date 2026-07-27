@@ -106,30 +106,152 @@ async function handler(ctx: any) {
             throw new Error('Access denied: Login required. Please update BTNULL_AUTH_COOKIE in .env with a valid app_auth session cookie from your browser.');
         }
 
-        const items = await page.$$eval('ul.content-list > li', (elements) =>
-            elements.flatMap((element) => {
-                const imageLink = element.querySelector<HTMLAnchorElement>('.li-img a[href*="/mv/"]');
-                const titleLink = element.querySelector<HTMLAnchorElement>('.li-bottom h3 a[href*="/mv/"]') ?? imageLink;
-                const image = imageLink?.querySelector<HTMLImageElement>('img');
-                const imageUrl = image?.dataset.src ?? image?.src;
-                const rating = element.querySelector<HTMLElement>('.li-bottom h3 span')?.textContent?.trim();
-                const meta = element.querySelector<HTMLElement>('.li-bottom .tag')?.textContent?.trim();
-                const title = titleLink?.textContent?.trim() || titleLink?.title || image?.alt;
-                const link = titleLink?.href ?? imageLink?.href;
+        const html = await page.content();
+        let items: any[] = [];
 
-                if (!title || !link) {
-                    return [];
+        const match = html.match(/_obj\.inlist\s*=\s*({[\S\s]*?});/);
+        if (match) {
+            try {
+                // eslint-disable-next-line no-new-func
+                const inlist = new Function(`return ${match[1]}`)();
+                if (inlist && Array.isArray(inlist.t)) {
+                    const areaMap = [
+                        '美国',
+                        '大陆',
+                        '日本',
+                        '剧情',
+                        '科幻',
+                        '动作',
+                        '喜剧',
+                        '爱情',
+                        '冒险',
+                        '犯罪',
+                        '悬疑',
+                        '儿童',
+                        '歌舞',
+                        '音乐',
+                        '奇幻',
+                        '动画',
+                        '恐怖',
+                        '惊悚',
+                        '丧尸',
+                        '战争',
+                        '传记',
+                        '纪录',
+                        '西部',
+                        '灾难',
+                        '古装',
+                        '武侠',
+                        '家庭',
+                        '短片',
+                        '校园',
+                        '文艺',
+                        '运动',
+                        '青春',
+                        '同性',
+                        '励志',
+                        '人性',
+                        '美食',
+                        '女性',
+                        '治愈',
+                        '历史',
+                        '真人秀',
+                        '脱口秀',
+                        '萌系',
+                        '日常',
+                        '热血',
+                        '机战',
+                        '游戏',
+                        '情色',
+                        '搞笑',
+                        '恋爱',
+                        '后宫',
+                        '百合',
+                        '基腐',
+                        '致郁',
+                        '异世界',
+                        '泡面',
+                        '战斗',
+                        '加拿大',
+                        '香港',
+                        '台湾',
+                        '韩国',
+                        '印度',
+                        '德国',
+                        '法国',
+                        '英国',
+                        '意大利',
+                        '巴西',
+                        '泰国',
+                        '澳大利亚',
+                        '荷兰',
+                        '西班牙',
+                        '墨西哥',
+                    ];
+
+                    const formatMeta = (arr: any) => {
+                        if (!Array.isArray(arr)) {
+                            return '';
+                        }
+                        return arr.map((v, i) => (i === 0 ? v : areaMap[v] || v)).join(' / ');
+                    };
+
+                    items = inlist.t.flatMap((title: string, n: number) => {
+                        const id = inlist.i?.[n];
+                        if (!title || !id) {
+                            return [];
+                        }
+
+                        const rawScore = Number(inlist.d?.[n]);
+                        const rating = !Number.isNaN(rawScore) && rawScore > 0 ? (Number.isInteger(rawScore) ? `${rawScore}.0` : String(rawScore)) : undefined;
+                        const meta = formatMeta(inlist.a?.[n]);
+
+                        const ty = (Array.isArray(inlist.ty) ? inlist.ty[n] : inlist.ty) || 'mv';
+                        const link = `https://${btnullDomain}/${ty}/${id}`;
+
+                        return [
+                            {
+                                title: `${rating ? `[${rating}]` : ''}${meta ? `[${meta}]` : ''}${title}`,
+                                link,
+                                description: [meta ? `<p>${meta}</p>` : ''].filter(Boolean).join(''),
+                            },
+                        ];
+                    });
                 }
+            } catch {
+                // ignore
+            }
+        }
 
-                return [
-                    {
-                        title: `${rating ? `[${rating}]` : ''}${meta ? `[${meta}]` : ''}${title}`,
-                        link,
-                        description: [imageUrl ? `<img src="${imageUrl}">` : '', meta ? `<p>${meta}</p>` : ''].filter(Boolean).join(''),
-                    },
-                ];
-            })
-        );
+        // Fallback: 如果无法从 HTML 中的 inlist 解析，再降级使用 $$eval 提取 DOM 节点
+        if (items.length === 0) {
+            items = await page.$$eval('ul.content-list > li', (elements) =>
+                elements.flatMap((element) => {
+                    const imageLink = element.querySelector<HTMLAnchorElement>('.li-img a');
+                    const titleLink = element.querySelector<HTMLAnchorElement>('.li-bottom h3 a') ?? imageLink;
+                    const image = imageLink?.querySelector<HTMLImageElement>('img');
+                    const imageUrl = image?.dataset?.src ?? image?.src;
+                    const ratingElement = element.querySelector<HTMLElement>('.bottom i') ?? element.querySelector<HTMLElement>('.li-img .bottom i') ?? element.querySelector<HTMLElement>('.li-bottom h3 span');
+                    const rawRating = ratingElement?.textContent?.trim();
+                    const rating = rawRating && rawRating !== '--' ? rawRating : undefined;
+                    const meta = element.querySelector<HTMLElement>('.li-bottom .tag')?.textContent?.trim();
+                    const title = titleLink?.textContent?.trim() || titleLink?.title || image?.alt;
+                    const link = titleLink?.href ?? imageLink?.href;
+
+                    if (!title || !link) {
+                        return [];
+                    }
+
+                    return [
+                        {
+                            title: `${rating ? `[${rating}]` : ''}${meta ? `[${meta}]` : ''}${title}`,
+                            link,
+                            description: [imageUrl ? `<img src="${imageUrl}">` : '', meta ? `<p>${meta}</p>` : ''].filter(Boolean).join(''),
+                        },
+                    ];
+                })
+            );
+        }
 
         if (items.length > 0) {
             out = items;

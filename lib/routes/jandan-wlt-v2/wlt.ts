@@ -97,7 +97,10 @@ async function handler(/* ctx */) {
                 // 煎蛋 API 返回的图片链接有时是压缩版 /mw1024/ 路径，GIF 会被压成静态图甚至 404。
                 // 只需将压缩路径替换为 /large/ 即可获取原图，不需要走 CF 代理（代理反而有域名白名单限制等副作用）。
                 const fixedContent = content.replaceAll(/<img([^>]+)src="([^"]+)"([^>]*)>/gi, (match, p1, p2, p3) => {
-                    const fixedUrl = p2.replace(/\/(mw1024|bmiddle|small)\//i, '/large/');
+                    // 微博图片特征：域名后跟一个代表尺寸的目录，接着是长哈希文件名。利用这个特征兜底替换所有缩略图目录为 large
+                    let fixedUrl = p2.replace(/(\/\/[^/]+\/)[^/]+\/([\da-z]{20,}\.(?:jpg|jpeg|png|gif|webp))/i, '$1large/$2');
+                    // 针对非标准哈希长度老图片，保留显式的尺寸关键字替换
+                    fixedUrl = fixedUrl.replace(/\/(mw1024|mw690|mw2000|bmiddle|small|square|thumb(?:nail)?|orj360|orj480|orj1080|oslarge)\//i, '/large/');
                     return `<img${p1}src="${fixedUrl}"${p3}>`;
                 });
 

@@ -39,7 +39,7 @@ async function handler(ctx) {
 
     const list = articles.map((item) => ({
         title: item.title,
-        link: `https://www.dongqiudi.com/articles/${item.id}.html`,
+        link: `https://www.dongqiudi.com/article/${item.id}.html`,
         id: item.id,
         category: [item.category, ...(item.secondary_category ?? [])],
         pubDate: parseDate(item.show_time),

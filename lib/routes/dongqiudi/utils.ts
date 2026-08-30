@@ -98,7 +98,7 @@ const ProcessFeed = async (ctx, type, id) => {
 
     const list = data.data.articles.map((article) => ({
         title: article.title,
-        link: `https://www.dongqiudi.com/articles/${article.id}.html`,
+        link: `https://www.dongqiudi.com/article/${article.id}.html`,
         category: [article.category, ...(article.secondary_category ?? [])],
         pubDate: parseDate(article.show_time),
     }));
@@ -106,7 +106,7 @@ const ProcessFeed = async (ctx, type, id) => {
     const out = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const id = item.link.match(/articles\/(\d+)\.html/)[1];
+                const id = item.link.match(/articles?\/(\d+)\.html/)[1];
                 await ProcessFeedType2(item, id);
 
                 return item;

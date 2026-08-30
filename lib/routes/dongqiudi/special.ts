@@ -28,7 +28,7 @@ async function handler(ctx) {
 
     const list = response.data.map((item) => ({
         title: item.title,
-        link: `https://www.dongqiudi.com/articles/${item.aid}.html`,
+        link: `https://www.dongqiudi.com/article/${item.aid}.html`,
         mobileLink: `https://m.dongqiudi.com/article/${item.aid}.html`,
         pubDate: parseDate(item.show_time, 'X'),
     }));
@@ -36,7 +36,7 @@ async function handler(ctx) {
     const out = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const id = item.link.match(/articles\/(\d+)\.html/)[1];
+                const id = item.link.match(/articles?\/(\d+)\.html/)[1];
                 await utils.ProcessFeedType2(item, id);
 
                 return item;
